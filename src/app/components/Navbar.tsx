@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { Input } from "./ui/input";
-import { Search, User, X } from "lucide-react";
+import { Bell, Search, User, X } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -20,7 +20,10 @@ export default function Navbar() {
           {/* прибрати якшо нічого немає в інпуті */}
           <X className="absolute right-2.5 top-2 text-gray-400 h-5 w-5" />
         </div>
-        <User />
+        <div className="flex gap-4">
+          <Bell className="hover:text-[#8A3CFF] cursor-pointer" />
+          <User className="hover:text-[#8A3CFF] cursor-pointer" />
+        </div>
       </div>
     </>
   );
