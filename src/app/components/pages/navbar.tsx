@@ -1,12 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 import { Bell, Search, User, X } from "lucide-react";
 
 export default function Navbar() {
   return (
     <>
-      <div className="flex justify-between py-5 items-center shadow-md px-20">
+      <div
+        className="sticky top-0 z-99 flex justify-between py-5 items-center border-b-[1px]
+       border-gray-200 px-20 bg-white shadow-sm"
+      >
         <div className="flex flex-row gap-2 items-center">
           <Image src="/logo.svg" alt="Logo" width={40} height={40} />
           <span className="font-extrabold text-xl ">SocialV</span>
