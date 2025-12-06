@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Badge } from "../ui/badge";
+
 import {
   Ellipsis,
   MessageCircle,
@@ -11,7 +10,9 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 
 // Масив з 5 об'єктів (у 3-х є фото)
 const postsData = [
@@ -108,7 +109,7 @@ export default function PostsPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{post.name}</h3>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant={"default"} className="text-xs">
                       {post.position}
                     </Badge>
                   </div>

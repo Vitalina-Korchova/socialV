@@ -1,7 +1,8 @@
 import React from "react";
+
+import { Plus, User } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, User } from "lucide-react";
 
 export default function TopUsers() {
   const topUsers = [

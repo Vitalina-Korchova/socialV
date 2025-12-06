@@ -1,9 +1,10 @@
 import React from "react";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+
 import { User, Home, MessageCircle } from "lucide-react";
 import Image from "next/image";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 export default function CardProfileOptions() {
   return (
@@ -27,20 +28,20 @@ export default function CardProfileOptions() {
           </div>
           <div>
             <h3 className="font-semibold text-base">Robert Fox</h3>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="default" className="text-xs">
               Software Engineer
             </Badge>
           </div>
         </div>
         <div className="pt-16 pb-5">
-          <Button className=" w-full justify-start bg-[#8A3CFF]  cursor-pointer">
+          <Button className=" w-full justify-start  cursor-pointer">
             <Home className="w-4 h-4 mr-3" />
             Home
           </Button>
 
           <Button
             variant="ghost"
-            className="w-full justify-start hover:bg-[#eee5fc] cursor-pointer"
+            className="w-full justify-start  cursor-pointer"
           >
             <User className="w-4 h-4 mr-3" />
             Profile
@@ -48,7 +49,7 @@ export default function CardProfileOptions() {
 
           <Button
             variant="ghost"
-            className="w-full justify-start hover:bg-[#eee5fc] cursor-pointer"
+            className="w-full justify-start  cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 mr-3" />
             Messages

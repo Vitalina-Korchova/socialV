@@ -1,14 +1,16 @@
 import React from "react";
 import Image from "next/image";
-import { Input } from "../ui/input";
+
 import { Bell, Search, User, X } from "lucide-react";
+import { Input } from "../ui/input";
+import { Card } from "../ui/card";
 
 export default function Navbar() {
   return (
     <>
-      <div
-        className="sticky top-0 z-99 flex justify-between py-5 items-center border-b-[1px]
-       border-gray-200 px-20 bg-white shadow-sm"
+      <Card
+        className="sticky top-0 z-99 flex flex-row justify-between py-5 items-center border-b-[1px]
+        px-20 shadow-sm rounded-none"
       >
         <div className="flex flex-row gap-2 items-center">
           <Image src="/logo.svg" alt="Logo" width={40} height={40} />
@@ -27,7 +29,7 @@ export default function Navbar() {
           <Bell className="hover:text-[#8A3CFF] cursor-pointer" />
           <User className="hover:text-[#8A3CFF] cursor-pointer" />
         </div>
-      </div>
+      </Card>
     </>
   );
 }
