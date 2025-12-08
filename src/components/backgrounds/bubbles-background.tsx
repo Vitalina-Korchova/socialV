@@ -6,7 +6,6 @@ export default function BubblesBackground() {
   const [bubbles, setBubbles] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
-    // Генеруємо бульбашки тільки на клієнті
     const bubbleCount = 50;
     const newBubbles = [];
 
