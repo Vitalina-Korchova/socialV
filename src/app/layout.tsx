@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/pages/navbar";
-import BubblesBackground from "@/components/backgrounds/bubbles-background";
+import StarsBackground from "@/components/backgrounds/starsfalls-background";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <BubblesBackground />
+        <StarsBackground />
         <Navbar />
         {children}
       </body>
