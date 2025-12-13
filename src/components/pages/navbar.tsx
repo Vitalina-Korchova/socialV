@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-import { Bell, Search, User, X } from "lucide-react";
+import { Bell, Search, X } from "lucide-react";
 import { Input } from "../ui/input";
 import { Card } from "../ui/card";
 
@@ -27,7 +27,6 @@ export default function Navbar() {
         </div>
         <div className="flex gap-4">
           <Bell className="hover:text-[#8A3CFF] cursor-pointer" />
-          <User className="hover:text-[#8A3CFF] cursor-pointer" />
         </div>
       </Card>
     </>

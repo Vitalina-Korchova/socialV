@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 
 import {
+  Bookmark,
   Ellipsis,
   MessageCircle,
   Pin,
@@ -183,7 +184,7 @@ export default function PostsPage() {
                   </label>
                 </div>
                 <div className="text-muted-foreground flex flex-row gap-1 items-end justify-end">
-                  <Pin className="h-5 w-5" />
+                  <Bookmark className="h-5 w-5" />
                 </div>
               </div>
             </CardFooter>
