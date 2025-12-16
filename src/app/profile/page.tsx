@@ -1,20 +1,22 @@
+"use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Bookmark, FileText, Settings, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import CardProfileOptions from "@/components/pages/card-profile-options";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UserPosts from "@/components/profile/user-posts";
 
 export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState("posts");
+
   return (
     <>
       <div className="flex flex-row gap-6 py-6 px-8">
-        <CardProfileOptions />
         <div className="flex-1">
           <Card className="p-0! overflow-hidden">
-            <CardHeader className=" relative p-0! h-24 ">
-              <div className="abosulute top-0 right-0 left-0 ">
+            <CardHeader className="relative p-0! h-24">
+              <div className="abosulute top-0 right-0 left-0">
                 <Image
                   src="/card-back.jpg"
                   alt="background"
@@ -25,8 +27,8 @@ export default function ProfilePage() {
               </div>
             </CardHeader>
 
-            <CardContent className=" pb-5 px-12 flex justify-between items-center">
-              <div className="flex flex-row items-center  gap-4">
+            <CardContent className="pb-5 px-16 flex justify-between items-center">
+              <div className="flex flex-row items-center gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full overflow-hidden">
                     <Image
@@ -46,6 +48,16 @@ export default function ProfilePage() {
                   <Badge variant="default" className="text-xs">
                     Software Engineer
                   </Badge>
+                  {/* ПРИХОВУВАТИ ДЛЯ ІНШИХ ЛЮДЕЙ */}
+                  <div className="flex flex-row gap-3 items-center">
+                    <Image
+                      src="/coins-icon.svg"
+                      alt="location"
+                      width={20}
+                      height={20}
+                    />
+                    <span className="text-sm">234</span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row gap-5">
@@ -67,34 +79,63 @@ export default function ProfilePage() {
                 </div>
               </div>
             </CardContent>
-            <Tabs defaultValue="posts" className="w-full">
-              <div className="border-t border-gray-800">
+
+            <div className="border-t border-gray-800">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="w-full justify-center h-auto p-1 bg-transparent">
                   <TabsTrigger
                     value="posts"
-                    className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
                     <FileText className="w-4 h-4" />
                     My Posts
                   </TabsTrigger>
                   <TabsTrigger
                     value="saved"
-                    className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
                     <Bookmark className="w-4 h-4" />
                     Saved Posts
                   </TabsTrigger>
                   <TabsTrigger
                     value="settings"
-                    className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
                     <Settings className="w-4 h-4" />
                     Settings
                   </TabsTrigger>
                 </TabsList>
-              </div>
-            </Tabs>
+              </Tabs>
+            </div>
           </Card>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="posts" className="mt-6">
+              <UserPosts />
+            </TabsContent>
+
+            <TabsContent value="saved">
+              <div className="p-6">
+                <h3 className="text-xl font-bold">Saved Posts</h3>
+                <p className="mt-2 text-gray-600">
+                  This tab is under development
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <div className="p-6">
+                <h3 className="text-xl font-bold">Settings</h3>
+                <p className="mt-2 text-gray-600">
+                  Settings will be available soon
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </>
