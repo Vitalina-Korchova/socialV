@@ -24,7 +24,7 @@ export default function CardProfileOptions() {
       <CardContent className="space-y-1 relative">
         <div className="absolute top-[-45px]">
           <div className="w-14 h-14 relative flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full overflow-hidden">
+            <div className="absolute inset-0  overflow-hidden">
               <Image
                 src="/border.webp"
                 alt="animated border"
@@ -37,14 +37,17 @@ export default function CardProfileOptions() {
               <User className="w-5 h-5 text-blue-600" />
             </div>
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
             <h3 className="font-semibold text-base">Robert Fox</h3>
             <Badge variant="default" className="text-xs">
               Software Engineer
             </Badge>
+            <span className="w-fit text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+              Lv. 4
+            </span>
           </div>
         </div>
-        <div className="pt-20 pb-5">
+        <div className="pt-28 pb-5">
           <Button className=" w-full justify-start  cursor-pointer">
             <Home className="w-4 h-4 mr-3" />
             Home

@@ -2,13 +2,17 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useState } from "react";
 import Image from "next/image";
-import { Bookmark, FileText, Settings, User } from "lucide-react";
+import { Bookmark, FileText, Settings, Store, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserPosts from "@/components/profile/user-posts";
+import SettingsProfile from "@/components/profile/settings-profile";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
+  const currentXP = 450;
+  const totalXP = 500;
+  const percentage = (currentXP / totalXP) * 100;
 
   return (
     <>
@@ -30,7 +34,7 @@ export default function ProfilePage() {
             <CardContent className="pb-5 px-16 flex justify-between items-center">
               <div className="flex flex-row items-center gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full overflow-hidden">
+                  <div className="absolute inset-0 overflow-hidden">
                     <Image
                       src="/border.webp"
                       alt="animated border"
@@ -48,15 +52,43 @@ export default function ProfilePage() {
                   <Badge variant="default" className="text-xs">
                     Software Engineer
                   </Badge>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-end text-xs">
+                      <span className="text-muted-foreground">
+                        Earned:{" "}
+                        <span className="font-medium text-foreground">
+                          {currentXP}/{totalXP} XP
+                        </span>
+                      </span>
+
+                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                        Lv. 4
+                      </span>
+                    </div>
+
+                    <div className="border border-purple-600 rounded-full h-4 overflow-hidden bg-gray-100">
+                      <div
+                        className="h-full transition-all duration-500
+                 bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+
                   {/* ПРИХОВУВАТИ ДЛЯ ІНШИХ ЛЮДЕЙ */}
-                  <div className="flex flex-row gap-3 items-center">
-                    <Image
-                      src="/coins-icon.svg"
-                      alt="location"
-                      width={20}
-                      height={20}
-                    />
-                    <span className="text-sm">234</span>
+                  <div className="flex flex-row gap-2 items-center">
+                    <span className="text-muted-foreground text-xs">
+                      Coins:
+                    </span>
+                    <div className="flex flex-row gap-3 items-center">
+                      <Image
+                        src="/coins-icon.svg"
+                        alt="location"
+                        width={20}
+                        height={20}
+                      />
+                      <span className="text-sm">234</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -108,6 +140,13 @@ export default function ProfilePage() {
                     <Settings className="w-4 h-4" />
                     Settings
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="store"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <Store className="w-4 h-4" />
+                    Store
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -118,7 +157,7 @@ export default function ProfilePage() {
               <UserPosts />
             </TabsContent>
 
-            <TabsContent value="saved">
+            <TabsContent value="saved" className="mt-6">
               <div className="p-6">
                 <h3 className="text-xl font-bold">Saved Posts</h3>
                 <p className="mt-2 text-gray-600">
@@ -127,13 +166,8 @@ export default function ProfilePage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="settings">
-              <div className="p-6">
-                <h3 className="text-xl font-bold">Settings</h3>
-                <p className="mt-2 text-gray-600">
-                  Settings will be available soon
-                </p>
-              </div>
+            <TabsContent value="settings" className="mt-6">
+              <SettingsProfile />
             </TabsContent>
           </Tabs>
         </div>
