@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useState } from "react";
 import Image from "next/image";
-import { Bookmark, FileText, Settings, Store, User } from "lucide-react";
+import { Bookmark, FileText, Settings, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserPosts from "@/components/profile/user-posts";
@@ -22,12 +22,13 @@ export default function ProfilePage() {
             <CardHeader className="relative p-0! h-24">
               <div className="abosulute top-0 right-0 left-0">
                 <Image
-                  src="/card-back.jpg"
+                  src="/back2.jpg"
                   alt="background"
-                  fill
-                  className="object-cover"
-                  priority
+                  height={750}
+                  width={750}
+                  className="object-cover w-full h-28"
                 />
+                <div className="absolute bottom-[-18px] left-0 right-0 h-16 bg-gradient-to-t from-[#18181B] to-transparent" />
               </div>
             </CardHeader>
 
@@ -139,13 +140,6 @@ export default function ProfilePage() {
                   >
                     <Settings className="w-4 h-4" />
                     Settings
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="store"
-                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <Store className="w-4 h-4" />
-                    Store
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
