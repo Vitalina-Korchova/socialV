@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  Check,
   CircleUserRound,
   CoinsIcon,
+  Plus,
   Sparkles,
   User,
   Wallpaper,
 } from "lucide-react";
 import { Input } from "../ui/input";
 import Image from "next/image";
-import ModalBuy from "../modal-windows/modal-buy";
 
 export default function SettingsProfile() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -120,7 +121,7 @@ export default function SettingsProfile() {
               h-12 text-purple-400 hover:text-purple-500"
               onClick={() => setActiveTab("buy-background")}
             >
-              <CircleUserRound className="w-5 h-5 " />
+              <Wallpaper className="w-5 h-5 " />
               Buy Backgrounds
             </Button>
             <Button
@@ -129,7 +130,7 @@ export default function SettingsProfile() {
               h-12 text-purple-400 hover:text-purple-500"
               onClick={() => setActiveTab("buy-border")}
             >
-              <CircleUserRound className="w-5 h-5 " />
+              <Sparkles className="w-5 h-5 " />
               Buy Borders
             </Button>
           </div>
@@ -353,49 +354,66 @@ export default function SettingsProfile() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                {avatarsStore.map((avatar) => {
-                  return (
-                    <button
-                      key={avatar.id}
-                      className={`cursor-pointer relative rounded-xl border p-4 transition-all hover:scale-[1.02]
-                      "border-muted hover:border-primary hover:ring-2"
-                    }`}
-                    >
-                      <div className="flex flex-col items-center gap-3">
-                        <Image
-                          src={avatar.src}
-                          alt="Avatar"
-                          width={100}
-                          height={100}
-                          className="h-30 w-30 rounded-full border object-cover"
-                        />
+                {avatarsStore.map((avatar) => (
+                  <div
+                    key={avatar.id}
+                    className="cursor-pointer flex flex-col rounded-xl border p-4
+                 transition-all hover:scale-[1.02]
+                 border-muted hover:border-primary hover:ring-1 hover:ring-primary/20"
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <Image
+                        src={avatar.src}
+                        alt="Avatar"
+                        width={100}
+                        height={100}
+                        className="h-24 w-24 rounded-full border object-cover"
+                      />
 
-                        {avatar.isOwned ? (
-                          <span
-                            className="text-muted-foreground flex flex-row items-center gap-1 rounded-full
-                           px-3 py-1 text-xs font-medium bg-muted"
-                          >
-                            Owned
-                          </span>
-                        ) : (
-                          <span
-                            className="
-                          flex flex-row items-center gap-1 rounded-full
-                           px-3 py-1 text-xs font-medium bg-primary/10 text-primary"
-                          >
-                            <Image
-                              src="/coins-icon.svg"
-                              alt="location"
-                              width={20}
-                              height={20}
-                            />
-                            {avatar.price}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      {!avatar.isOwned && (
+                        <span
+                          className="flex items-center gap-1 rounded-full
+                           px-3 py-1 text-sm font-medium
+                           bg-primary/10 text-primary"
+                        >
+                          <Image
+                            src="/coins-icon.svg"
+                            alt="coins"
+                            width={16}
+                            height={16}
+                          />
+                          {avatar.price}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      {avatar.isOwned ? (
+                        <button
+                          disabled
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       bg-muted text-muted-foreground
+                       cursor-not-allowed"
+                        >
+                          <Check size={14} />
+                          Owned
+                        </button>
+                      ) : (
+                        <button
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       border border-primary/40 text-primary
+                       hover:bg-primary hover:text-white
+                       transition-colors cursor-pointer"
+                        >
+                          <Plus size={14} />
+                          Buy
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -410,48 +428,66 @@ export default function SettingsProfile() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {backgroundsStore.map((bg) => {
-                  return (
-                    <button
-                      key={bg.id}
-                      className={`cursor-pointer relative h-40 overflow-hidden rounded-2xl border transition-all
-                        border-muted hover:border-primary/60 hover:ring-2 hover:ring-primary/20
-                      `}
-                    >
+                {backgroundsStore.map((bg) => (
+                  <div
+                    key={bg.id}
+                    className="cursor-pointer flex flex-col rounded-2xl border p-4
+                 transition-all hover:scale-[1.02]
+                 border-muted hover:border-primary/60 hover:ring-1 hover:ring-primary/20"
+                  >
+                    <div className="flex flex-col items-center gap-3">
                       <Image
                         src={bg.src}
                         alt="Background"
                         width={350}
                         height={350}
-                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105 rounded-2xl"
+                        className="h-36 w-full rounded-xl object-cover"
                       />
 
-                      <div className="absolute bottom-3 left-3">
-                        {bg.isOwned ? (
-                          <span
-                            className="text-muted-foreground flex flex-row items-center gap-1 rounded-full
-                            px-3 py-1 text-xs font-medium bg-muted"
-                          >
-                            Owned
-                          </span>
-                        ) : (
-                          <span
-                            className="flex flex-row items-center gap-1 rounded-full
-                            px-3 py-1 text-xs font-medium bg-primary/60 text-white"
-                          >
-                            <Image
-                              src="/coins-icon.svg"
-                              alt="coins"
-                              width={16}
-                              height={16}
-                            />
-                            {bg.price}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      {!bg.isOwned && (
+                        <span
+                          className="flex items-center gap-1 rounded-full
+                           px-3 py-1 text-sm font-medium
+                           bg-primary/10 text-primary"
+                        >
+                          <Image
+                            src="/coins-icon.svg"
+                            alt="coins"
+                            width={16}
+                            height={16}
+                          />
+                          {bg.price}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      {bg.isOwned ? (
+                        <button
+                          disabled
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       bg-muted text-muted-foreground
+                       cursor-not-allowed"
+                        >
+                          <Check size={14} />
+                          Owned
+                        </button>
+                      ) : (
+                        <button
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       border border-primary/40 text-primary
+                       hover:bg-primary hover:text-white
+                       transition-colors cursor-pointer"
+                        >
+                          <Plus size={14} />
+                          Buy
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -466,49 +502,66 @@ export default function SettingsProfile() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                {bordersStore.map((border) => {
-                  return (
-                    <button
-                      key={border.id}
-                      className={`cursor-pointer relative rounded-xl border p-4 transition-all hover:scale-[1.02]
-                      "border-muted hover:border-primary hover:ring-2"
-                    }`}
-                    >
-                      <div className="flex flex-col items-center gap-3">
-                        <Image
-                          src={border.src}
-                          alt="Border"
-                          width={100}
-                          height={100}
-                          className="h-30 w-30 rounded-full border object-cover"
-                        />
+                {bordersStore.map((border) => (
+                  <div
+                    key={border.id}
+                    className="cursor-pointer flex flex-col rounded-xl border p-4
+                 transition-all hover:scale-[1.02]
+                 border-muted hover:border-primary hover:ring-1 hover:ring-primary/20"
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <Image
+                        src={border.src}
+                        alt="Border"
+                        width={100}
+                        height={100}
+                        className="h-24 w-24 rounded-full border object-cover"
+                      />
 
-                        {border.isOwned ? (
-                          <span
-                            className="text-muted-foreground flex flex-row items-center gap-1 rounded-full
-                           px-3 py-1 text-xs font-medium bg-muted"
-                          >
-                            Owned
-                          </span>
-                        ) : (
-                          <span
-                            className="
-                          flex flex-row items-center gap-1 rounded-full
-                           px-3 py-1 text-xs font-medium bg-primary/10 text-primary"
-                          >
-                            <Image
-                              src="/coins-icon.svg"
-                              alt="location"
-                              width={20}
-                              height={20}
-                            />
-                            {border.price}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      {!border.isOwned && (
+                        <span
+                          className="flex items-center gap-1 rounded-full
+                           px-3 py-1 text-sm font-medium
+                           bg-primary/10 text-primary"
+                        >
+                          <Image
+                            src="/coins-icon.svg"
+                            alt="coins"
+                            width={16}
+                            height={16}
+                          />
+                          {border.price}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      {border.isOwned ? (
+                        <button
+                          disabled
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       bg-muted text-muted-foreground
+                       cursor-not-allowed"
+                        >
+                          <Check size={14} />
+                          Owned
+                        </button>
+                      ) : (
+                        <button
+                          className="flex items-center gap-1 rounded-md
+                       px-3 py-1 text-xs font-medium
+                       border border-primary/40 text-primary
+                       hover:bg-primary hover:text-white
+                       transition-colors cursor-pointer"
+                        >
+                          <Plus size={14} />
+                          Buy
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

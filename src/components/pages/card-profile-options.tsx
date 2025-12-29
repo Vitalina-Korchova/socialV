@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import { User, Home, MessageCircle } from "lucide-react";
@@ -5,8 +6,10 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { useRouter } from "next/navigation";
 
 export default function CardProfileOptions() {
+  const router = useRouter();
   return (
     <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden ">
       <CardHeader className=" relative p-0! h-20 ">
@@ -61,6 +64,7 @@ export default function CardProfileOptions() {
           <Button
             variant="ghost"
             className="w-full justify-start  cursor-pointer"
+            onClick={() => router.push("/profile")}
           >
             <User className="w-4 h-4 mr-3" />
             Profile
@@ -69,6 +73,7 @@ export default function CardProfileOptions() {
           <Button
             variant="ghost"
             className="w-full justify-start  cursor-pointer"
+            onClick={() => router.push("/messages")}
           >
             <MessageCircle className="w-4 h-4 mr-3" />
             Messages

@@ -1,11 +1,30 @@
-import React from "react";
+"use client";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 import { Bell, Search, X } from "lucide-react";
 import { Input } from "../ui/input";
 import { Card } from "../ui/card";
+import Notifications from "./notifications";
+import { AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement | null>(null);
+  const closeNotificationsOutside = (event: MouseEvent) => {
+    if (!notificationsRef.current) return;
+    const target = event.target as Node;
+    if (!notificationsRef.current.contains(target)) setShowNotifications(false);
+  };
+
+  useEffect(() => {
+    if (!showNotifications) return;
+    document.addEventListener("mousedown", closeNotificationsOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", closeNotificationsOutside);
+    };
+  }, [showNotifications]);
   return (
     <>
       <Card
@@ -25,8 +44,20 @@ export default function Navbar() {
           {/* прибрати якшо нічого немає в інпуті */}
           <X className="absolute right-2.5 top-2 text-gray-400 h-5 w-5" />
         </div>
-        <div className="flex gap-4">
-          <Bell className="hover:text-[#8A3CFF] cursor-pointer" />
+        <div
+          className="flex gap-4"
+          onClick={() => setShowNotifications((prev) => !prev)}
+        >
+          <Bell
+            className={`hover:text-[#8A3CFF] cursor-pointer ${
+              showNotifications ? "text-[#8A3CFF]" : ""
+            }`}
+          />
+          <div ref={notificationsRef}>
+            <AnimatePresence>
+              {showNotifications && <Notifications />}
+            </AnimatePresence>
+          </div>
         </div>
       </Card>
     </>
