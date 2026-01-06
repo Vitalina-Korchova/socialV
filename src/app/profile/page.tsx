@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserPosts from "@/components/profile/user-posts";
 import SettingsProfile from "@/components/profile/settings-profile";
+import Navbar from "@/components/pages/navbar";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");

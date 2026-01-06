@@ -44,7 +44,7 @@ export default function Notifications() {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="absolute right-4 top-16"
+      className="absolute right-4 top-0.5"
     >
       <Card className="w-full max-w-xs p-4 space-y-3">
         <CardTitle className="text-base">Notifications</CardTitle>
@@ -53,8 +53,8 @@ export default function Notifications() {
           {mockNotifications.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-3 rounded-lg px-2 py-1.5
-                         hover:bg-muted/40 transition-colors"
+              className="flex items-center gap-3  px-2 py-1.5
+                         hover:bg-muted/40 transition-colors border-b-[1px] border-muted "
             >
               <Image
                 src={item.img}

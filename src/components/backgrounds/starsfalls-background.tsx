@@ -12,7 +12,7 @@ export default function StarsBackground() {
       const starTailLength = `${5 + Math.random() * 2.5}em`;
       const topOffset = `${Math.random() * 150}vh`;
       const fallDuration = `${6 + Math.random() * 16}s`;
-      const fallDelay = `${Math.random() * 10}s`;
+      const fallDelay = `${Math.random() * 6}s`;
 
       const starColor = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
       const starWidth = `${parseFloat(starTailLength) / 6}em`;
