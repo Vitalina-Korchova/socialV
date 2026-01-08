@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { motion } from "framer-motion";
-import { SquarePen } from "lucide-react";
+import { Check, CheckCheck, SquarePen } from "lucide-react";
 
 export default function MessagesPage() {
   const chats = [
@@ -237,9 +237,17 @@ export default function MessagesPage() {
 
                     <p>{msg.message}</p>
 
-                    <span className="block text-[10px] opacity-70 mt-1 text-right">
-                      {msg.time}
-                    </span>
+                    <div className="flex flex-row gap-1 items-center justify-end mt-2">
+                      <span className=" text-[10px] opacity-70 ">
+                        {msg.time}
+                      </span>
+
+                      {msg.isRead ? (
+                        <CheckCheck className="size-4 text-gray-200" />
+                      ) : (
+                        <Check className="size-4 text-gray-200" />
+                      )}
+                    </div>
                   </div>
                 </div>
               );

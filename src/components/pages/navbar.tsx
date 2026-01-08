@@ -7,10 +7,12 @@ import { Input } from "../ui/input";
 import { Card } from "../ui/card";
 import Notifications from "./notifications";
 import { AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthPage = pathname.startsWith("/auth");
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const bellRef = useRef<HTMLDivElement | null>(null);
@@ -40,8 +42,8 @@ export default function Navbar() {
   return (
     <>
       <Card
-        className="sticky top-0 z-99 flex flex-row justify-between py-5 items-center border-b-[1px]
-        px-20 shadow-sm rounded-none"
+        className={`sticky top-0 z-99 flex flex-row justify-between py-5 items-center border-b-[1px]
+        px-20 shadow-sm rounded-none ${isAuthPage ? "hidden" : ""}`}
       >
         <div
           className="flex flex-row gap-2 items-center cursor-pointer "

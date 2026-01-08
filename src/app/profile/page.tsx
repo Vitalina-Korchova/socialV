@@ -7,10 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserPosts from "@/components/profile/user-posts";
 import SettingsProfile from "@/components/profile/settings-profile";
-import Navbar from "@/components/pages/navbar";
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("posts");
+  const [activeTab, setActiveTab] = useState("settings");
   const currentXP = 450;
   const totalXP = 500;
   const percentage = (currentXP / totalXP) * 100;
@@ -122,6 +121,13 @@ export default function ProfilePage() {
               >
                 <TabsList className="w-full justify-center h-auto p-1 bg-transparent">
                   <TabsTrigger
+                    value="settings"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="posts"
                     className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
@@ -134,13 +140,6 @@ export default function ProfilePage() {
                   >
                     <Bookmark className="w-4 h-4" />
                     Saved Posts
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="settings"
-                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

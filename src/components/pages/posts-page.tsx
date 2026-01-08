@@ -14,6 +14,7 @@ import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
+import CreatePostPage from "./create-post";
 
 // Масив з 5 об'єктів (у 3-х є фото)
 const postsData = [
@@ -96,6 +97,7 @@ export default function PostsPage() {
   return (
     <>
       <div className="flex flex-col gap-7">
+        <CreatePostPage />
         {postsData.map((post) => (
           <Card
             key={post.id}
