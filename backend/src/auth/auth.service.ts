@@ -10,24 +10,26 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { StringValue } from 'ms';
 import { LoginRequest } from './dto/login.dto';
+import type { Response } from 'express';
 
 @Injectable()
 export class AuthService {
-  private readonly JWT_SECRET: string;
   private readonly JWT_TOKEN_ACCESS: StringValue;
   private readonly JWT_TOKEN_REFRESH: StringValue;
+  private readonly COOKIE_DOMAIN: string;
+
   constructor(
     private readonly prismaService: PrismaService,
     configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {
-    this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
     this.JWT_TOKEN_ACCESS =
       configService.getOrThrow<StringValue>('JWT_TOKEN_ACCESS');
     this.JWT_TOKEN_REFRESH =
       configService.getOrThrow<StringValue>('JWT_TOKEN_REFRESH');
+    this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
   }
-  async register(dto: RegisterRequest) {
+  async register(res: Response, dto: RegisterRequest) {
     const { username, email, password } = dto;
     const existUser = await this.prismaService.user.findUnique({
       where: {
@@ -44,10 +46,10 @@ export class AuthService {
         password: await hash(password),
       },
     });
-    return this.generateTokens(user.id);
+    return this.auth(res, user.id);
   }
 
-  async login(dto: LoginRequest) {
+  async login(res: Response, dto: LoginRequest) {
     const { email, password } = dto;
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -69,7 +71,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    return this.generateTokens(user.id);
+    return this.auth(res, user.id);
   }
 
   private generateTokens(id: number) {
@@ -83,5 +85,40 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  private setCookies(
+    res: Response,
+    accessToken: string,
+    refreshToken: string,
+    accessExpires: Date,
+    refreshExpires: Date,
+  ) {
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      domain: this.COOKIE_DOMAIN,
+      expires: refreshExpires,
+      sameSite: 'strict',
+      secure: false,
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      domain: this.COOKIE_DOMAIN,
+      expires: accessExpires,
+      sameSite: 'strict',
+      secure: false,
+    });
+  }
+
+  private auth(res: Response, id: number) {
+    const { accessToken, refreshToken } = this.generateTokens(+id);
+    this.setCookies(
+      res,
+      accessToken,
+      refreshToken,
+      new Date(Date.now() + 2 * 60 * 60),
+      new Date(Date.now() + 7 * 24 * 60 * 60),
+    );
+    return { message: 'Authenticated successfully' };
   }
 }
