@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterRequest } from './dto/register.dto';
@@ -10,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { StringValue } from 'ms';
 import { LoginRequest } from './dto/login.dto';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -74,6 +75,55 @@ export class AuthService {
     return this.auth(res, user.id);
   }
 
+  async logout(res: Response) {
+    this.setCookies(
+      res,
+      'refreshToken',
+      'accessToken',
+      new Date(0),
+      new Date(0),
+    );
+  }
+
+  async refresh(req: Request, res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+    const payload = await this.jwtService.verifyAsync<{ id: number }>(
+      refreshToken,
+    );
+
+    if (payload) {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: payload.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return this.auth(res, user.id);
+    }
+  }
+
+  async validate(id: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
   private generateTokens(id: number) {
     const payload: { id: number } = { id };
 
@@ -116,8 +166,8 @@ export class AuthService {
       res,
       accessToken,
       refreshToken,
-      new Date(Date.now() + 2 * 60 * 60),
-      new Date(Date.now() + 7 * 24 * 60 * 60),
+      new Date(Date.now() + 2 * 60 * 60 * 1000),
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     );
     return { message: 'Authenticated successfully' };
   }
