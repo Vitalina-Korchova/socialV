@@ -57,4 +57,29 @@ export class AuthController {
   async me(@Req() req: Request) {
     return req.user;
   }
+
+  @Post('send-reset-code')
+  @HttpCode(HttpStatus.OK)
+  async sendResetCode(@Body('email') email: string) {
+    return await this.authService.sendCodeToEmail(email);
+  }
+
+  @Post('verify-reset-code')
+  @HttpCode(HttpStatus.OK)
+  async verifyResetCode(
+    @Body('email') email: string,
+    @Body('code') code: string,
+  ) {
+    return await this.authService.verifyCode(email, code);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body('email') email: string,
+    @Body('code') code: string,
+    @Body('password') password: string,
+  ) {
+    return await this.authService.resetPassword(email, code, password);
+  }
 }

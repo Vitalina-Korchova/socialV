@@ -15,4 +15,17 @@ model user{
   email String @unique
   password String
   created_at DateTime @default(now())
+
+  reset_password user_reset_password[]
+}
+
+model user_reset_password{
+  id Int @id @default(autoincrement())
+  code_hash String
+  expires_at DateTime
+  used Boolean @default(false)
+
+  user_id Int
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -12,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { StringValue } from 'ms';
 import { LoginRequest } from './dto/login.dto';
 import type { Request, Response } from 'express';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +25,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {
     this.JWT_TOKEN_ACCESS =
       configService.getOrThrow<StringValue>('JWT_TOKEN_ACCESS');
@@ -123,6 +126,98 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async sendCodeToEmail(email: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.prismaService.user_reset_password.create({
+      data: {
+        user_id: user.id,
+        code_hash: await hash(code),
+        expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        used: false,
+      },
+    });
+
+    await this.mailService.sendResetCode(email, code);
+    return { message: 'Reset code sent' };
+  }
+
+  async verifyCode(email: string, code: string) {
+    const resetEntry = await this.prismaService.user_reset_password.findFirst({
+      where: {
+        user: {
+          email,
+        },
+        used: false,
+        expires_at: {
+          gt: new Date(),
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (!resetEntry) {
+      throw new NotFoundException('Valid reset code not found or expired');
+    }
+
+    const isCodeValid = await verify(resetEntry.code_hash, code);
+    if (!isCodeValid) {
+      throw new BadRequestException('Reset code is invalid');
+    }
+
+    return { message: 'Code verified successfully' };
+  }
+
+  async resetPassword(email: string, code: string, password: string) {
+    const resetEntry = await this.prismaService.user_reset_password.findFirst({
+      where: {
+        user: {
+          email,
+        },
+        used: false,
+        expires_at: {
+          gt: new Date(),
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (!resetEntry) {
+      throw new NotFoundException('Valid reset code not found or expired');
+    }
+
+    const isCodeValid = await verify(resetEntry.code_hash, code);
+    if (!isCodeValid) {
+      throw new BadRequestException('Reset code is invalid');
+    }
+
+    await this.prismaService.user_reset_password.update({
+      where: {
+        id: resetEntry.id,
+      },
+      data: { used: true },
+    });
+
+    await this.prismaService.user.update({
+      where: {
+        id: resetEntry.user_id,
+      },
+      data: {
+        password: await hash(password),
+      },
+    });
+
+    return { message: 'Password reset successfully' };
   }
   private generateTokens(id: number) {
     const payload: { id: number } = { id };
