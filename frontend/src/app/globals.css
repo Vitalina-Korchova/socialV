@@ -191,7 +191,13 @@
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  background: black;
+  background: #8e51ff;
+  background: linear-gradient(
+    360deg,
+    rgba(142, 81, 255, 0.8) 0%,
+    rgba(57, 32, 102, 1) 16%,
+    rgba(0, 0, 0, 1) 29%
+  );
 }
 
 .stars {
