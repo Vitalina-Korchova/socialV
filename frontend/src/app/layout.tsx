@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "../components/pages/navbar";
 import StarsBackground from "@/components/backgrounds/starsfalls-background";
 import { Toaster } from "@/components/ui/sonner";
+import ReduxProvider from "@/components/providers/redux-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <StarsBackground />
-        <Navbar />
-        {children}
-        <Toaster />
+        <ReduxProvider>
+          <StarsBackground />
+          <Navbar />
+          {children}
+          <Toaster />
+        </ReduxProvider>
       </body>
     </html>
   );

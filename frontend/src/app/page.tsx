@@ -1,4 +1,3 @@
-import Navbar from "@/components/pages/navbar";
 import CardProfileOptions from "../components/pages/card-profile-options";
 import PostsPage from "../components/pages/posts-page";
 import TopUsers from "../components/pages/top-users";
