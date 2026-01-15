@@ -6,7 +6,6 @@ export class LoginRequest {
   @IsEmail({}, { message: 'Email is invalid' })
   email: string;
 
-  @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(6, { message: 'Password is too short' })
   password: string;
