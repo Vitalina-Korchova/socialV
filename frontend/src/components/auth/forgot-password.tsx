@@ -2,6 +2,12 @@ import { Mail, Shield, Lock, EyeOff, Eye } from "lucide-react";
 import React, { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import {
+  useResetPasswordMutation,
+  useSendCodeEmailMutation,
+  useVerifyCodeMutation,
+} from "@/store/auth/auth.api";
+import { toast } from "sonner";
 
 type ForgotPasswordPageProps = {
   setMode: (mode: "signup" | "signin") => void;
@@ -13,6 +19,41 @@ export default function ForgotPasswordPage({
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [
+    sendCodeEmail,
+    { error: sendCodeEmailError, isLoading: sendCodeEmailLoading },
+  ] = useSendCodeEmailMutation();
+  const [verifyCode, { error: verifyCodeError, isLoading: verifyCodeLoading }] =
+    useVerifyCodeMutation();
+  const [
+    resetPassword,
+    { error: resetPasswordError, isLoading: resetPasswordLoading },
+  ] = useResetPasswordMutation();
+  const handleSendCodeEmail = async (email: string) => {
+    await sendCodeEmail({ email }).unwrap();
+    toast.success("Code sent successfully");
+    setStep(2);
+  };
+  const handleVeriifyCode = async (email: string, code: string) => {
+    await verifyCode({ email, code }).unwrap();
+    toast.success("Code verified successfully");
+    setStep(3);
+  };
+  const handleResetPassword = async (
+    email: string,
+    code: string,
+    password: string
+  ) => {
+    if (password === passwordConfirm) {
+      await resetPassword({ email, code, password }).unwrap();
+      toast.success("Password reset successfully");
+      setMode("signin");
+    }
+  };
   return (
     <>
       <div className="flex  flex-col gap-4">
@@ -25,14 +66,30 @@ export default function ForgotPasswordPage({
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   placeholder="Email"
                   className="pl-10 h-12"
                 />
               </div>
             </div>
-            <Button className="h-12 text-base font-semibold cursor-pointer">
-              Send code
+            {sendCodeEmailError && (
+              <p className="text-xs text-destructive">
+                {"status" in sendCodeEmailError
+                  ? sendCodeEmailError.status === 404
+                    ? "Email is incorrect or does not exist"
+                    : "Error occurred while sending code"
+                  : "Error occurred while sending code"}
+              </p>
+            )}
+
+            <Button
+              className="h-12 text-base font-semibold cursor-pointer"
+              onClick={() => handleSendCodeEmail(email)}
+              disabled={sendCodeEmailLoading}
+            >
+              {sendCodeEmailLoading ? "Sending..." : "Send code"}
             </Button>
             <span
               onClick={() => setMode("signin")}
@@ -51,6 +108,8 @@ export default function ForgotPasswordPage({
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
                   type="number"
                   placeholder="000000"
                   className="pl-10 h-12"
@@ -58,8 +117,22 @@ export default function ForgotPasswordPage({
                 />
               </div>
             </div>
-            <Button className="h-12 text-base font-semibold cursor-pointer">
-              Verify code
+            {verifyCodeError && (
+              <p className="text-xs text-destructive">
+                {"status" in verifyCodeError
+                  ? verifyCodeError.status === 404 ||
+                    verifyCodeError.status === 400
+                    ? "Code is incorrect"
+                    : "Error occurred while verifying code"
+                  : "Error occurred while verifying code"}
+              </p>
+            )}
+            <Button
+              className="h-12 text-base font-semibold cursor-pointer"
+              onClick={() => handleVeriifyCode(email, code)}
+              disabled={verifyCodeLoading}
+            >
+              {verifyCodeLoading ? "Verifying..." : "Verify code"}
             </Button>
             <span
               onClick={() => setStep(1)}
@@ -78,9 +151,12 @@ export default function ForgotPasswordPage({
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   className="pl-10 pr-10 h-12"
+                  min={6}
                 />
                 <button
                   type="button"
@@ -90,12 +166,20 @@ export default function ForgotPasswordPage({
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {password.length < 6 && (
+                <p className="text-xs text-destructive ">
+                  Password must be at least 6 characters
+                </p>
+              )}
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
                   type={showPasswordConfirm ? "text" : "password"}
                   placeholder="Confirm password"
                   className="pl-10 pr-10 h-12"
+                  min={6}
                 />
                 <button
                   type="button"
@@ -110,8 +194,25 @@ export default function ForgotPasswordPage({
                 </button>
               </div>
             </div>
-            <Button className="h-12 text-base font-semibold cursor-pointer">
-              Change password
+            {passwordConfirm.length < 6 && (
+              <p className="text-xs text-destructive ">
+                Password must be at least 6 characters
+              </p>
+            )}
+
+            {resetPasswordError && (
+              <p className="text-xs text-destructive">
+                {password !== passwordConfirm
+                  ? "Passwords do not match"
+                  : "Error occurred while resetting password"}
+              </p>
+            )}
+            <Button
+              className="h-12 text-base font-semibold cursor-pointer"
+              onClick={() => handleResetPassword(email, code, password)}
+              disabled={resetPasswordLoading}
+            >
+              {resetPasswordLoading ? "Resetting..." : "Reset password"}
             </Button>
             <span
               onClick={() => setStep(2)}

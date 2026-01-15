@@ -21,7 +21,7 @@ type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInPage({ setMode }: SignInPageProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [loginUser, { error: signInError, isLoading: signInLoading }] =
+  const [loginUser, { error: loginError, isLoading: loginLoading }] =
     useLoginUserMutation();
 
   const {
@@ -37,13 +37,8 @@ export default function SignInPage({ setMode }: SignInPageProps) {
   });
 
   const onSubmit = async (data: SignInFormData) => {
-    try {
-      await loginUser(data).unwrap();
-      toast.success("Logged in successfully");
-    } catch (error) {
-      console.error(" Error occured while logging in", error);
-      toast.error("Error occured while logging in");
-    }
+    await loginUser(data).unwrap();
+    toast.success("Logged in successfully");
   };
   return (
     <>
@@ -89,18 +84,22 @@ export default function SignInPage({ setMode }: SignInPageProps) {
           Forgot password?
         </span>
 
-        {errors.root && (
-          <p className="text-xs text-destructive text-center">
-            {errors.root.message}
+        {loginError && (
+          <p className="text-xs text-destructive">
+            {"status" in loginError
+              ? loginError.status === 404
+                ? "Password or email is incorrect"
+                : "Error occurred while logging in"
+              : "Error occurred while logging in"}
           </p>
         )}
 
         <Button
           type="submit"
           className="h-12 text-base font-semibold cursor-pointer"
-          disabled={signInLoading}
+          disabled={loginLoading}
         >
-          {signInLoading ? "Loading..." : "Sign In"}
+          {loginLoading ? "Loading..." : "Sign In"}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
