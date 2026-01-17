@@ -47,8 +47,8 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) res: Response) {
-    return await this.authService.logout(res);
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return await this.authService.logout(req, res);
   }
 
   @UseGuards(AuthGuard('jwt'))

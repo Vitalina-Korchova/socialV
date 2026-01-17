@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterRequest } from './dto/register.dto';
 import { hash, verify } from 'argon2';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { StringValue } from 'ms';
 import { LoginRequest } from './dto/login.dto';
 import type { Request, Response } from 'express';
@@ -78,39 +78,105 @@ export class AuthService {
     return this.auth(res, user.id);
   }
 
-  async logout(res: Response) {
-    this.setCookies(
-      res,
-      'refreshToken',
-      'accessToken',
-      new Date(0),
-      new Date(0),
-    );
+  async logout(req: Request, res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+
+    if (refreshToken) {
+      try {
+        const decoded = this.jwtService.decode(refreshToken) as {
+          id: number;
+          jti?: string;
+          exp?: number;
+        };
+
+        if (decoded) {
+          const tokenId = decoded.jti || refreshToken;
+
+          await this.prismaService.used_refresh_token.create({
+            data: {
+              token_id: tokenId,
+              user_id: decoded.id,
+              expires_at: decoded.exp
+                ? new Date(decoded.exp * 1000)
+                : new Date(Date.now() + 120 * 1000),
+            },
+          });
+        }
+      } catch (error) {
+        console.warn('Error during logout token processing:', error.message);
+      }
+    }
+
+    this.setCookies(res, '', '', new Date(0), new Date(0));
+
+    return { message: 'Logged out successfully' };
   }
 
   async refresh(req: Request, res: Response) {
-    const refreshToken = req.cookies['refreshToken'];
-    if (!refreshToken) {
+    const oldRefreshToken = req.cookies['refreshToken'];
+
+    if (!oldRefreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
-    const payload = await this.jwtService.verifyAsync<{ id: number }>(
-      refreshToken,
-    );
 
-    if (payload) {
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          id: payload.id,
-        },
-        select: {
-          id: true,
-        },
+    try {
+      const decoded = this.jwtService.decode(oldRefreshToken) as {
+        id: number;
+        jti?: string;
+        exp?: number;
+      };
+
+      if (!decoded) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const tokenId = decoded.jti || oldRefreshToken;
+
+      const usedToken = await this.prismaService.used_refresh_token.findUnique({
+        where: { token_id: tokenId },
       });
+
+      if (usedToken) {
+        throw new UnauthorizedException('Refresh token already used');
+      }
+
+      const payload = await this.jwtService.verifyAsync<{
+        id: number;
+        jti?: string;
+      }>(oldRefreshToken);
+
+      const user = await this.prismaService.user.findUnique({
+        where: { id: payload.id },
+        select: { id: true },
+      });
+
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
+      await this.prismaService.used_refresh_token.create({
+        data: {
+          token_id: tokenId,
+          user_id: user.id,
+          expires_at: decoded.exp
+            ? new Date(decoded.exp * 1000)
+            : new Date(Date.now() + 120 * 1000), // 2 хвилини
+        },
+      });
+
       return this.auth(res, user.id);
+    } catch (error) {
+      console.error('Refresh error details:', error);
+
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Refresh token expired');
+      }
+
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      throw new UnauthorizedException('Authentication failed');
     }
   }
 
@@ -220,7 +286,8 @@ export class AuthService {
     return { message: 'Password reset successfully' };
   }
   private generateTokens(id: number) {
-    const payload: { id: number } = { id };
+    const jti = Math.random().toString(36).substring(2) + Date.now();
+    const payload: { id: number; jti: string } = { id, jti };
 
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.JWT_TOKEN_ACCESS,
@@ -229,7 +296,7 @@ export class AuthService {
       expiresIn: this.JWT_TOKEN_REFRESH,
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, jti };
   }
 
   private setCookies(
@@ -261,8 +328,10 @@ export class AuthService {
       res,
       accessToken,
       refreshToken,
-      new Date(Date.now() + 2 * 60 * 60 * 1000),
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      // new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
+      // new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) //7days,
+      new Date(Date.now() + 60 * 1000),
+      new Date(Date.now() + 120 * 1000),
     );
     return { message: 'Authenticated successfully' };
   }
