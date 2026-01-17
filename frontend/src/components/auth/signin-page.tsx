@@ -7,6 +7,7 @@ import { useLoginUserMutation } from "@/store/auth/auth.api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type SignInPageProps = {
   setMode: (mode: "signup" | "forgot-password") => void;
@@ -23,6 +24,7 @@ export default function SignInPage({ setMode }: SignInPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loginUser, { error: loginError, isLoading: loginLoading }] =
     useLoginUserMutation();
+  const router = useRouter();
 
   const {
     register,
@@ -39,6 +41,7 @@ export default function SignInPage({ setMode }: SignInPageProps) {
   const onSubmit = async (data: SignInFormData) => {
     await loginUser(data).unwrap();
     toast.success("Logged in successfully");
+    router.push("/");
   };
   return (
     <>

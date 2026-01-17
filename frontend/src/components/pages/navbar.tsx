@@ -2,12 +2,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-import { Bell, MessageCircle, Search, User, X } from "lucide-react";
+import {
+  Bell,
+  CircleUser,
+  LogOut,
+  MessageCircle,
+  Search,
+  User,
+  X,
+} from "lucide-react";
 import { Input } from "../ui/input";
 import { Card } from "../ui/card";
 import Notifications from "./notifications";
 import { AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { useLogoutUserMutation } from "@/store/auth/auth.api";
 
 export default function Navbar() {
   const router = useRouter();
@@ -39,6 +54,13 @@ export default function Navbar() {
     };
   }, [showNotifications]);
 
+  const [logout, { error: logoutError }] = useLogoutUserMutation();
+
+  const handleLogout = async () => {
+    await logout().unwrap();
+    router.push("/auth");
+  };
+
   return (
     <>
       <Card
@@ -61,10 +83,36 @@ export default function Navbar() {
           {/* прибрати якшо нічого немає в інпуті */}
           <X className="absolute right-2.5 top-2 text-gray-400 h-5 w-5" />
         </div>
-        <div className="flex justify-between items-center gap-6">
-          <div onClick={() => router.push("/profile")}>
-            <User className="hover:text-[#8A3CFF] cursor-pointer" />
-          </div>
+        <div className="flex justify-between items-center gap-5">
+          <div onClick={() => router.push("/profile")}></div>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <User className="hover:text-[#8A3CFF] cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="z-99 mt-6 ">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/profile")}
+              >
+                <CircleUser />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/messenger")}
+              >
+                <MessageCircle />
+                Messanger
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer text-primary hover:!text-primary"
+                onClick={handleLogout}
+              >
+                <LogOut className="text-primary" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div
             ref={bellRef}
             onClick={() => setShowNotifications((prev) => !prev)}
@@ -74,9 +122,6 @@ export default function Navbar() {
                 showNotifications ? "text-[#8A3CFF]" : ""
               }`}
             />
-          </div>
-          <div onClick={() => router.push("/messanger")}>
-            <MessageCircle className="hover:text-[#8A3CFF] cursor-pointer" />
           </div>
         </div>
       </Card>

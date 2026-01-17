@@ -7,6 +7,7 @@ import { useRegisterUserMutation } from "@/store/auth/auth.api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type SignUpPageProps = {
   setMode: (mode: "signup" | "signin") => void;
@@ -24,7 +25,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [registerUser, { error: registerError, isLoading: registerLoading }] =
     useRegisterUserMutation();
-
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -41,6 +42,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
   const onSubmit = async (data: SignUpFormData) => {
     await registerUser(data).unwrap();
     toast.success("Registered successfully");
+    router.push("/profile");
   };
   return (
     <>

@@ -23,6 +23,8 @@ export default function ForgotPasswordPage({
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [errorValidationPassword, setErrorValidationPassword] = useState(false);
+
   const [
     sendCodeEmail,
     { error: sendCodeEmailError, isLoading: sendCodeEmailLoading },
@@ -48,10 +50,12 @@ export default function ForgotPasswordPage({
     code: string,
     password: string
   ) => {
-    if (password === passwordConfirm) {
+    if (password === passwordConfirm && password.length >= 6) {
       await resetPassword({ email, code, password }).unwrap();
       toast.success("Password reset successfully");
       setMode("signin");
+    } else {
+      setErrorValidationPassword(true);
     }
   };
   return (
@@ -166,11 +170,7 @@ export default function ForgotPasswordPage({
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {password.length < 6 && (
-                <p className="text-xs text-destructive ">
-                  Password must be at least 6 characters
-                </p>
-              )}
+
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -194,17 +194,20 @@ export default function ForgotPasswordPage({
                 </button>
               </div>
             </div>
-            {passwordConfirm.length < 6 && (
+
+            {resetPasswordError && (
+              <p className="text-xs text-destructive">
+                Error occurred while resetting password
+              </p>
+            )}
+            {errorValidationPassword && (
               <p className="text-xs text-destructive ">
                 Password must be at least 6 characters
               </p>
             )}
-
-            {resetPasswordError && (
-              <p className="text-xs text-destructive">
-                {password !== passwordConfirm
-                  ? "Passwords do not match"
-                  : "Error occurred while resetting password"}
+            {password !== passwordConfirm && (
+              <p className="text-xs text-destructive ">
+                Passwords do not match
               </p>
             )}
             <Button

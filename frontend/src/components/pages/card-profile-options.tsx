@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 export default function CardProfileOptions() {
   const router = useRouter();
+
   return (
     <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden ">
       <CardHeader className=" relative p-0! h-20 ">
@@ -73,10 +74,10 @@ export default function CardProfileOptions() {
           <Button
             variant="ghost"
             className="w-full justify-start  cursor-pointer"
-            onClick={() => router.push("/messanger")}
+            onClick={() => router.push("/messenger")}
           >
             <MessageCircle className="w-4 h-4 mr-3" />
-            Messages
+            Messenger
           </Button>
         </div>
       </CardContent>
