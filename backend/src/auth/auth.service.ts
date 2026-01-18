@@ -98,7 +98,7 @@ export class AuthService {
               user_id: decoded.id,
               expires_at: decoded.exp
                 ? new Date(decoded.exp * 1000)
-                : new Date(Date.now() + 120 * 1000),
+                : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             },
           });
         }
@@ -160,7 +160,7 @@ export class AuthService {
           user_id: user.id,
           expires_at: decoded.exp
             ? new Date(decoded.exp * 1000)
-            : new Date(Date.now() + 120 * 1000), // 2 хвилини
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });
 
@@ -182,8 +182,12 @@ export class AuthService {
 
   async validate(id: number) {
     const user = await this.prismaService.user.findUnique({
-      where: {
-        id,
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        created_at: true,
       },
     });
 
@@ -328,10 +332,8 @@ export class AuthService {
       res,
       accessToken,
       refreshToken,
-      // new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
-      // new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) //7days,
-      new Date(Date.now() + 60 * 1000),
-      new Date(Date.now() + 120 * 1000),
+      new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), //7days,
     );
     return { message: 'Authenticated successfully' };
   }

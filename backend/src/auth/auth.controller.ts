@@ -51,13 +51,6 @@ export class AuthController {
     return await this.authService.logout(req, res);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('me')
-  @HttpCode(HttpStatus.OK)
-  async me(@Req() req: Request) {
-    return req.user;
-  }
-
   @Post('send-reset-code')
   @HttpCode(HttpStatus.OK)
   async sendResetCode(@Body('email') email: string) {

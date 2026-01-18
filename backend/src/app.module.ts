@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
 import { LoggingMiddleware } from './common/middleware/logger.middleware';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { LoggingMiddleware } from './common/middleware/logger.middleware';
     PrismaModule,
     AuthModule,
     MailModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
