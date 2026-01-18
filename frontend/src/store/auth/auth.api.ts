@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { LoginRequest, RegisterRequst, UserMe } from "./auth.type";
+import { LoginRequest, RegisterRequst } from "./auth.type";
 import { baseQueryWithReauth } from "../baseQuery";
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -26,12 +26,7 @@ export const authApi = createApi({
         method: "POST",
       }),
     }),
-    getMe: builder.query<UserMe, void>({
-      query: () => ({
-        url: "auth/me",
-        method: "GET",
-      }),
-    }),
+
     sendCodeEmail: builder.mutation<{ message: string }, { email: string }>({
       query: (body) => ({
         url: "auth/send-reset-code",
@@ -64,7 +59,6 @@ export const authApi = createApi({
 
 export const {
   useLoginUserMutation,
-  useGetMeQuery,
   useRegisterUserMutation,
   useSendCodeEmailMutation,
   useVerifyCodeMutation,

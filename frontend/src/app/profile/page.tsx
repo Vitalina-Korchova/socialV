@@ -2,18 +2,34 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useState } from "react";
 import Image from "next/image";
-import { Bookmark, FileText, Settings, User } from "lucide-react";
+import { Bookmark, FileText, Settings, Store, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserPosts from "@/components/profile/user-posts";
-import SettingsProfile from "@/components/profile/settings-profile";
+import SettingsProfile from "@/components/profile/settings-profile/settings-profile";
+import { useGetMeQuery } from "@/store/user/user.api";
+import { Loader } from "@/components/ui/loader";
+import { ErrorState } from "@/components/ui/error";
+import StoreProfile from "@/components/profile/store-profile/store-profile";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("settings");
+  const {
+    data: userData,
+    error: userError,
+    isLoading: userLoading,
+  } = useGetMeQuery();
   const currentXP = 450;
   const totalXP = 500;
   const percentage = (currentXP / totalXP) * 100;
 
+  if (userLoading) {
+    return <Loader />;
+  }
+
+  if (userError) {
+    return <ErrorState />;
+  }
   return (
     <>
       <div className="flex flex-row gap-6 py-6 px-8">
@@ -49,7 +65,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <div className="font-bold text-xl">Vitalina Korchova</div>
+                  <div className="font-bold text-xl">{userData?.username}</div>
                   <Badge variant="default" className="text-xs">
                     Software Engineer
                   </Badge>
@@ -141,6 +157,13 @@ export default function ProfilePage() {
                     <Bookmark className="w-4 h-4" />
                     Saved Posts
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="store"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <Store className="w-4 h-4" />
+                    Store
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -162,6 +185,9 @@ export default function ProfilePage() {
 
             <TabsContent value="settings" className="mt-6">
               <SettingsProfile />
+            </TabsContent>
+            <TabsContent value="store" className="mt-6">
+              <StoreProfile />
             </TabsContent>
           </Tabs>
         </div>
