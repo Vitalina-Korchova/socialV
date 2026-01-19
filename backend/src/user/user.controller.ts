@@ -9,7 +9,6 @@ import {
   ParseIntPipe,
   Put,
   Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';

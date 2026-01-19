@@ -18,6 +18,7 @@ model user{
 
   reset_password user_reset_password[]
   refresh_token used_refresh_token[]
+  posts post[]
 }
 
 model user_reset_password{
@@ -39,4 +40,32 @@ model used_refresh_token {
   created_at DateTime @default(now())              
 
   user      user     @relation(fields: [user_id], references: [id])
+}
+
+
+model post{
+  id Int  @id @default(autoincrement())  
+  text_content String
+  images post_image[] 
+  user_id Int
+  created_at DateTime @default(now())   
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)  
+}
+
+
+model image {
+  id Int  @id @default(autoincrement())  
+  url String
+
+  post_image post_image[]
+}
+
+model post_image{
+  id Int  @id @default(autoincrement())  
+  post_id Int 
+  image_id Int
+
+  post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  image image @relation(fields: [image_id], references: [id], onDelete: Cascade)
 }
