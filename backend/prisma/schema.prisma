@@ -19,6 +19,9 @@ model user{
   reset_password user_reset_password[]
   refresh_token used_refresh_token[]
   posts post[]
+  liles like[]
+  saved_posts saved_post[]
+  reposts repost[]
 }
 
 model user_reset_password{
@@ -46,11 +49,16 @@ model used_refresh_token {
 model post{
   id Int  @id @default(autoincrement())  
   text_content String
-  images post_image[] 
   user_id Int
   created_at DateTime @default(now())   
 
+  images post_image[] 
+  likes like[]
+  saved_post saved_post[]
+  reposts repost[]
+
   user user @relation(fields: [user_id], references: [id], onDelete: Cascade)  
+  
 }
 
 
@@ -68,4 +76,35 @@ model post_image{
 
   post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
   image image @relation(fields: [image_id], references: [id], onDelete: Cascade)
+}
+
+model like{
+   id Int  @id @default(autoincrement())  
+   user_id Int 
+   post_id Int
+
+   user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
+   post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id])
+}
+
+model saved_post{
+   id Int  @id @default(autoincrement())  
+   post_id Int
+   user_id Int
+
+   user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
+   post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  @@unique([user_id, post_id])
+}
+
+model repost {
+  id Int  @id @default(autoincrement())  
+   post_id Int
+   user_id Int
+
+   user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
+   post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  @@unique([user_id, post_id])
 }

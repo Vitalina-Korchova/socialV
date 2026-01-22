@@ -25,6 +25,8 @@ export class PostResponse {
   };
   created_at: Date;
   images: Image[];
+  likes: number;
+  saved_number: number;
 }
 
 export class PaginatedPostResponse {

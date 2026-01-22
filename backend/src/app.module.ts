@@ -9,6 +9,9 @@ import { LoggingMiddleware } from './common/middleware/logger.middleware';
 import { UserModule } from './user/user.module';
 import { ImageModule } from './image/image.module';
 import { PostModule } from './post/post.module';
+import { LikeModule } from './like/like.module';
+import { SavedPostModule } from './saved_post/saved_post.module';
+import { RepostModule } from './repost/repost.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { PostModule } from './post/post.module';
     UserModule,
     ImageModule,
     PostModule,
+    LikeModule,
+    SavedPostModule,
+    RepostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

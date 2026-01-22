@@ -87,6 +87,8 @@ export class PostService {
             email: true,
           },
         },
+        likes: true,
+        saved_post: true,
       },
       orderBy: {
         created_at: 'desc',
@@ -106,6 +108,8 @@ export class PostService {
           id: img.image.id,
           url: `${this.baseUrl}/uploads/${img.image.url}`,
         })),
+        likes: post.likes.length,
+        saved_number: post.saved_post.length,
       })),
       current_page: currentPage,
       total_items: totalItems,
