@@ -22,6 +22,7 @@ model user{
   liles like[]
   saved_posts saved_post[]
   reposts repost[]
+  comments comment[]
 }
 
 model user_reset_password{
@@ -56,6 +57,7 @@ model post{
   likes like[]
   saved_post saved_post[]
   reposts repost[]
+  comments comment[]
 
   user user @relation(fields: [user_id], references: [id], onDelete: Cascade)  
   
@@ -100,11 +102,22 @@ model saved_post{
 }
 
 model repost {
-  id Int  @id @default(autoincrement())  
+   id Int  @id @default(autoincrement())  
    post_id Int
    user_id Int
 
    user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
    post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
   @@unique([user_id, post_id])
+}
+
+model comment{
+  id Int  @id @default(autoincrement())  
+  text String
+  user_id Int
+  post_id Int
+  created_at DateTime @default(now())    
+
+  user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
+  post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }

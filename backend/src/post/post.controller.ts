@@ -41,11 +41,14 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))
   createPost(
+    @Req() req,
     @Body() dto: PostRequest,
     @UploadedFiles() files: { images?: Express.Multer.File[] },
   ) {
-    return this.postService.createPost(dto, files?.images || []);
+    const userId = req.user.id;
+    return this.postService.createPost(userId, dto, files?.images || []);
   }
+
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))

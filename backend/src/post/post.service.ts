@@ -22,19 +22,15 @@ export class PostService {
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
-  async createPost(dto: PostRequest, files: Express.Multer.File[]) {
-    const userExist = await this.prismaService.user.findUnique({
-      where: { id: dto.user_id },
-    });
-
-    if (!userExist) {
-      throw new NotFoundException('User not found');
-    }
-
+  async createPost(
+    userId: number,
+    dto: PostRequest,
+    files: Express.Multer.File[],
+  ) {
     const post = await this.prismaService.post.create({
       data: {
         text_content: dto.text_content,
-        user_id: dto.user_id,
+        user_id: userId,
       },
     });
 
@@ -89,6 +85,7 @@ export class PostService {
         },
         likes: true,
         saved_post: true,
+        reposts: true,
       },
       orderBy: {
         created_at: 'desc',
@@ -110,6 +107,7 @@ export class PostService {
         })),
         likes: post.likes.length,
         saved_number: post.saved_post.length,
+        reposts_number: post.reposts.length,
       })),
       current_page: currentPage,
       total_items: totalItems,

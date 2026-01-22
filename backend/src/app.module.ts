@@ -12,6 +12,7 @@ import { PostModule } from './post/post.module';
 import { LikeModule } from './like/like.module';
 import { SavedPostModule } from './saved_post/saved_post.module';
 import { RepostModule } from './repost/repost.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RepostModule } from './repost/repost.module';
     LikeModule,
     SavedPostModule,
     RepostModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
