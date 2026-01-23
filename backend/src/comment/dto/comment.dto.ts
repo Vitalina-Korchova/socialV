@@ -12,10 +12,10 @@ export class CommentResponse {
     email: string;
   };
   post_id: number;
-  created_at: string;
+  created_at: Date;
 }
 
-export class PaginatedPostResponse {
+export class PaginatedCommentsResponse {
   current_page: number;
   total_items: number;
   has_next_page: boolean;
