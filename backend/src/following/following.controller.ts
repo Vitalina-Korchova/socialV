@@ -5,23 +5,23 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { SavedPostService } from './saved_post.service';
+import { FollowingService } from './following.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/saved-post')
-export class SavedPostController {
-  constructor(private readonly savedPostService: SavedPostService) {}
-
+@Controller('api/following')
+export class FollowingController {
+  constructor(private readonly followingService: FollowingService) {}
   @Post(':id')
   @HttpCode(HttpStatus.OK)
-  async toggleSavedPost(
-    @Param('id', ParseIntPipe) postId: number,
+  async toggleFollow(
+    @Param('id', ParseIntPipe) followingId: number,
     @CurrentUser() user: { id: number },
   ) {
-    return this.savedPostService.toggleSavedPost(postId, user.id);
+    return this.followingService.toggleFollow(user.id, followingId);
   }
 }

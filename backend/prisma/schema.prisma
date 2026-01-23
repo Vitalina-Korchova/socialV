@@ -23,6 +23,8 @@ model user{
   saved_posts saved_post[]
   reposts repost[]
   comments comment[]
+  followers following[] @relation("UserFollowers")
+  followings following[] @relation("UserFollowings")
 }
 
 model user_reset_password{
@@ -84,6 +86,7 @@ model like{
    id Int  @id @default(autoincrement())  
    user_id Int 
    post_id Int
+   created_at DateTime @default(now())    
 
    user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
    post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
@@ -95,6 +98,7 @@ model saved_post{
    id Int  @id @default(autoincrement())  
    post_id Int
    user_id Int
+   created_at DateTime @default(now())    
 
    user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
    post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
@@ -105,6 +109,7 @@ model repost {
    id Int  @id @default(autoincrement())  
    post_id Int
    user_id Int
+   created_at DateTime @default(now())    
 
    user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
    post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
@@ -120,4 +125,16 @@ model comment{
 
   user user @relation(fields: [user_id], references: [id] ,onDelete: Cascade)
   post post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+}
+
+model following{
+   id Int  @id @default(autoincrement())  
+   follower_id Int  // хто підписується
+   following_id Int  // на кого підписуються
+   created_at DateTime @default(now())   
+
+   follower user @relation("UserFollowers", fields: [follower_id], references: [id], onDelete: Cascade)
+   following user @relation( "UserFollowings", fields: [following_id], references: [id], onDelete: Cascade)
+
+   @@unique([follower_id,following_id])
 }

@@ -9,10 +9,13 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentRequest } from './dto/comment.dto';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}

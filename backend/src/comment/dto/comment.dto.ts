@@ -1,5 +1,11 @@
+import { IsInt, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+
 export class CommentRequest {
+  @IsNotEmpty({ message: 'Text is required' })
+  @MaxLength(250, { message: 'Text is too long' })
+  @MinLength(1, { message: 'Text is too short' })
   text: string;
+  @IsInt()
   post_id: number;
 }
 

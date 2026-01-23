@@ -186,8 +186,6 @@ export class AuthService {
       select: {
         id: true,
         email: true,
-        username: true,
-        created_at: true,
       },
     });
 

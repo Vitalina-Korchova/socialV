@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -19,6 +18,7 @@ import { PostService } from './post.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { PostRequest, PostRequestUpdate } from './dto/post.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/posts')
@@ -41,12 +41,11 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))
   createPost(
-    @Req() req,
+    @CurrentUser() user: { id: number },
     @Body() dto: PostRequest,
     @UploadedFiles() files: { images?: Express.Multer.File[] },
   ) {
-    const userId = req.user.id;
-    return this.postService.createPost(userId, dto, files?.images || []);
+    return this.postService.createPost(user.id, dto, files?.images || []);
   }
 
   @Patch(':id')
@@ -56,16 +55,17 @@ export class PostController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: PostRequestUpdate,
     @UploadedFiles() files: { images?: Express.Multer.File[] },
-    @Req() req,
+    @CurrentUser() user: { id: number },
   ) {
-    const userId = req.user.id;
-    return this.postService.updatePost(id, userId, dto, files?.images || []);
+    return this.postService.updatePost(id, user.id, dto, files?.images || []);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  removePost(@Param('id', ParseIntPipe) id: number, @Req() req) {
-    const userId = req.user.id;
-    return this.postService.removePost(id, userId);
+  removePost(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
+  ) {
+    return this.postService.removePost(id, user.id);
   }
 }

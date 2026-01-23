@@ -1,20 +1,16 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
-  Param,
-  ParseIntPipe,
   Put,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
-import { User, UserRequestUpdate } from './dto/user.dto';
+import { UserRequestUpdate } from './dto/user.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/')
@@ -23,21 +19,16 @@ export class UserController {
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async me(@Req() req: Request) {
-    return req.user;
+  async me(@CurrentUser() user: { id: number }) {
+    return this.userService.getUser(user.id);
   }
 
-  @Put('user/:id')
+  @Put('me')
   @HttpCode(HttpStatus.OK)
   updateUser(
-    @Req() req: Request & { user: User },
-    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
     @Body() dto: UserRequestUpdate,
   ) {
-    if (req.user.id !== id) {
-      throw new ForbiddenException('You can update only your own profile');
-    }
-
-    return this.userService.updateUser(id, dto);
+    return this.userService.updateUser(user.id, dto);
   }
 }

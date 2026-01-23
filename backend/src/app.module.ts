@@ -13,6 +13,7 @@ import { LikeModule } from './like/like.module';
 import { SavedPostModule } from './saved_post/saved_post.module';
 import { RepostModule } from './repost/repost.module';
 import { CommentModule } from './comment/comment.module';
+import { FollowingModule } from './following/following.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CommentModule } from './comment/comment.module';
     SavedPostModule,
     RepostModule,
     CommentModule,
+    FollowingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
