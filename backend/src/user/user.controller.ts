@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Put,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +23,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async me(@CurrentUser() user: { id: number }) {
     return this.userService.getUser(user.id);
+  }
+
+  @Get('user/:id')
+  @HttpCode(HttpStatus.OK)
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.getUser(id);
   }
 
   @Put('me')
