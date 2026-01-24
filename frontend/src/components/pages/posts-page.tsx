@@ -5,7 +5,6 @@ import {
   Bookmark,
   Ellipsis,
   MessageCircle,
-  Pin,
   Repeat,
   ThumbsUp,
   User,
@@ -15,71 +14,19 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import CreatePostPage from "./create-post";
-
-// Масив з 5 об'єктів (у 3-х є фото)
-const postsData = [
-  {
-    id: 1,
-    name: "Robert Fox",
-    position: "Software Engineer",
-    date: "27 July, 2022",
-    content:
-      "Today marks 5 years in the software engineering field. Grateful for all the opportunities and growth along the way. Here's to many more years of coding excellence!",
-    likes: 123,
-    images: [
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    position: "Frontend Developer",
-    date: "15 August, 2022",
-    content:
-      "Just launched a new React application! So excited to see it live and getting positive feedback from users.",
-    likes: 89,
-    // Без фото
-  },
-  {
-    id: 3,
-    name: "Mike Chen",
-    position: "Full Stack Developer",
-    date: "3 September, 2022",
-    content:
-      "Working on some amazing new features for our platform. The team is doing incredible work!",
-    likes: 156,
-    images: [
-      "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 4,
-    name: "Emily Wilson",
-    position: "UI/UX Designer",
-    date: "18 September, 2022",
-    content:
-      "Design is not just what it looks like and feels like. Design is how it works.",
-    likes: 204,
-    images: [
-      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1547658719-da2b51169166?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 5,
-    name: "Alex Rodriguez",
-    position: "DevOps Engineer",
-    date: "25 September, 2022",
-    content:
-      "Automated deployment pipeline is now live! Deployment time reduced by 70%.",
-    likes: 67,
-    // Без фото
-  },
-];
+import { useGetAllPostsQuery } from "@/store/post/post.api";
+import { Loader } from "../ui/loader";
+import { ErrorState } from "../ui/error";
+import { formatDate } from "@/utils/format";
 
 export default function PostsPage() {
+  const [page, setPage] = useState(1);
+
+  const {
+    data: postsData,
+    error: postsError,
+    isLoading: postsLoading,
+  } = useGetAllPostsQuery({ page: page, page_size: 10 });
   const [commentInputVisible, setCommentInputVisible] = useState<{
     [key: number]: boolean;
   }>({});
@@ -94,11 +41,18 @@ export default function PostsPage() {
     }));
   };
 
+  if (postsLoading) {
+    return <Loader />;
+  }
+
+  if (postsError) {
+    return <ErrorState />;
+  }
   return (
     <>
       <div className="flex flex-col gap-7">
         <CreatePostPage />
-        {postsData.map((post) => (
+        {postsData?.data.map((post) => (
           <Card
             key={post.id}
             className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
@@ -111,9 +65,11 @@ export default function PostsPage() {
                     <User className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{post.name}</h3>
+                    <h3 className="font-semibold text-lg">
+                      {post.user.username}
+                    </h3>
                     <Badge variant={"default"} className="text-xs">
-                      {post.position}
+                      Static badge
                     </Badge>
                   </div>
                 </div>
@@ -121,7 +77,7 @@ export default function PostsPage() {
                 <div className="flex flex-col gap-2 justify-end items-end">
                   <Ellipsis className="text-muted-foreground cursor-pointer hover:bg-gray-100 rounded-full p-1" />
                   <span className="text-sm text-muted-foreground">
-                    {post.date}
+                    {formatDate(post.created_at)}
                   </span>
                 </div>
               </div>
@@ -129,7 +85,7 @@ export default function PostsPage() {
 
             <CardContent className="pb-4">
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                {post.content}
+                {post.text_content}
               </p>
 
               {post.images && post.images.length > 0 && (
@@ -152,7 +108,7 @@ export default function PostsPage() {
                       }`}
                     >
                       <Image
-                        src={image}
+                        src={image.url}
                         width={500}
                         height={300}
                         alt={`Post image ${index + 1}`}

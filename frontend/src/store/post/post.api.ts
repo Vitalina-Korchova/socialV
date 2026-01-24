@@ -1,0 +1,60 @@
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "../baseQuery";
+import { PaginatedPostResponse, PostResponse } from "./post.type";
+
+export const postApi = createApi({
+  reducerPath: "pistApi",
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ["Post"],
+  endpoints: (builder) => ({
+    getAllPosts: builder.query<
+      PaginatedPostResponse,
+      { page?: number; page_size?: number }
+    >({
+      query: ({ page, page_size }) => ({
+        url: "api/posts",
+        method: "GET",
+        params: { page, page_size },
+      }),
+      providesTags: ["Post"],
+    }),
+    getPostById: builder.query<PostResponse, number>({
+      query: (id) => ({
+        url: `api/posts/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Post"],
+    }),
+    createPost: builder.mutation<PostResponse, FormData>({
+      query: (body) => ({
+        url: "api/posts",
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["Post"],
+    }),
+    updatePost: builder.mutation<PostResponse, { id: number; body: FormData }>({
+      query: ({ id, body }) => ({
+        url: `api/posts/${id}`,
+        method: "PATCH",
+        body: body,
+      }),
+      invalidatesTags: ["Post"],
+    }),
+    deletePost: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `api/posts/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Post"],
+    }),
+  }),
+});
+
+export const {
+  useGetAllPostsQuery,
+  useCreatePostMutation,
+  useDeletePostMutation,
+  useGetPostByIdQuery,
+  useUpdatePostMutation,
+} = postApi;

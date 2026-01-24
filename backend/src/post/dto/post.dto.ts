@@ -4,7 +4,6 @@ export class PostRequest {
   @IsNotEmpty({ message: 'Text content is required' })
   @MaxLength(250, { message: 'Text conten is too long' })
   text_content: string;
-  created_at: Date;
 }
 
 class Image {
