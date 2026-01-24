@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
+import { useGetMeQuery } from "@/store/user/user.api";
 
 export default function CardProfileOptions() {
+  const { data: userData } = useGetMeQuery();
   const router = useRouter();
 
   return (
@@ -50,7 +52,9 @@ export default function CardProfileOptions() {
             </span>
           </div>
           <div className="flex flex-col gap-2">
-            <h3 className="font-semibold text-base">Robert Fox</h3>
+            <h3 className="font-semibold text-base">
+              {userData?.username || ""}
+            </h3>
             <Badge variant="default" className="text-xs">
               Software Engineer
             </Badge>

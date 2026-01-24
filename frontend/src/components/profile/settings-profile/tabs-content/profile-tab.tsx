@@ -47,7 +47,7 @@ export default function ProfileSettings() {
 
   const onSubmit = async (data: profileSchemaFormData) => {
     if (!userData?.id) return;
-    await updateUserData({ id: userData?.id, dto: data }).unwrap();
+    await updateUserData(data).unwrap();
     toast.success("Profile updated successfully");
   };
   return (

@@ -19,6 +19,7 @@ export default function ProfilePage() {
     error: userError,
     isLoading: userLoading,
   } = useGetMeQuery();
+
   const currentXP = 450;
   const totalXP = 500;
   const percentage = (currentXP / totalXP) * 100;
@@ -111,17 +112,23 @@ export default function ProfilePage() {
               </div>
               <div className="flex flex-row gap-5">
                 <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">12</span>
+                  <span className="font-bold text-4xl">
+                    {userData?.posts_count}
+                  </span>
                   <span className="text-muted-foreground text-sm">Posts</span>
                 </div>
                 <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">207</span>
+                  <span className="font-bold text-4xl">
+                    {userData?.followers_count}
+                  </span>
                   <span className="text-muted-foreground text-sm">
                     Followers
                   </span>
                 </div>
                 <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">64</span>
+                  <span className="font-bold text-4xl">
+                    {userData?.followings_count}
+                  </span>
                   <span className="text-muted-foreground text-sm">
                     Following
                   </span>
