@@ -2,7 +2,6 @@ import { IsNotEmpty, MaxLength } from 'class-validator';
 
 export class PostRequest {
   @IsNotEmpty({ message: 'Text content is required' })
-  @MaxLength(250, { message: 'Text conten is too long' })
   text_content: string;
 }
 

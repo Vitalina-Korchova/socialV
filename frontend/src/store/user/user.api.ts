@@ -13,6 +13,7 @@ export const userApi = createApi({
         method: "GET",
       }),
       providesTags: ["User"],
+      keepUnusedDataFor: 0,
     }),
     getUserById: builder.query<UserResponse, number>({
       query: (id) => ({

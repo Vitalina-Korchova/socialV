@@ -1,83 +1,63 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   Bookmark,
-  Ellipsis,
+  SquarePen,
   MessageCircle,
   Repeat,
   ThumbsUp,
+  Trash2,
   User,
 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
+import {
+  useDeletePostMutation,
+  useGetPostByUserIdQuery,
+} from "@/store/post/post.api";
+import { formatDate } from "@/utils/format";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Loader } from "../ui/loader";
+import { ErrorState } from "../ui/error";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import UpdatePostPage from "../posts/update-post";
 
-// Масив з 5 об'єктів (у 3-х є фото)
-const postsData = [
-  {
-    id: 1,
-    name: "Robert Fox",
-    position: "Software Engineer",
-    date: "27 July, 2022",
-    content:
-      "Today marks 5 years in the software engineering field. Grateful for all the opportunities and growth along the way. Here's to many more years of coding excellence!",
-    likes: 123,
-    images: [
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    position: "Frontend Developer",
-    date: "15 August, 2022",
-    content:
-      "Just launched a new React application! So excited to see it live and getting positive feedback from users.",
-    likes: 89,
-    // Без фото
-  },
-  {
-    id: 3,
-    name: "Mike Chen",
-    position: "Full Stack Developer",
-    date: "3 September, 2022",
-    content:
-      "Working on some amazing new features for our platform. The team is doing incredible work!",
-    likes: 156,
-    images: [
-      "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 4,
-    name: "Emily Wilson",
-    position: "UI/UX Designer",
-    date: "18 September, 2022",
-    content:
-      "Design is not just what it looks like and feels like. Design is how it works.",
-    likes: 204,
-    images: [
-      "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1547658719-da2b51169166?w=500&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: 5,
-    name: "Alex Rodriguez",
-    position: "DevOps Engineer",
-    date: "25 September, 2022",
-    content:
-      "Automated deployment pipeline is now live! Deployment time reduced by 70%.",
-    likes: 67,
-    // Без фото
-  },
-];
+type DataPostToDelete = {
+  id: number;
+  text: string;
+};
+const MAX_LINES = 4;
 
-export default function UserPosts() {
+export default function UserPosts({ id }: { id: number }) {
+  const [
+    deletePost,
+    { isLoading: isLoadingDeletePost, error: errorDeletePost },
+  ] = useDeletePostMutation();
+
+  const [page, setPage] = useState(1);
+  const {
+    data: AllPostsUser,
+    isLoading: isLoadingAllPostsUser,
+    error: errorAllPostsUser,
+  } = useGetPostByUserIdQuery({ userId: id, page: page, page_size: 10 });
+
+  const [isExpandable, setIsExpandable] = useState<{ [key: number]: boolean }>(
+    {}
+  );
+  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
+  const textRefs = useRef<{ [key: number]: HTMLParagraphElement | null }>({});
+  const [openImage, setOpenImage] = useState<string | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<DataPostToDelete | null>(
+    null
+  );
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [updateIdPost, setUpdateIdPost] = useState<number | null>(null);
+
   const [commentInputVisible, setCommentInputVisible] = useState<{
     [key: number]: boolean;
   }>({});
@@ -92,10 +72,58 @@ export default function UserPosts() {
     }));
   };
 
+  const measureLines = (postId: number) => {
+    const el = textRefs.current[postId];
+    if (!el) return;
+
+    const styles = window.getComputedStyle(el);
+    const lineHeight = parseFloat(styles.lineHeight);
+
+    const lines = Math.round(el.scrollHeight / lineHeight);
+
+    setIsExpandable((prev) => ({
+      ...prev,
+      [postId]: lines > MAX_LINES,
+    }));
+  };
+
+  useEffect(() => {
+    AllPostsUser?.data.forEach((post) => {
+      measureLines(post.id);
+    });
+  }, [AllPostsUser]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      AllPostsUser?.data.forEach((post) => {
+        measureLines(post.id);
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [AllPostsUser]);
+
+  const handleDeletePost = async () => {
+    if (!postToDelete?.id) return;
+    try {
+      await deletePost(postToDelete.id).unwrap();
+      toast.success("Post deleted successfully");
+      setIsDeleteOpen(false);
+    } catch (error) {
+      toast.error("Error deleting post");
+    }
+  };
+
   return (
     <>
+      {isLoadingAllPostsUser && <Loader />}
+      {errorAllPostsUser && <ErrorState />}
+      {AllPostsUser?.data.length === 0 && (
+        <p className="text-sm text-foreground">No posts</p>
+      )}
       <div className="grid grid-cols-2 gap-5">
-        {postsData.map((post) => (
+        {AllPostsUser?.data.map((post) => (
           <Card
             key={post.id}
             className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
@@ -108,26 +136,70 @@ export default function UserPosts() {
                     <User className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{post.name}</h3>
+                    <h3 className="font-semibold text-lg">
+                      {post.user.username}
+                    </h3>
                     <Badge variant={"default"} className="text-xs">
-                      {post.position}
+                      static badge
                     </Badge>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2 justify-end items-end">
-                  <Ellipsis className="text-muted-foreground cursor-pointer hover:bg-gray-100 rounded-full p-1" />
+                  <div className="flex flex-row gap-3 items-center">
+                    <div
+                      className="text-primary cursor-pointer hover:text-primary/60"
+                      onClick={() => {
+                        setUpdateIdPost(post.id);
+                        setIsUpdateOpen(true);
+                      }}
+                    >
+                      <SquarePen className="w-5 h-5" />
+                    </div>
+                    <div
+                      className="text-primary cursor-pointer hover:text-primary/60"
+                      onClick={() => {
+                        setPostToDelete({
+                          id: post.id,
+                          text: post.text_content,
+                        });
+                        setIsDeleteOpen(true);
+                      }}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </div>
+                  </div>
                   <span className="text-sm text-muted-foreground">
-                    {post.date}
+                    {formatDate(post.created_at)}
                   </span>
                 </div>
               </div>
             </CardHeader>
 
             <CardContent className="pb-4">
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                {post.content}
+              <p
+                ref={(el) => {
+                  textRefs.current[post.id] = el;
+                }}
+                className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
+                  expanded[post.id] ? "" : "line-clamp-4"
+                }`}
+              >
+                {post.text_content}
               </p>
+              {isExpandable[post.id] && (
+                <button
+                  onClick={() =>
+                    setExpanded((prev) => ({
+                      ...prev,
+                      [post.id]: !prev[post.id],
+                    }))
+                  }
+                  className="text-sm text-primary hover:underline cursor-pointer"
+                >
+                  {expanded[post.id] ? "Show less" : "Show more"}
+                </button>
+              )}
 
               {post.images && post.images.length > 0 && (
                 <div
@@ -149,11 +221,12 @@ export default function UserPosts() {
                       }`}
                     >
                       <Image
-                        src={image}
+                        src={image.url}
                         width={500}
                         height={300}
                         alt={`Post image ${index + 1}`}
-                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                        onClick={() => setOpenImage(image.url)}
+                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
                       />
                     </div>
                   ))}
@@ -201,6 +274,76 @@ export default function UserPosts() {
             )}
           </Card>
         ))}
+        <Dialog open={!!openImage} onOpenChange={() => setOpenImage(null)}>
+          <DialogTitle></DialogTitle>
+          <DialogContent
+            className="
+            max-w-2xl!
+            p-2
+            flex
+            items-center
+            justify-center
+            h-[400px]
+          "
+          >
+            {openImage && (
+              <Image
+                src={openImage}
+                alt="Full image"
+                width={1600}
+                height={900}
+                className="max-w-[565px] max-h-[55vh] object-contain"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={isDeleteOpen}
+          onOpenChange={(open) => {
+            setIsDeleteOpen(open);
+            if (!open) {
+              setPostToDelete(null);
+            }
+          }}
+        >
+          <DialogContent className="max-w-md">
+            <DialogTitle className="text-lg">Delete post?</DialogTitle>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              Are you sure you want to delete this post?
+            </p>
+
+            {postToDelete?.text && (
+              <p className="mt-3 p-3 text-sm bg-muted rounded-md line-clamp-3">
+                {postToDelete.text}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-3 mt-6">
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => setIsDeleteOpen(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                onClick={handleDeletePost}
+                disabled={isLoadingDeletePost}
+                className="px-4 py-2 text-sm rounded-md disabled:opacity-50 cursor-pointer"
+              >
+                Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <UpdatePostPage
+          postIdToUpdate={updateIdPost as number}
+          setPostIdToUpdate={setUpdateIdPost}
+          isUpdateOpen={isUpdateOpen}
+          setIsUpdateOpen={setIsUpdateOpen}
+        />
       </div>
     </>
   );

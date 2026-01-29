@@ -160,6 +160,86 @@ export class PostService {
     };
   }
 
+  async getPostsByUserId(
+    userId: number,
+    page?: number,
+    page_size?: number,
+  ): Promise<PaginatedPostResponse> {
+    const existUser = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existUser) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    const currentPage = page && page > 0 ? page : 1;
+    const pageSize = page_size && page_size > 0 ? page_size : 10;
+    const skip = (currentPage - 1) * pageSize;
+    const totalItems = await this.prismaService.post.count({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    const posts = await this.prismaService.post.findMany({
+      where: {
+        user_id: userId,
+      },
+      select: {
+        id: true,
+        text_content: true,
+        created_at: true,
+        user_id: true,
+        images: {
+          select: {
+            image: {
+              select: {
+                id: true,
+                url: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+        likes: true,
+        saved_post: true,
+        reposts: true,
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+      skip: skip,
+      take: pageSize,
+    });
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+    return {
+      data: posts.map((post) => ({
+        id: post.id,
+        text_content: post.text_content,
+        created_at: post.created_at,
+        user: post.user,
+        images: post.images.map((img) => ({
+          id: img.image.id,
+          url: `${this.baseUrl}/uploads/${img.image.url}`,
+        })),
+        likes: post.likes.length,
+        saved_number: post.saved_post.length,
+        reposts_number: post.reposts.length,
+      })),
+      current_page: currentPage,
+      total_items: totalItems,
+      has_next_page: currentPage < totalPages,
+      has_previous_page: currentPage > 1,
+    };
+  }
+
   async updatePost(
     id: number,
     userId: number,
@@ -178,7 +258,14 @@ export class PostService {
       throw new ForbiddenException('User can only edit his own posts');
     }
 
-    return this.prismaService.$transaction(async (tx) => {
+    const newImagesData: { url: string }[] = [];
+
+    for (const file of files ?? []) {
+      const imagePath = await this.imageService.saveImage(file, 'user-posts');
+      newImagesData.push({ url: imagePath });
+    }
+
+    await this.prismaService.$transaction(async (tx) => {
       if (dto.text_content !== undefined) {
         await tx.post.update({
           where: { id },
@@ -218,26 +305,29 @@ export class PostService {
         });
       }
 
-      for (const file of files) {
-        const imagePath = await this.imageService.saveImage(file, 'user-posts');
-
-        const image = await tx.image.create({
-          data: { url: imagePath },
+      if (newImagesData.length > 0) {
+        const createdImages = await tx.image.createMany({
+          data: newImagesData,
         });
 
-        await tx.post_image.create({
-          data: {
+        const images = await tx.image.findMany({
+          where: { url: { in: newImagesData.map((i) => i.url) } },
+          select: { id: true },
+        });
+
+        await tx.post_image.createMany({
+          data: images.map((img) => ({
             post_id: id,
-            image_id: image.id,
-          },
+            image_id: img.id,
+          })),
         });
       }
-
-      return {
-        success: true,
-        message: 'Post updated successfully',
-      };
     });
+
+    return {
+      success: true,
+      message: 'Post updated successfully',
+    };
   }
 
   async removePost(

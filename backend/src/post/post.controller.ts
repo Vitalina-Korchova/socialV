@@ -37,6 +37,16 @@ export class PostController {
     return this.postService.getPostById(id);
   }
 
+  @Get('user/:id')
+  @HttpCode(HttpStatus.OK)
+  async getPostsByUserId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page') page?: number,
+    @Query('page_size') page_size?: number,
+  ) {
+    return this.postService.getPostsByUserId(id, page, page_size);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))

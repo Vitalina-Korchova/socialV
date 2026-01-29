@@ -18,10 +18,21 @@ export const postApi = createApi({
       }),
       providesTags: ["Post"],
     }),
-    getPostById: builder.query<PostResponse, number>({
-      query: (id) => ({
-        url: `api/posts/${id}`,
+    getPostById: builder.query<PostResponse, { postId: number }>({
+      query: ({ postId }) => ({
+        url: `api/posts/${postId}`,
         method: "GET",
+      }),
+      providesTags: ["Post"],
+    }),
+    getPostByUserId: builder.query<
+      PaginatedPostResponse,
+      { userId: number; page?: number; page_size?: number }
+    >({
+      query: ({ userId, page, page_size }) => ({
+        url: `api/posts/user/${userId}`,
+        method: "GET",
+        params: { page, page_size },
       }),
       providesTags: ["Post"],
     }),
@@ -57,4 +68,5 @@ export const {
   useDeletePostMutation,
   useGetPostByIdQuery,
   useUpdatePostMutation,
+  useGetPostByUserIdQuery,
 } = postApi;

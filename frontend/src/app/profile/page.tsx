@@ -178,7 +178,7 @@ export default function ProfilePage() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="posts" className="mt-6">
-              <UserPosts />
+              <UserPosts id={userData!.id} />
             </TabsContent>
 
             <TabsContent value="saved" className="mt-6">

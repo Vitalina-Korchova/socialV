@@ -1,7 +1,7 @@
 "use client";
 
 import CardProfileOptions from "../components/pages/card-profile-options";
-import PostsPage from "../components/pages/posts-page";
+import PostsPage from "../components/posts/posts-page";
 import TopUsers from "../components/pages/top-users";
 
 export default function Home() {
