@@ -42,7 +42,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
   const onSubmit = async (data: SignUpFormData) => {
     await registerUser(data).unwrap();
     toast.success("Registered successfully");
-    router.push("/profile");
+    router.push("/profile?tab=settings");
   };
   return (
     <>

@@ -12,6 +12,8 @@ import {
 } from './dto/post.dto';
 import { ConfigService } from '@nestjs/config';
 
+type PostsType = 'all' | 'mine' | 'saved';
+
 @Injectable()
 export class PostService {
   private readonly baseUrl: string;
@@ -51,16 +53,31 @@ export class PostService {
     return post;
   }
 
-  async getAll(
+  async getAllPosts(
+    userId: number,
+    type: PostsType = 'all',
     page?: number,
     page_size?: number,
   ): Promise<PaginatedPostResponse> {
     const currentPage = page && page > 0 ? page : 1;
     const pageSize = page_size && page_size > 0 ? page_size : 10;
     const skip = (currentPage - 1) * pageSize;
-    const totalItems = await this.prismaService.post.count();
+
+    const where =
+      type === 'mine'
+        ? { user_id: userId }
+        : type === 'saved'
+          ? {
+              saved_post: {
+                some: { user_id: userId },
+              },
+            }
+          : {};
+
+    const totalItems = await this.prismaService.post.count({ where });
 
     const posts = await this.prismaService.post.findMany({
+      where,
       select: {
         id: true,
         text_content: true,
@@ -94,6 +111,30 @@ export class PostService {
       take: pageSize,
     });
 
+    const existMyLike = await this.prismaService.like.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
+    const isRepost = await this.prismaService.repost.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
+    const isSaved = await this.prismaService.saved_post.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: posts.map((post) => ({
@@ -105,6 +146,9 @@ export class PostService {
           id: img.image.id,
           url: `${this.baseUrl}/uploads/${img.image.url}`,
         })),
+        isLikedByMe: existMyLike.some((like) => like.post_id === post.id),
+        isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
+        isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
         saved_number: post.saved_post.length,
         reposts_number: post.reposts.length,
@@ -218,6 +262,32 @@ export class PostService {
       take: pageSize,
     });
 
+    const existMyLike = await this.prismaService.like.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
+
+    const isRepost = await this.prismaService.repost.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
+    const isSaved = await this.prismaService.saved_post.findMany({
+      where: {
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+        user_id: userId,
+      },
+    });
+
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: posts.map((post) => ({
@@ -229,6 +299,9 @@ export class PostService {
           id: img.image.id,
           url: `${this.baseUrl}/uploads/${img.image.url}`,
         })),
+        isLikedByMe: existMyLike.some((like) => like.post_id === post.id),
+        isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
+        isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
         saved_number: post.saved_post.length,
         reposts_number: post.reposts.length,

@@ -11,9 +11,19 @@ import { useGetMeQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
 import StoreProfile from "@/components/profile/store-profile/store-profile";
+import { useRouter, useSearchParams } from "next/navigation";
+import PostsPage from "@/components/posts/posts-page";
+
+type ProfileTab = "my-posts" | "saved" | "settings" | "store";
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("settings");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const tabParam = searchParams.get("tab") as ProfileTab | null;
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    tabParam ?? "my-posts"
+  );
   const {
     data: userData,
     error: userError,
@@ -24,6 +34,15 @@ export default function ProfilePage() {
   const totalXP = 500;
   const percentage = (currentXP / totalXP) * 100;
 
+  const handleTabChange = (value: string) => {
+    const tab = value as ProfileTab;
+    setActiveTab(tab);
+
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    params.set("tab", tab);
+    router.replace(`/profile?${params.toString()}`);
+  };
+
   if (userLoading) {
     return <Loader />;
   }
@@ -31,6 +50,7 @@ export default function ProfilePage() {
   if (userError) {
     return <ErrorState />;
   }
+
   return (
     <>
       <div className="flex flex-row gap-6 py-6 px-8">
@@ -139,30 +159,31 @@ export default function ProfilePage() {
             <div className="border-t border-gray-800">
               <Tabs
                 value={activeTab}
-                onValueChange={setActiveTab}
+                onValueChange={handleTabChange}
                 className="w-full"
               >
                 <TabsList className="w-full justify-center h-auto p-1 bg-transparent">
                   <TabsTrigger
-                    value="settings"
-                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="posts"
+                    value="my-posts"
                     className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
                     <FileText className="w-4 h-4" />
                     My Posts
                   </TabsTrigger>
+
                   <TabsTrigger
                     value="saved"
                     className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
                     <Bookmark className="w-4 h-4" />
                     Saved Posts
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="settings"
+                    className="flex cursor-pointer items-center gap-2 px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Settings
                   </TabsTrigger>
                   <TabsTrigger
                     value="store"
@@ -176,18 +197,13 @@ export default function ProfilePage() {
             </div>
           </Card>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsContent value="posts" className="mt-6">
-              <UserPosts id={userData!.id} />
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <TabsContent value="my-posts" className="mt-6">
+              <PostsPage id={userData!.id} type="mine" />
             </TabsContent>
 
             <TabsContent value="saved" className="mt-6">
-              <div className="p-6">
-                <h3 className="text-xl font-bold">Saved Posts</h3>
-                <p className="mt-2 text-gray-600">
-                  This tab is under development
-                </p>
-              </div>
+              <PostsPage id={userData!.id} type="saved" />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-6">

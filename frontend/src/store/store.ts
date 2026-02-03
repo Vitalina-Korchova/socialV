@@ -2,11 +2,13 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { authApi } from "./auth/auth.api";
 import { userApi } from "./user/user.api";
 import { postApi } from "./post/post.api";
+import { likeRepostSavedpostApi } from "./like-repost-savedpost/like-repost-savedpost.api";
 
 const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
+  [likeRepostSavedpostApi.reducerPath]: likeRepostSavedpostApi.reducer,
 });
 
 export const store = configureStore({
@@ -15,7 +17,8 @@ export const store = configureStore({
     getDefaultMiddleware()
       .concat(authApi.middleware)
       .concat(userApi.middleware)
-      .concat(postApi.middleware),
+      .concat(postApi.middleware)
+      .concat(likeRepostSavedpostApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

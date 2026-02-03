@@ -9,12 +9,12 @@ export const postApi = createApi({
   endpoints: (builder) => ({
     getAllPosts: builder.query<
       PaginatedPostResponse,
-      { page?: number; page_size?: number }
+      { type: string; page?: number; page_size?: number }
     >({
-      query: ({ page, page_size }) => ({
+      query: ({ type, page, page_size }) => ({
         url: "api/posts",
         method: "GET",
-        params: { page, page_size },
+        params: { type, page, page_size },
       }),
       providesTags: ["Post"],
     }),
@@ -24,6 +24,7 @@ export const postApi = createApi({
         method: "GET",
       }),
       providesTags: ["Post"],
+      keepUnusedDataFor: 0,
     }),
     getPostByUserId: builder.query<
       PaginatedPostResponse,

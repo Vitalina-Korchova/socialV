@@ -92,7 +92,7 @@ export default function Navbar() {
             <DropdownMenuContent className="z-99 mt-6 ">
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => router.push("/profile")}
+                onClick={() => router.push("/profile?tab=my-posts")}
               >
                 <CircleUser />
                 Profile

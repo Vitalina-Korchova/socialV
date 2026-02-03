@@ -38,7 +38,10 @@ export default function UpdatePostPage({
     data: postData,
     isLoading: isLoadingPost,
     error: errorPost,
-  } = useGetPostByIdQuery({ postId: postIdToUpdate });
+  } = useGetPostByIdQuery(
+    { postId: postIdToUpdate },
+    { skip: !postIdToUpdate }
+  );
   const [
     updatePost,
     { isLoading: isLoadingUpdatePost, error: errorUpdatePost },
@@ -87,6 +90,11 @@ export default function UpdatePostPage({
   };
 
   const handleUpdatePost = async () => {
+    const totalCurrentImages = keptImagesIds.length + imagesNew.length;
+    if (totalCurrentImages > 5) {
+      toast.error("You can upload a maximum of 5 images");
+      return;
+    }
     const formData = new FormData();
     formData.append("text_content", textContent);
     imagesNew.forEach((img) => formData.append("images", img.file));
@@ -95,11 +103,12 @@ export default function UpdatePostPage({
     );
     await updatePost({ id: postIdToUpdate, body: formData }).unwrap();
     toast.success("Post updated successfully!");
+
+    setIsUpdateOpen(false);
     setTextContent("");
     setImagesNew([]);
     setImagesExist([]);
     setKeptImagesIds([]);
-    setIsUpdateOpen(false);
   };
 
   return (
@@ -133,10 +142,10 @@ export default function UpdatePostPage({
                   />
                 </div>
 
-                {imagesExist.length > 0 && (
+                {(imagesExist.length > 0 || imagesNew.length > 0) && (
                   <div className="grid grid-cols-3 gap-2 mt-4">
                     {imagesExist.map((img) => (
-                      <div key={img.id} className="relative">
+                      <div key={`exist-${img.id}`} className="relative">
                         <Image
                           src={img.url}
                           alt="exist"
@@ -149,7 +158,6 @@ export default function UpdatePostPage({
                             setImagesExist((prev) =>
                               prev.filter((image) => image.id !== img.id)
                             );
-
                             setKeptImagesIds((prev) =>
                               prev.filter((id) => id !== img.id)
                             );
@@ -160,37 +168,36 @@ export default function UpdatePostPage({
                         </button>
                       </div>
                     ))}
+
+                    {imagesNew.map((img, index) => (
+                      <div key={`new-${index}`} className="relative">
+                        <Image
+                          src={img.preview}
+                          alt="new"
+                          width={400}
+                          height={400}
+                          className="rounded-lg object-cover h-32 w-full"
+                        />
+                        <button
+                          onClick={() => {
+                            URL.revokeObjectURL(img.preview);
+                            setImagesNew((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            );
+                          }}
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 cursor-pointer hover:bg-primary/60"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  {imagesNew.map((img, index) => (
-                    <div key={`new-${index}`} className="relative">
-                      <Image
-                        src={img.preview}
-                        alt="new"
-                        width={400}
-                        height={400}
-                        className="rounded-lg object-cover h-32 w-full"
-                      />
-                      <button
-                        onClick={() => {
-                          URL.revokeObjectURL(img.preview);
-                          setImagesNew((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          );
-                        }}
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 cursor-pointer hover:bg-primary/60"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
               </>
             )}
           </div>
 
-          <div className="flex justify-between border-t pt-4 items-center px-5 mt-4">
+          <div className="flex justify-between border-t pt-4 items-center px-5 mt-4 ">
             <label className="flex gap-3 cursor-pointer hover:text-primary">
               <ImageIcon className="w-5 h-5" />
               <span className="text-sm">Add Images</span>

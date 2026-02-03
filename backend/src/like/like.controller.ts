@@ -23,6 +23,6 @@ export class LikeController {
     @Param('id', ParseIntPipe) postId: number,
     @CurrentUser() user: { id: number },
   ) {
-    return this.likeService.toggleLike(user.id, postId);
+    return this.likeService.toggleLike(postId, user.id);
   }
 }

@@ -27,8 +27,18 @@ export class PostController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  getAll(@Query('page') page?: number, @Query('page_size') page_size?: number) {
-    return this.postService.getAll(page, page_size);
+  getAll(
+    @CurrentUser() user: { id: number },
+    @Query('page') page?: number,
+    @Query('page_size') page_size?: number,
+    @Query('type') type?: 'all' | 'mine' | 'saved',
+  ) {
+    return this.postService.getAllPosts(
+      user.id,
+      type ?? 'all',
+      page,
+      page_size,
+    );
   }
 
   @Get(':id')

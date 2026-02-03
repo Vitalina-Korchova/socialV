@@ -13,6 +13,9 @@ export interface PostResponse {
   };
   created_at: Date;
   images: Image[];
+  isLikedByMe: boolean;
+  isRepostedByMe: boolean;
+  isSavedByMe: boolean;
   likes: number;
   saved_number: number;
   reposts_number: number;

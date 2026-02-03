@@ -19,6 +19,9 @@ export class PostResponse {
   };
   created_at: Date;
   images: Image[];
+  isLikedByMe: boolean;
+  isRepostedByMe: boolean;
+  isSavedByMe: boolean;
   likes: number;
   saved_number: number;
   reposts_number: number;
@@ -34,7 +37,6 @@ export class PaginatedPostResponse {
 
 export class PostRequestUpdate {
   @IsNotEmpty({ message: 'Text content is required' })
-  @MaxLength(250, { message: 'Text conten is too long' })
   text_content: string;
   keep_image_ids: number[];
 }

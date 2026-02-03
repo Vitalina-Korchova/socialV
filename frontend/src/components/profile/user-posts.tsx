@@ -22,9 +22,8 @@ import { formatDate } from "@/utils/format";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Loader } from "../ui/loader";
 import { ErrorState } from "../ui/error";
-import { toast } from "sonner";
-import { Button } from "../ui/button";
 import UpdatePostPage from "../posts/update-post";
+import DeletePostPage from "../posts/delete-post";
 
 type DataPostToDelete = {
   id: number;
@@ -33,11 +32,6 @@ type DataPostToDelete = {
 const MAX_LINES = 4;
 
 export default function UserPosts({ id }: { id: number }) {
-  const [
-    deletePost,
-    { isLoading: isLoadingDeletePost, error: errorDeletePost },
-  ] = useDeletePostMutation();
-
   const [page, setPage] = useState(1);
   const {
     data: AllPostsUser,
@@ -104,17 +98,6 @@ export default function UserPosts({ id }: { id: number }) {
     return () => window.removeEventListener("resize", handleResize);
   }, [AllPostsUser]);
 
-  const handleDeletePost = async () => {
-    if (!postToDelete?.id) return;
-    try {
-      await deletePost(postToDelete.id).unwrap();
-      toast.success("Post deleted successfully");
-      setIsDeleteOpen(false);
-    } catch (error) {
-      toast.error("Error deleting post");
-    }
-  };
-
   return (
     <>
       {isLoadingAllPostsUser && <Loader />}
@@ -122,12 +105,12 @@ export default function UserPosts({ id }: { id: number }) {
       {AllPostsUser?.data.length === 0 && (
         <p className="text-sm text-foreground">No posts</p>
       )}
-      <div className="grid grid-cols-2 gap-5">
+      <div className="columns-2 gap-5 space-y-5">
         {AllPostsUser?.data.map((post) => (
           <Card
             key={post.id}
             className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
-           transition-shadow duration-300"
+           transition-shadow duration-300 gap-3! break-inside-avoid"
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -297,47 +280,12 @@ export default function UserPosts({ id }: { id: number }) {
             )}
           </DialogContent>
         </Dialog>
-        <Dialog
-          open={isDeleteOpen}
-          onOpenChange={(open) => {
-            setIsDeleteOpen(open);
-            if (!open) {
-              setPostToDelete(null);
-            }
-          }}
-        >
-          <DialogContent className="max-w-md">
-            <DialogTitle className="text-lg">Delete post?</DialogTitle>
-
-            <p className="text-sm text-muted-foreground mt-2">
-              Are you sure you want to delete this post?
-            </p>
-
-            {postToDelete?.text && (
-              <p className="mt-3 p-3 text-sm bg-muted rounded-md line-clamp-3">
-                {postToDelete.text}
-              </p>
-            )}
-
-            <div className="flex justify-end gap-3 mt-6">
-              <Button
-                variant="outline"
-                className="cursor-pointer"
-                onClick={() => setIsDeleteOpen(false)}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                onClick={handleDeletePost}
-                disabled={isLoadingDeletePost}
-                className="px-4 py-2 text-sm rounded-md disabled:opacity-50 cursor-pointer"
-              >
-                Delete
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <DeletePostPage
+          isDeleteOpen={isDeleteOpen}
+          setIsDeleteOpen={setIsDeleteOpen}
+          postToDelete={postToDelete}
+          setPostToDelete={setPostToDelete}
+        />
         <UpdatePostPage
           postIdToUpdate={updateIdPost as number}
           setPostIdToUpdate={setUpdateIdPost}

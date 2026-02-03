@@ -69,7 +69,7 @@ export default function CardProfileOptions() {
           <Button
             variant="ghost"
             className="w-full justify-start  cursor-pointer"
-            onClick={() => router.push("/profile")}
+            onClick={() => router.push("/profile?tab=my-posts")}
           >
             <User className="w-4 h-4 mr-3" />
             Profile
