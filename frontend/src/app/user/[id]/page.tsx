@@ -4,11 +4,11 @@ import React from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import UserPosts from "@/components/profile/user-posts";
 import { useGetUserByIdQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
 import { useParams } from "next/navigation";
+import UserPostsPage from "@/components/posts/user-posts-page";
 
 export default function UserProfile() {
   const params = useParams<{ id: string }>();
@@ -119,7 +119,7 @@ export default function UserProfile() {
             </CardContent>
           </Card>
         </div>
-        <UserPosts />
+        <UserPostsPage id={userId} />
       </div>
     </>
   );

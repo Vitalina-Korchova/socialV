@@ -1,13 +1,12 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-import { MessageCircle, Repeat, SquarePen, Trash2, User } from "lucide-react";
+import { MessageCircle, Repeat, User } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-import CreatePostPage from "./create-post";
-import { useGetAllPostsQuery } from "@/store/post/post.api";
+import { useGetPostByUserIdQuery } from "@/store/post/post.api";
 import { Loader } from "../ui/loader";
 import { ErrorState } from "../ui/error";
 import { formatDate } from "@/utils/format";
@@ -22,31 +21,20 @@ import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-import DeletePostPage from "./delete-post";
-import UpdatePostPage from "./update-post";
-import { useRouter } from "next/navigation";
-import { useGetMeQuery } from "@/store/user/user.api";
-
 const MAX_LINES = 4;
-type DataPostToDelete = {
-  id: number;
-  text: string;
-};
-export default function PostsPage({ type }: { type: string }) {
-  const router = useRouter();
+
+export default function UserPostsPage({ id }: { id: number }) {
   const [page, setPage] = useState(1);
 
   const {
     data: postsData,
     error: postsError,
     isLoading: postsLoading,
-  } = useGetAllPostsQuery({
-    type: type,
+  } = useGetPostByUserIdQuery({
+    userId: id,
     page: page,
     page_size: 10,
   });
-
-  const { data: me } = useGetMeQuery();
 
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
@@ -68,14 +56,6 @@ export default function PostsPage({ type }: { type: string }) {
   const [isSavedPost, setIsSavedPost] = useState<{ [key: number]: boolean }>(
     {}
   );
-
-  //update and delete
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [postToDelete, setPostToDelete] = useState<DataPostToDelete | null>(
-    null
-  );
-  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [updateIdPost, setUpdateIdPost] = useState<number | null>(null);
 
   useEffect(() => {
     if (!postsData?.data) return;
@@ -194,20 +174,13 @@ export default function PostsPage({ type }: { type: string }) {
 
   return (
     <>
-      <div className="flex flex-col gap-7">
-        {type === "all" && <CreatePostPage />}
+      <div className="flex">
         {postsLoading && <Loader />}
         {postsError && <ErrorState />}
         {postsData?.data.length === 0 && (
-          <p className="text-base text-foreground p-5">No posts</p>
+          <p className="text-base text-foreground p-5 text-center">No posts</p>
         )}
-        <div
-          className={
-            type === "mine" || type === "saved"
-              ? "columns-2 gap-5 space-y-5"
-              : "space-y-6"
-          }
-        >
+        <div className="columns-2 gap-5 space-y-5">
           {!postsLoading &&
             !postsError &&
             postsData?.data.map((post) => (
@@ -219,27 +192,9 @@ export default function PostsPage({ type }: { type: string }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center ${
-                          type === "all" || type === "saved"
-                            ? "cursor-pointer"
-                            : ""
-                        }`}
-                        onClick={
-                          type === "all" || type === "saved"
-                            ? () => {
-                                if (post.user.id === me?.id) {
-                                  router.push("/profile?tab=my-posts");
-                                } else {
-                                  router.push(`/user/${post.user.id}`);
-                                }
-                              }
-                            : undefined
-                        }
-                      >
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center ">
                         <User className="w-5 h-5 text-blue-600" />
                       </div>
-
                       <div>
                         <h3 className="font-semibold text-lg">
                           {post.user.username}
@@ -251,31 +206,6 @@ export default function PostsPage({ type }: { type: string }) {
                     </div>
 
                     <div className="flex flex-col gap-2 justify-end items-end">
-                      {type === "mine" && (
-                        <div className="flex flex-row gap-3 items-center">
-                          <div
-                            className="text-primary cursor-pointer hover:text-primary/60"
-                            onClick={() => {
-                              setUpdateIdPost(post.id);
-                              setIsUpdateOpen(true);
-                            }}
-                          >
-                            <SquarePen className="w-5 h-5" />
-                          </div>
-                          <div
-                            className="text-primary cursor-pointer hover:text-primary/60"
-                            onClick={() => {
-                              setPostToDelete({
-                                id: post.id,
-                                text: post.text_content,
-                              });
-                              setIsDeleteOpen(true);
-                            }}
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </div>
-                        </div>
-                      )}
                       <span className="text-sm text-muted-foreground">
                         {formatDate(post.created_at)}
                       </span>
@@ -445,18 +375,6 @@ export default function PostsPage({ type }: { type: string }) {
             )}
           </DialogContent>
         </Dialog>
-        <DeletePostPage
-          isDeleteOpen={isDeleteOpen}
-          setIsDeleteOpen={setIsDeleteOpen}
-          postToDelete={postToDelete}
-          setPostToDelete={setPostToDelete}
-        />
-        <UpdatePostPage
-          postIdToUpdate={updateIdPost as number}
-          setPostIdToUpdate={setUpdateIdPost}
-          isUpdateOpen={isUpdateOpen}
-          setIsUpdateOpen={setIsUpdateOpen}
-        />
       </div>
     </>
   );

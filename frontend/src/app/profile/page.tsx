@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Bookmark, FileText, Settings, Store, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UserPosts from "@/components/profile/user-posts";
 import SettingsProfile from "@/components/profile/settings-profile/settings-profile";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
@@ -199,11 +198,11 @@ export default function ProfilePage() {
 
           <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsContent value="my-posts" className="mt-6">
-              <PostsPage id={userData!.id} type="mine" />
+              <PostsPage type="mine" />
             </TabsContent>
 
             <TabsContent value="saved" className="mt-6">
-              <PostsPage id={userData!.id} type="saved" />
+              <PostsPage type="saved" />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-6">
