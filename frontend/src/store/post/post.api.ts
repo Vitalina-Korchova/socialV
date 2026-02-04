@@ -9,14 +9,15 @@ export const postApi = createApi({
   endpoints: (builder) => ({
     getAllPosts: builder.query<
       PaginatedPostResponse,
-      { type: string; page?: number; page_size?: number }
+      { type: string; search?: string; page?: number; page_size?: number }
     >({
-      query: ({ type, page, page_size }) => ({
+      query: ({ type, search, page, page_size }) => ({
         url: "api/posts",
         method: "GET",
-        params: { type, page, page_size },
+        params: { type, search, page, page_size },
       }),
       providesTags: ["Post"],
+      keepUnusedDataFor: 0,
     }),
     getPostById: builder.query<PostResponse, { postId: number }>({
       query: ({ postId }) => ({
@@ -36,6 +37,7 @@ export const postApi = createApi({
         params: { page, page_size },
       }),
       providesTags: ["Post"],
+      keepUnusedDataFor: 0,
     }),
     createPost: builder.mutation<PostResponse, FormData>({
       query: (body) => ({

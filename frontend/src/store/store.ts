@@ -3,12 +3,14 @@ import { authApi } from "./auth/auth.api";
 import { userApi } from "./user/user.api";
 import { postApi } from "./post/post.api";
 import { likeRepostSavedpostApi } from "./like-repost-savedpost/like-repost-savedpost.api";
+import searchReducer from "./post/search.slice";
 
 const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
   [likeRepostSavedpostApi.reducerPath]: likeRepostSavedpostApi.reducer,
+  search: searchReducer,
 });
 
 export const store = configureStore({

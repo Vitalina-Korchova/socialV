@@ -20,6 +20,13 @@ import { toast } from "sonner";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { motion } from "framer-motion";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
 
 const MAX_LINES = 4;
 
@@ -33,7 +40,7 @@ export default function UserPostsPage({ id }: { id: number }) {
   } = useGetPostByUserIdQuery({
     userId: id,
     page: page,
-    page_size: 10,
+    page_size: 200, //HardCode
   });
 
   const [likePost] = useLikePostMutation();
@@ -238,35 +245,44 @@ export default function UserPostsPage({ id }: { id: number }) {
                     </button>
                   )}
 
-                  {post.images && post.images.length > 0 && (
-                    <div
-                      className={`grid gap-2 ${
-                        post.images.length === 1
-                          ? "grid-cols-1"
-                          : post.images.length === 2
-                          ? "grid-cols-2"
-                          : "grid-cols-2"
-                      }`}
-                    >
-                      {post.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className={`relative overflow-hidden rounded-lg ${
-                            post.images.length === 3 && index === 0
-                              ? "col-span-2"
-                              : ""
-                          }`}
-                        >
-                          <Image
-                            src={image.url}
-                            width={500}
-                            height={300}
-                            alt={`Post image ${index + 1}`}
-                            onClick={() => setOpenImage(image.url)}
-                            className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                          />
-                        </div>
-                      ))}
+                  {post.images && post.images.length === 1 && (
+                    <div className="relative overflow-hidden rounded-lg">
+                      <Image
+                        src={post.images[0].url}
+                        width={500}
+                        height={300}
+                        alt="Post image"
+                        onClick={() => setOpenImage(post.images[0].url)}
+                        className="w-full h-80 object-cover cursor-pointer"
+                      />
+                    </div>
+                  )}
+
+                  {post.images && post.images.length > 1 && (
+                    <div className="relative overflow-hidden rounded-lg ">
+                      <Carousel className="w-full">
+                        <CarouselContent>
+                          {post.images.map((image, index) => (
+                            <CarouselItem key={index}>
+                              <Image
+                                src={image.url}
+                                width={500}
+                                height={300}
+                                alt={`Post image ${index + 1}`}
+                                onClick={() => setOpenImage(image.url)}
+                                className="w-full h-80 object-cover cursor-pointer"
+                              />
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+
+                        {post.images.length > 1 && (
+                          <>
+                            <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
+                            <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
+                          </>
+                        )}
+                      </Carousel>
                     </div>
                   )}
                 </CardContent>

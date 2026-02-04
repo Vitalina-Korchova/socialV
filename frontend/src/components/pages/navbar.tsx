@@ -23,6 +23,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useLogoutUserMutation } from "@/store/auth/auth.api";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearch, clearSearch } from "@/store/post/search.slice";
+import { RootState } from "@/store/store";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function Navbar() {
   const router = useRouter();
@@ -31,6 +35,34 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const bellRef = useRef<HTMLDivElement | null>(null);
+  const [inputSearch, setInputSearch] = useState("");
+  const dispatch = useDispatch();
+  const searchValue = useSelector((state: RootState) => state.search);
+
+  // Ініціалізуємо input значення з Redux
+  useEffect(() => {
+    setInputSearch(searchValue || "");
+  }, [searchValue]);
+
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    if (value.trim()) {
+      dispatch(setSearch(value.trim()));
+    } else {
+      dispatch(clearSearch());
+    }
+  }, 1000);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputSearch(value);
+    debouncedSearch(value);
+  };
+
+  const handleClearSearch = () => {
+    setInputSearch("");
+    dispatch(clearSearch());
+    debouncedSearch.cancel();
+  };
 
   const closeNotificationsOutside = (event: MouseEvent) => {
     if (!notificationsRef.current || !bellRef.current) return;
@@ -77,11 +109,18 @@ export default function Navbar() {
         <div className="flex-1 mx-20 relative">
           <Search className="absolute left-2.5 top-2 text-gray-300 h-5 w-5" />
           <Input
+            value={inputSearch}
+            onChange={handleInputChange}
             className="pl-10 w-full min-w-[200px] focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2"
-            placeholder="Search"
+            placeholder="Search posts..."
           />
           {/* прибрати якшо нічого немає в інпуті */}
-          <X className="absolute right-2.5 top-2 text-gray-400 h-5 w-5" />
+          {inputSearch && (
+            <X
+              className="absolute right-2.5 top-2 text-gray-400 h-5 w-5 cursor-pointer hover:text-gray-600"
+              onClick={handleClearSearch}
+            />
+          )}
         </div>
         <div className="flex justify-between items-center gap-5">
           <div onClick={() => router.push("/profile")}></div>

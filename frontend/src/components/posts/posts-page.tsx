@@ -26,6 +26,16 @@ import DeletePostPage from "./delete-post";
 import UpdatePostPage from "./update-post";
 import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/store/user/user.api";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
+import { PostResponse } from "@/store/post/post.type";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const MAX_LINES = 4;
 type DataPostToDelete = {
@@ -35,6 +45,10 @@ type DataPostToDelete = {
 export default function PostsPage({ type }: { type: string }) {
   const router = useRouter();
   const [page, setPage] = useState(1);
+  const [allPosts, setAllPosts] = useState<PostResponse[]>([]);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  const search = useSelector((state: RootState) => state.search);
 
   const {
     data: postsData,
@@ -42,9 +56,49 @@ export default function PostsPage({ type }: { type: string }) {
     isLoading: postsLoading,
   } = useGetAllPostsQuery({
     type: type,
+    search: search,
     page: page,
     page_size: 10,
   });
+
+  useEffect(() => {
+    if (postsData?.data) {
+      setAllPosts((prev) => {
+        if (page === 1) {
+          return postsData.data;
+        }
+        const newPostIds = new Set(postsData.data.map((p) => p.id));
+        const filteredPrev = prev.filter((p) => !newPostIds.has(p.id));
+        return [...filteredPrev, ...postsData.data];
+      });
+    }
+  }, [postsData, page, search]);
+
+  // Intersection Observer
+  useEffect(() => {
+    if (!loaderRef.current || !postsData?.has_next_page) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !postsLoading) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "100px",
+      }
+    );
+
+    observer.observe(loaderRef.current);
+
+    return () => observer.disconnect();
+  }, [postsData, postsLoading, loaderRef.current, search]);
+
+  useEffect(() => {
+    setAllPosts([]);
+    setPage(1);
+  }, [type, search]);
 
   const { data: me } = useGetMeQuery();
 
@@ -198,8 +252,10 @@ export default function PostsPage({ type }: { type: string }) {
         {type === "all" && <CreatePostPage />}
         {postsLoading && <Loader />}
         {postsError && <ErrorState />}
-        {postsData?.data.length === 0 && (
-          <p className="text-base text-foreground p-5">No posts</p>
+        {!postsLoading && !postsError && allPosts.length === 0 && (
+          <p className="text-base text-foreground p-5 text-center">
+            {search ? `No posts found for "${search}"` : "No posts"}
+          </p>
         )}
         <div
           className={
@@ -210,7 +266,7 @@ export default function PostsPage({ type }: { type: string }) {
         >
           {!postsLoading &&
             !postsError &&
-            postsData?.data.map((post) => (
+            allPosts?.map((post) => (
               <Card
                 key={post.id}
                 className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
@@ -308,38 +364,70 @@ export default function PostsPage({ type }: { type: string }) {
                     </button>
                   )}
 
-                  {post.images && post.images.length > 0 && (
-                    <div
-                      className={`grid gap-2 ${
-                        post.images.length === 1
-                          ? "grid-cols-1"
-                          : post.images.length === 2
-                          ? "grid-cols-2"
-                          : "grid-cols-2"
-                      }`}
-                    >
-                      {post.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className={`relative overflow-hidden rounded-lg ${
-                            post.images.length === 3 && index === 0
-                              ? "col-span-2"
-                              : ""
-                          }`}
-                        >
-                          <Image
-                            src={image.url}
-                            width={500}
-                            height={300}
-                            alt={`Post image ${index + 1}`}
-                            onClick={() => setOpenImage(image.url)}
-                            className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                          />
-                        </div>
-                      ))}
+                  {post.images && post.images.length === 1 && (
+                    <div className="relative overflow-hidden rounded-lg">
+                      <Image
+                        src={post.images[0].url}
+                        width={500}
+                        height={300}
+                        alt="Post image"
+                        onClick={() => setOpenImage(post.images[0].url)}
+                        className="w-full h-80 object-cover cursor-pointer"
+                      />
+                    </div>
+                  )}
+
+                  {post.images && post.images.length > 1 && (
+                    <div className="relative overflow-hidden rounded-lg ">
+                      <Carousel className="w-full">
+                        <CarouselContent>
+                          {post.images.map((image, index) => (
+                            <CarouselItem key={index}>
+                              <Image
+                                src={image.url}
+                                width={500}
+                                height={300}
+                                alt={`Post image ${index + 1}`}
+                                onClick={() => setOpenImage(image.url)}
+                                className="w-full h-80 object-cover cursor-pointer"
+                              />
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+
+                        {post.images.length > 1 && (
+                          <>
+                            <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
+                            <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
+                          </>
+                        )}
+                      </Carousel>
                     </div>
                   )}
                 </CardContent>
+                {post.repostedByUsers && post.repostedByUsers.length > 1 && (
+                  <div className="px-5 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex -space-x-2">
+                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
+                        <User className="h-3 w-3" />
+                      </div>
+                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
+                        <User className="h-3 w-3" />
+                      </div>
+                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background text-[10px]">
+                        +1
+                      </div>
+                    </div>
+
+                    <span>
+                      Reposted by{" "}
+                      <span className="text-foreground font-medium">
+                        {post.repostedByUsers[0].username}
+                      </span>{" "}
+                      and others
+                    </span>
+                  </div>
+                )}
 
                 <CardFooter className="pt-4 flex justify-between items-center border-t">
                   <div className="flex gap-3">
@@ -422,6 +510,15 @@ export default function PostsPage({ type }: { type: string }) {
               </Card>
             ))}
         </div>
+        {postsData?.has_next_page && (
+          <div
+            ref={loaderRef}
+            className="h-20 flex items-center justify-center"
+          >
+            {postsLoading ? <Loader /> : <div>Loading...</div>}
+          </div>
+        )}
+
         <Dialog open={!!openImage} onOpenChange={() => setOpenImage(null)}>
           <DialogTitle></DialogTitle>
           <DialogContent
