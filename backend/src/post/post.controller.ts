@@ -32,10 +32,12 @@ export class PostController {
     @Query('page') page?: number,
     @Query('page_size') page_size?: number,
     @Query('type') type?: 'all' | 'mine' | 'saved',
+    @Query('search') search?: string,
   ) {
     return this.postService.getAllPosts(
       user.id,
       type ?? 'all',
+      search,
       page,
       page_size,
     );

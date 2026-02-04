@@ -11,6 +11,7 @@ import {
   PostRequestUpdate,
 } from './dto/post.dto';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 
 type PostsType = 'all' | 'mine' | 'saved';
 
@@ -56,6 +57,7 @@ export class PostService {
   async getAllPosts(
     userId: number,
     type: PostsType = 'all',
+    search?: string,
     page?: number,
     page_size?: number,
   ): Promise<PaginatedPostResponse> {
@@ -63,7 +65,7 @@ export class PostService {
     const pageSize = page_size && page_size > 0 ? page_size : 10;
     const skip = (currentPage - 1) * pageSize;
 
-    const where =
+    const baseWhere =
       type === 'mine'
         ? { user_id: userId }
         : type === 'saved'
@@ -73,6 +75,13 @@ export class PostService {
               },
             }
           : {};
+
+    const where: Prisma.postWhereInput = {
+      ...baseWhere,
+      ...(search && {
+        text_content: { contains: search, mode: 'insensitive' },
+      }),
+    } as Prisma.postWhereInput;
 
     const totalItems = await this.prismaService.post.count({ where });
 
@@ -104,6 +113,7 @@ export class PostService {
         saved_post: true,
         reposts: true,
       },
+
       orderBy: {
         created_at: 'desc',
       },
@@ -135,6 +145,34 @@ export class PostService {
         user_id: userId,
       },
     });
+
+    const userFollowings = await this.prismaService.following.findMany({
+      where: {
+        follower_id: userId,
+      },
+      select: {
+        following_id: true,
+      },
+    });
+    const repostOfMyFollowings = await this.prismaService.repost.findMany({
+      where: {
+        user_id: {
+          in: userFollowings.map((following) => following.following_id),
+        },
+        post_id: {
+          in: posts.map((post) => post.id),
+        },
+      },
+      select: {
+        post_id: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: posts.map((post) => ({
@@ -150,8 +188,13 @@ export class PostService {
         isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
         isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
-        saved_number: post.saved_post.length,
-        reposts_number: post.reposts.length,
+        repostedByUsers: repostOfMyFollowings
+          .filter((repost) => repost.post_id === post.id)
+          .slice(0, 2)
+          .map((repost) => ({
+            id: repost.user.id,
+            username: repost.user.username,
+          })),
       })),
       current_page: currentPage,
       total_items: totalItems,
@@ -303,8 +346,6 @@ export class PostService {
         isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
         isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
-        saved_number: post.saved_post.length,
-        reposts_number: post.reposts.length,
       })),
       current_page: currentPage,
       total_items: totalItems,

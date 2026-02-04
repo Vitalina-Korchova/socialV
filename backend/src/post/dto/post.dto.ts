@@ -23,8 +23,11 @@ export class PostResponse {
   isRepostedByMe: boolean;
   isSavedByMe: boolean;
   likes: number;
-  saved_number: number;
-  reposts_number: number;
+  repostedByUsers?: {
+    id: number;
+    // image: Image;
+    username: string;
+  }[];
 }
 
 export class PaginatedPostResponse {
