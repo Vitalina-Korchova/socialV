@@ -39,23 +39,20 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const searchValue = useSelector((state: RootState) => state.search);
 
-  // Ініціалізуємо input значення з Redux
-  useEffect(() => {
-    setInputSearch(searchValue || "");
-  }, [searchValue]);
-
   const debouncedSearch = useDebouncedCallback((value: string) => {
     if (value.trim()) {
       dispatch(setSearch(value.trim()));
     } else {
       dispatch(clearSearch());
     }
-  }, 1000);
-
+  }, 500);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputSearch(value);
     debouncedSearch(value);
+    if (pathname !== "/") {
+      router.push("/");
+    }
   };
 
   const handleClearSearch = () => {

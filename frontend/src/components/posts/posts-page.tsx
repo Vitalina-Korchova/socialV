@@ -56,7 +56,7 @@ export default function PostsPage({ type }: { type: string }) {
     isLoading: postsLoading,
   } = useGetAllPostsQuery({
     type: type,
-    search: search,
+    search: type === "all" ? search : "",
     page: page,
     page_size: 10,
   });
@@ -93,7 +93,7 @@ export default function PostsPage({ type }: { type: string }) {
     observer.observe(loaderRef.current);
 
     return () => observer.disconnect();
-  }, [postsData, postsLoading, loaderRef.current, search]);
+  }, [postsData, postsLoading, loaderRef.current]);
 
   useEffect(() => {
     setAllPosts([]);
@@ -182,21 +182,21 @@ export default function PostsPage({ type }: { type: string }) {
   };
 
   useEffect(() => {
-    postsData?.data.forEach((post) => {
+    allPosts?.forEach((post) => {
       measureLines(post.id);
     });
-  }, [postsData]);
+  }, [allPosts]);
 
   useEffect(() => {
     const handleResize = () => {
-      postsData?.data.forEach((post) => {
+      allPosts?.forEach((post) => {
         measureLines(post.id);
       });
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [postsData]);
+  }, [allPosts]);
 
   const handleLikePost = async (postId: number) => {
     try {

@@ -373,70 +373,85 @@ export class PostService {
     }
 
     const newImagesData: { url: string }[] = [];
-
     for (const file of files ?? []) {
       const imagePath = await this.imageService.saveImage(file, 'user-posts');
       newImagesData.push({ url: imagePath });
     }
 
-    await this.prismaService.$transaction(async (tx) => {
-      if (dto.text_content !== undefined) {
-        await tx.post.update({
-          where: { id },
-          data: { text_content: dto.text_content },
-        });
-      }
+    const deletedImageUrls = await this.prismaService.$transaction(
+      async (tx) => {
+        if (dto.text_content !== undefined) {
+          await tx.post.update({
+            where: { id },
+            data: { text_content: dto.text_content },
+          });
+        }
 
-      const postImages = await tx.post_image.findMany({
-        where: { post_id: id },
-        select: { image_id: true },
-      });
-
-      const currentImageIds = postImages.map((img) => img.image_id);
-
-      const keepImageIds = Array.isArray(dto.keep_image_ids)
-        ? dto.keep_image_ids.map(Number)
-        : dto.keep_image_ids
-          ? [Number(dto.keep_image_ids)]
-          : [];
-
-      const imagesToDelete = currentImageIds.filter(
-        (imgId) => !keepImageIds.includes(imgId),
-      );
-
-      if (imagesToDelete.length > 0) {
-        await tx.post_image.deleteMany({
-          where: {
-            post_id: id,
-            image_id: { in: imagesToDelete },
+        const postImages = await tx.post_image.findMany({
+          where: { post_id: id },
+          select: {
+            image: {
+              select: { id: true, url: true },
+            },
           },
         });
 
-        await tx.image.deleteMany({
-          where: {
-            id: { in: imagesToDelete },
-          },
-        });
-      }
+        const currentImages = postImages.map((img) => img.image);
 
-      if (newImagesData.length > 0) {
-        const createdImages = await tx.image.createMany({
-          data: newImagesData,
-        });
+        const keepImageIds = Array.isArray(dto.keep_image_ids)
+          ? dto.keep_image_ids.map(Number)
+          : dto.keep_image_ids
+            ? [Number(dto.keep_image_ids)]
+            : [];
 
-        const images = await tx.image.findMany({
-          where: { url: { in: newImagesData.map((i) => i.url) } },
-          select: { id: true },
-        });
+        const imagesToDelete = currentImages.filter(
+          (img) => !keepImageIds.includes(img.id),
+        );
 
-        await tx.post_image.createMany({
-          data: images.map((img) => ({
-            post_id: id,
-            image_id: img.id,
-          })),
-        });
-      }
-    });
+        if (imagesToDelete.length > 0) {
+          await tx.post_image.deleteMany({
+            where: {
+              post_id: id,
+              image_id: {
+                in: imagesToDelete.map((img) => img.id),
+              },
+            },
+          });
+
+          await tx.image.deleteMany({
+            where: {
+              id: {
+                in: imagesToDelete.map((img) => img.id),
+              },
+            },
+          });
+        }
+
+        if (newImagesData.length > 0) {
+          await tx.image.createMany({
+            data: newImagesData,
+          });
+
+          const images = await tx.image.findMany({
+            where: { url: { in: newImagesData.map((i) => i.url) } },
+            select: { id: true },
+          });
+
+          await tx.post_image.createMany({
+            data: images.map((img) => ({
+              post_id: id,
+              image_id: img.id,
+            })),
+          });
+        }
+
+        return imagesToDelete.map((img) => img.url);
+      },
+    );
+
+    await Promise.all(
+      deletedImageUrls.map((url) => this.imageService.removeImage(url)),
+    );
 
     return {
       success: true,
@@ -451,6 +466,7 @@ export class PostService {
     const existPost = await this.prismaService.post.findUnique({
       where: { id },
     });
+
     if (!existPost) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
@@ -459,32 +475,40 @@ export class PostService {
       throw new ForbiddenException('User can only delete his own posts');
     }
 
-    return await this.prismaService.$transaction(async (tx) => {
+    const imageUrls = await this.prismaService.$transaction(async (tx) => {
       const postRelatedImages = await tx.post_image.findMany({
         where: { post_id: id },
-        select: { image_id: true },
+        select: {
+          image: {
+            select: { url: true },
+          },
+        },
       });
 
-      await tx.post_image.deleteMany({
-        where: { post_id: id },
-      });
+      await tx.post_image.deleteMany({ where: { post_id: id } });
 
       if (postRelatedImages.length > 0) {
         await tx.image.deleteMany({
           where: {
-            id: {
-              in: postRelatedImages.map((img) => img.image_id),
+            url: {
+              in: postRelatedImages.map((img) => img.image.url),
             },
           },
         });
       }
 
-      //DELETING LIKES COMMENTS REPOSTS !!!!!
       await tx.post.delete({ where: { id } });
-      return {
-        success: true,
-        message: `Post with ID ${id} has been deleted successfully`,
-      };
+
+      return postRelatedImages.map((img) => img.image.url);
     });
+
+    for (const url of imageUrls) {
+      await this.imageService.removeImage(url);
+    }
+
+    return {
+      success: true,
+      message: `Post with ID ${id} has been deleted successfully`,
+    };
   }
 }

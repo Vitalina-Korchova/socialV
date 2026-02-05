@@ -69,6 +69,8 @@ model post{
 model image {
   id Int  @id @default(autoincrement())  
   url String
+  type_image String @default("user-post")
+
 
   post_image post_image[]
 }
