@@ -6,13 +6,21 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import { useCreatePostMutation } from "@/store/post/post.api";
+import { TbUserStar } from "react-icons/tb";
+import { UserResponse } from "@/store/user/user.type";
 
 type ImagePreview = {
   file: File;
   preview: string;
 };
 
-export default function CreatePostPage() {
+export default function CreatePostPage({
+  userData,
+  userLoading,
+}: {
+  userData: UserResponse;
+  userLoading: boolean;
+}) {
   const [textContent, setTextContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [images, setImages] = useState<ImagePreview[]>([]);
@@ -56,6 +64,10 @@ export default function CreatePostPage() {
     await createPost(formData).unwrap();
     setTextContent("");
     setImages([]);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+
     toast.success("Post created successfully!");
   };
   return (
@@ -65,15 +77,23 @@ export default function CreatePostPage() {
            transition-shadow duration-300 flex flex-col px-8 pt-8 pb-5"
       >
         <div className="flex flex-row gap-4 items-top">
-          <div className="w-10 h-10 ">
-            <Image
-              src="/back2.jpg"
-              alt="border"
-              width={150}
-              height={150}
-              className="w-full h-full object-cover rounded-full"
-            />
-          </div>
+          {userLoading ? (
+            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+              <TbUserStar className="w-6 h-6 text-primary" />
+            </div>
+          ) : (
+            <div className="w-10 h-10  rounded-full flex items-center justify-center">
+              {userData?.avatar_url && (
+                <Image
+                  src={userData.avatar_url}
+                  alt="avatar"
+                  width={300}
+                  height={300}
+                  className="rounded-full object-cover"
+                />
+              )}
+            </div>
+          )}
 
           <Textarea
             ref={textareaRef}

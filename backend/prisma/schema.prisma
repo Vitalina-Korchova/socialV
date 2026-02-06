@@ -25,6 +25,7 @@ model user{
   comments comment[]
   followers following[] @relation("UserFollowers")
   followings following[] @relation("UserFollowings")
+  user_shop_items user_shop_item[]
 }
 
 model user_reset_password{
@@ -45,7 +46,7 @@ model used_refresh_token {
   expires_at DateTime                                
   created_at DateTime @default(now())              
 
-  user      user     @relation(fields: [user_id], references: [id])
+  user      user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 
@@ -73,6 +74,7 @@ model image {
 
 
   post_image post_image[]
+  item_images shop_item[]
 }
 
 model post_image{
@@ -139,4 +141,37 @@ model following{
    following user @relation( "UserFollowings", fields: [following_id], references: [id], onDelete: Cascade)
 
    @@unique([follower_id,following_id])
+}
+
+enum item_shop_type {
+  AVATAR
+  BACKGROUND
+  BADGE
+  BORDER
+}
+
+model shop_item {
+  id Int  @id @default(autoincrement())  
+  type item_shop_type
+  item_image_id Int?
+  required_level Int 
+  price_coins Int @default(0)
+  is_free Boolean @default(false)
+
+  item_image image? @relation(fields: [item_image_id], references: [id], onDelete: Cascade)
+  user_shop_items user_shop_item[]
+}
+
+
+model user_shop_item{
+  id Int  @id @default(autoincrement())  
+  user_id Int
+  shop_item_id Int
+  is_active Boolean  @default(false)
+  is_obtained Boolean  @default(false)
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  shop_item shop_item @relation(fields: [shop_item_id], references: [id], onDelete: Cascade)
+  @@unique([user_id, shop_item_id])
+
 }

@@ -27,6 +27,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
+import { TbUserStar } from "react-icons/tb";
 
 const MAX_LINES = 4;
 
@@ -199,12 +200,21 @@ export default function UserPostsPage({ id }: { id: number }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center ">
-                        <User className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10  rounded-full flex items-center justify-center">
+                        {post.user?.avatar_url && (
+                          <Image
+                            src={post.user.avatar_url}
+                            alt="avatar"
+                            width={300}
+                            height={300}
+                            className="rounded-full object-cover"
+                          />
+                        )}
                       </div>
+
                       <div>
                         <h3 className="font-semibold text-lg">
-                          {post.user.username}
+                          {post.user.username || "Username"}
                         </h3>
                         <Badge variant={"default"} className="text-xs">
                           Static badge

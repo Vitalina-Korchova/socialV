@@ -50,6 +50,26 @@ export class AuthService {
         password: await hash(password),
       },
     });
+
+    const freeItemsAvatars = await this.prismaService.shop_item.findMany({
+      where: {
+        type: 'AVATAR',
+        is_free: true,
+        required_level: 1,
+      },
+    });
+
+    const firstAvatarRandom = freeItemsAvatars.find((i) => i.type === 'AVATAR');
+
+    const userFreeShopItemsAvatars = freeItemsAvatars.map((item) => ({
+      user_id: user.id,
+      shop_item_id: item.id,
+      is_obtained: true,
+      is_active: firstAvatarRandom ? firstAvatarRandom.id === item.id : false,
+    }));
+    await this.prismaService.user_shop_item.createMany({
+      data: userFreeShopItemsAvatars,
+    });
     return this.auth(res, user.id);
   }
 

@@ -23,9 +23,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useLogoutUserMutation } from "@/store/auth/auth.api";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setSearch, clearSearch } from "@/store/post/search.slice";
-import { RootState } from "@/store/store";
 import { useDebouncedCallback } from "use-debounce";
 
 export default function Navbar() {
@@ -37,7 +36,6 @@ export default function Navbar() {
   const bellRef = useRef<HTMLDivElement | null>(null);
   const [inputSearch, setInputSearch] = useState("");
   const dispatch = useDispatch();
-  const searchValue = useSelector((state: RootState) => state.search);
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     if (value.trim()) {

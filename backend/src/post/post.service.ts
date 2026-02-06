@@ -11,7 +11,7 @@ import {
   PostRequestUpdate,
 } from './dto/post.dto';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client';
+import { item_shop_type, Prisma } from '@prisma/client';
 
 type PostsType = 'all' | 'mine' | 'saved';
 
@@ -173,13 +173,76 @@ export class PostService {
         },
       },
     });
+
+    const postUserIds = [...new Set(posts.map((p) => p.user.id))];
+
+    const activeAvatars = await this.prismaService.user_shop_item.findMany({
+      where: {
+        user_id: { in: postUserIds },
+        is_active: true,
+        shop_item: {
+          type: item_shop_type.AVATAR,
+        },
+      },
+      select: {
+        user_id: true,
+        shop_item: {
+          select: {
+            item_image: {
+              select: { url: true },
+            },
+          },
+        },
+      },
+    });
+
+    const avatarMap = new Map<number, string>();
+    activeAvatars.forEach((a) => {
+      if (a.shop_item.item_image?.url) {
+        avatarMap.set(
+          a.user_id,
+          `${this.baseUrl}/uploads/${a.shop_item.item_image.url}`,
+        );
+      }
+    });
+
+    const repostUserIds = [
+      ...new Set(repostOfMyFollowings.map((repost) => repost.user.id)),
+    ];
+
+    const activeAvatarsReposrFollowings =
+      await this.prismaService.user_shop_item.findMany({
+        where: {
+          user_id: { in: repostUserIds },
+          is_active: true,
+          shop_item: {
+            type: item_shop_type.AVATAR,
+          },
+        },
+        select: {
+          user_id: true,
+          shop_item: {
+            select: {
+              item_image: {
+                select: { url: true },
+              },
+            },
+          },
+        },
+      });
+
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: posts.map((post) => ({
         id: post.id,
         text_content: post.text_content,
         created_at: post.created_at,
-        user: post.user,
+        user: {
+          id: post.user.id,
+          username: post.user.username,
+          email: post.user.email,
+          avatar_url: avatarMap.get(post.user.id) || null,
+        },
         images: post.images.map((img) => ({
           id: img.image.id,
           url: `${this.baseUrl}/uploads/${img.image.url}`,
@@ -191,10 +254,20 @@ export class PostService {
         repostedByUsers: repostOfMyFollowings
           .filter((repost) => repost.post_id === post.id)
           .slice(0, 2)
-          .map((repost) => ({
-            id: repost.user.id,
-            username: repost.user.username,
-          })),
+          .map((repost) => {
+            const avatarObj = activeAvatarsReposrFollowings.find(
+              (a) => a.user_id === repost.user.id,
+            );
+            const avatarUrl = avatarObj?.shop_item?.item_image?.url
+              ? `${this.baseUrl}/uploads/${avatarObj.shop_item.item_image.url}`
+              : null;
+
+            return {
+              id: repost.user.id,
+              username: repost.user.username,
+              avatar_url: avatarUrl,
+            };
+          }),
       })),
       current_page: currentPage,
       total_items: totalItems,
@@ -331,13 +404,41 @@ export class PostService {
       },
     });
 
+    const activeAvatarUser = await this.prismaService.user_shop_item.findFirst({
+      where: {
+        user_id: userId,
+        is_active: true,
+        shop_item: {
+          type: item_shop_type.AVATAR,
+        },
+      },
+      select: {
+        shop_item: {
+          select: {
+            item_image: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: posts.map((post) => ({
         id: post.id,
         text_content: post.text_content,
         created_at: post.created_at,
-        user: post.user,
+        user: {
+          id: post.user_id,
+          username: post.user.username,
+          email: post.user.email,
+          avatar_url: activeAvatarUser?.shop_item?.item_image?.url
+            ? `${this.baseUrl}/uploads/${activeAvatarUser.shop_item.item_image.url}`
+            : null,
+        },
         images: post.images.map((img) => ({
           id: img.image.id,
           url: `${this.baseUrl}/uploads/${img.image.url}`,

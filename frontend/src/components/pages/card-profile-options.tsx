@@ -8,9 +8,10 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/store/user/user.api";
+import { TbUserStar } from "react-icons/tb";
 
 export default function CardProfileOptions() {
-  const { data: userData } = useGetMeQuery();
+  const { data: userData, isLoading: userLoading } = useGetMeQuery();
   const router = useRouter();
 
   return (
@@ -40,9 +41,23 @@ export default function CardProfileOptions() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-600" />
-              </div>
+              {userLoading ? (
+                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                  <TbUserStar className="w-6 h-6 text-primary" />
+                </div>
+              ) : (
+                <div className="w-10 h-10  rounded-full flex items-center justify-center">
+                  {userData?.avatar_url && (
+                    <Image
+                      src={userData.avatar_url}
+                      alt="avatar"
+                      width={300}
+                      height={300}
+                      className="rounded-full object-cover"
+                    />
+                  )}
+                </div>
+              )}
             </div>
             <span
               className="w-fit h-fit text-xs px-2 py-0.5 rounded-full
@@ -53,7 +68,7 @@ export default function CardProfileOptions() {
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="font-semibold text-base">
-              {userData?.username || ""}
+              {userData?.username || "Usename"}
             </h3>
             <Badge variant="default" className="text-xs">
               Software Engineer

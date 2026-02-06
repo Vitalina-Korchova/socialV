@@ -36,6 +36,7 @@ import {
 import { PostResponse } from "@/store/post/post.type";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { TbUserStar } from "react-icons/tb";
 
 const MAX_LINES = 4;
 type DataPostToDelete = {
@@ -100,7 +101,7 @@ export default function PostsPage({ type }: { type: string }) {
     setPage(1);
   }, [type, search]);
 
-  const { data: me } = useGetMeQuery();
+  const { data: userData, isLoading: userLoading } = useGetMeQuery();
 
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
@@ -249,12 +250,14 @@ export default function PostsPage({ type }: { type: string }) {
   return (
     <>
       <div className="flex flex-col gap-7">
-        {type === "all" && <CreatePostPage />}
+        {type === "all" && (
+          <CreatePostPage userData={userData!} userLoading={userLoading} />
+        )}
         {postsLoading && <Loader />}
         {postsError && <ErrorState />}
         {!postsLoading && !postsError && allPosts.length === 0 && (
           <p className="text-base text-foreground p-5 text-center">
-            {search ? `No posts found for "${search}"` : "No posts"}
+            {search && `No posts found for "${search}"`}
           </p>
         )}
         <div
@@ -275,26 +278,40 @@ export default function PostsPage({ type }: { type: string }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center ${
-                          type === "all" || type === "saved"
-                            ? "cursor-pointer"
-                            : ""
-                        }`}
-                        onClick={
-                          type === "all" || type === "saved"
-                            ? () => {
-                                if (post.user.id === me?.id) {
-                                  router.push("/profile?tab=my-posts");
-                                } else {
-                                  router.push(`/user/${post.user.id}`);
+                      {postsLoading ? (
+                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                          <TbUserStar className="w-6 h-6 text-primary" />
+                        </div>
+                      ) : (
+                        <div
+                          className={`w-10 h-10  rounded-full flex items-center justify-center ${
+                            type === "all" || type === "saved"
+                              ? "cursor-pointer"
+                              : ""
+                          }`}
+                          onClick={
+                            type === "all" || type === "saved"
+                              ? () => {
+                                  if (post.user.id === userData?.id) {
+                                    router.push("/profile?tab=my-posts");
+                                  } else {
+                                    router.push(`/user/${post.user.id}`);
+                                  }
                                 }
-                              }
-                            : undefined
-                        }
-                      >
-                        <User className="w-5 h-5 text-blue-600" />
-                      </div>
+                              : undefined
+                          }
+                        >
+                          {post.user?.avatar_url && (
+                            <Image
+                              src={post.user.avatar_url}
+                              alt="avatar"
+                              width={300}
+                              height={300}
+                              className="rounded-full object-cover"
+                            />
+                          )}
+                        </div>
+                      )}
 
                       <div>
                         <h3 className="font-semibold text-lg">
@@ -409,10 +426,26 @@ export default function PostsPage({ type }: { type: string }) {
                   <div className="px-5 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="flex -space-x-2">
                       <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
-                        <User className="h-3 w-3" />
+                        {post.repostedByUsers[0].avatar_url && (
+                          <Image
+                            src={post.repostedByUsers[0].avatar_url}
+                            alt="avatar"
+                            width={300}
+                            height={300}
+                            className="rounded-full object-cover"
+                          />
+                        )}
                       </div>
                       <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
-                        <User className="h-3 w-3" />
+                        {post.repostedByUsers[1].avatar_url && (
+                          <Image
+                            src={post.repostedByUsers[1].avatar_url}
+                            alt="avatar"
+                            width={300}
+                            height={300}
+                            className="rounded-full object-cover"
+                          />
+                        )}
                       </div>
                       <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background text-[10px]">
                         +1

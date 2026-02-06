@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/ui/error";
 import StoreProfile from "@/components/profile/store-profile/store-profile";
 import { useRouter, useSearchParams } from "next/navigation";
 import PostsPage from "@/components/posts/posts-page";
+import { TbUserStar } from "react-icons/tb";
 
 type ProfileTab = "my-posts" | "saved" | "settings" | "store";
 
@@ -80,8 +81,17 @@ export default function ProfilePage() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="w-22 h-22 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="w-25 h-25 text-blue-600" />
+
+                  <div className="w-22 h-22  rounded-full flex items-center justify-center">
+                    {userData?.avatar_url && (
+                      <Image
+                        src={userData.avatar_url}
+                        alt="avatar"
+                        width={300}
+                        height={300}
+                        className="rounded-full object-cover"
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">

@@ -59,8 +59,16 @@ export default function UserProfile() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="w-22 h-22 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="w-25 h-25 text-blue-600" />
+                  <div className="w-22 h-22  rounded-full flex items-center justify-center">
+                    {UserData?.avatar_url && (
+                      <Image
+                        src={UserData.avatar_url}
+                        alt="avatar"
+                        width={300}
+                        height={300}
+                        className="rounded-full object-cover"
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">

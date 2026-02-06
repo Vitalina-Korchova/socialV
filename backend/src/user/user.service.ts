@@ -4,12 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import type { Response } from 'express';
+
 import { UserRequestUpdate, UserResponse } from './dto/user.dto';
+import { item_shop_type } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly baseUrl: string;
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
+    this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
+  }
 
   async getUser(userId: number): Promise<UserResponse> {
     const user = await this.prismaService.user.findUnique({
@@ -19,6 +27,7 @@ export class UserService {
         username: true,
         email: true,
         created_at: true,
+
         _count: {
           select: {
             posts: true,
@@ -33,6 +42,27 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
+    const activeAvatar = await this.prismaService.user_shop_item.findFirst({
+      where: {
+        user_id: userId,
+        is_active: true,
+        shop_item: {
+          type: item_shop_type.AVATAR,
+        },
+      },
+      select: {
+        shop_item: {
+          select: {
+            item_image: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     return {
       id: user.id,
       username: user.username,
@@ -41,6 +71,7 @@ export class UserService {
       posts_count: user._count.posts,
       followers_count: user._count.followings,
       followings_count: user._count.followers,
+      avatar_url: `${this.baseUrl}/uploads/${activeAvatar?.shop_item?.item_image?.url ?? null}`,
     };
   }
 

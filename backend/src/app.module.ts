@@ -14,6 +14,7 @@ import { SavedPostModule } from './saved_post/saved_post.module';
 import { RepostModule } from './repost/repost.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowingModule } from './following/following.module';
+import { ShopItemModule } from './shop_item/shop_item.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { FollowingModule } from './following/following.module';
     RepostModule,
     CommentModule,
     FollowingModule,
+    ShopItemModule,
   ],
   controllers: [AppController],
   providers: [AppService],

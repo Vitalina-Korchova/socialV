@@ -16,6 +16,7 @@ export class PostResponse {
     id: number;
     username: string;
     email: string;
+    avatar_url: string | null;
   };
   created_at: Date;
   images: Image[];
@@ -25,8 +26,8 @@ export class PostResponse {
   likes: number;
   repostedByUsers?: {
     id: number;
-    // image: Image;
     username: string;
+    avatar_url: string | null;
   }[];
 }
 
