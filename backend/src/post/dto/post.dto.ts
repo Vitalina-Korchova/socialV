@@ -24,6 +24,7 @@ export class PostResponse {
   isRepostedByMe: boolean;
   isSavedByMe: boolean;
   likes: number;
+  comments_count: number;
   repostedByUsers?: {
     id: number;
     username: string;

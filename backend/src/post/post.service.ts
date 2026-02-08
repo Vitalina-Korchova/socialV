@@ -70,10 +70,10 @@ export class PostService {
         ? { user_id: userId }
         : type === 'saved'
           ? {
-              saved_post: {
-                some: { user_id: userId },
-              },
-            }
+            saved_post: {
+              some: { user_id: userId },
+            },
+          }
           : {};
 
     const where: Prisma.postWhereInput = {
@@ -112,6 +112,11 @@ export class PostService {
         likes: true,
         saved_post: true,
         reposts: true,
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
 
       orderBy: {
@@ -251,6 +256,7 @@ export class PostService {
         isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
         isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
+        comments_count: post._count.comments,
         repostedByUsers: repostOfMyFollowings
           .filter((repost) => repost.post_id === post.id)
           .slice(0, 2)
@@ -301,6 +307,11 @@ export class PostService {
             email: true,
           },
         },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
     });
 
@@ -317,6 +328,7 @@ export class PostService {
         id: img.image.id,
         url: `${this.baseUrl}/uploads/${img.image.url}`,
       })),
+      comments_count: post._count.comments,
     };
   }
 
@@ -370,6 +382,9 @@ export class PostService {
         likes: true,
         saved_post: true,
         reposts: true,
+        _count: {
+          select: { comments: true },
+        },
       },
       orderBy: {
         created_at: 'desc',
@@ -447,6 +462,7 @@ export class PostService {
         isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
         isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
         likes: post.likes.length,
+        comments_count: post._count.comments,
       })),
       current_page: currentPage,
       total_items: totalItems,

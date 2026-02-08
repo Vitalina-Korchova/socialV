@@ -2,13 +2,18 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React from "react";
 import Image from "next/image";
-import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useGetUserByIdQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
 import { useParams } from "next/navigation";
 import UserPostsPage from "@/components/posts/user-posts-page";
+import { Button } from "@/components/ui/button";
+import {
+  useFollowUserMutation,
+  useGetFollowingQuery,
+} from "@/store/following/following.api";
+import { toast } from "sonner";
 
 export default function UserProfile() {
   const params = useParams<{ id: string }>();
@@ -17,10 +22,24 @@ export default function UserProfile() {
     data: UserData,
     error: userError,
     isLoading: userLoading,
+    refetch: refetchUser,
   } = useGetUserByIdQuery(userId);
+
+  const { data: isFollowing } = useGetFollowingQuery({ userId: userId });
+
+  const [follow] = useFollowUserMutation();
   const currentXP = 450;
   const totalXP = 500;
   const percentage = (currentXP / totalXP) * 100;
+
+  const handleFollowUnfollow = async () => {
+    try {
+      await follow({ userId: userId }).unwrap();
+      refetchUser();
+    } catch (error) {
+      toast.error("Error occurred while following user");
+    }
+  };
 
   if (userLoading) {
     return <Loader />;
@@ -29,6 +48,7 @@ export default function UserProfile() {
   if (userError) {
     return <ErrorState />;
   }
+
   return (
     <>
       <div className="flex flex-col gap-6 py-6 px-8">
@@ -100,29 +120,39 @@ export default function UserProfile() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-row gap-5">
-                <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">
-                    {UserData?.posts_count}
-                  </span>
-                  <span className="text-muted-foreground text-sm">Posts</span>
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-row gap-5">
+                  <div className="flex flex-col gap-1 items-center">
+                    <span className="font-bold text-4xl">
+                      {UserData?.posts_count}
+                    </span>
+                    <span className="text-muted-foreground text-sm">Posts</span>
+                  </div>
+                  <div className="flex flex-col gap-1 items-center">
+                    <span className="font-bold text-4xl">
+                      {UserData?.followers_count}
+                    </span>
+                    <span className="text-muted-foreground text-sm">
+                      Followers
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1 items-center">
+                    <span className="font-bold text-4xl">
+                      {UserData?.followings_count}
+                    </span>
+                    <span className="text-muted-foreground text-sm">
+                      Following
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">
-                    {UserData?.followers_count}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    Followers
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">
-                    {UserData?.followings_count}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    Following
-                  </span>
-                </div>
+
+                <Button
+                  variant={`${isFollowing ? "outline" : "default"}`}
+                  className="cursor-pointer"
+                  onClick={handleFollowUnfollow}
+                >
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -114,6 +114,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -192,12 +193,10 @@
   pointer-events: none;
   overflow: hidden;
   background: #8e51ff;
-  background: linear-gradient(
-    360deg,
-    rgba(142, 81, 255, 0.8) 0%,
-    rgba(57, 32, 102, 1) 16%,
-    rgba(0, 0, 0, 1) 29%
-  );
+  background: linear-gradient(360deg,
+      rgba(142, 81, 255, 0.8) 0%,
+      rgba(57, 32, 102, 1) 16%,
+      rgba(0, 0, 0, 1) 29%);
 }
 
 .stars {
@@ -232,6 +231,7 @@
   animation: fall var(--fall-duration) var(--fall-delay) linear infinite,
     tail-fade var(--tail-fade-duration) var(--fall-delay) ease-out infinite;
 }
+
 @media screen and (max-width: 750px) {
   .star {
     animation: fall var(--fall-duration) var(--fall-delay) linear infinite;
@@ -267,6 +267,7 @@
 }
 
 @keyframes tail-fade {
+
   0%,
   50% {
     width: var(--star-tail-length);
@@ -317,4 +318,28 @@
 
 .custom-scrollbar::-webkit-scrollbar-button {
   display: none !important;
+}
+
+
+.custom-scrollbar--post {
+  scrollbar-width: thin;
+  scrollbar-color: #8e51ff #18181B;
+}
+
+.custom-scrollbar--post::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar--post::-webkit-scrollbar-track {
+  background: #18181B;
+  border-radius: 10px;
+}
+
+.custom-scrollbar--post::-webkit-scrollbar-thumb {
+  background: #8e51ff;
+  border-radius: 10px;
+}
+
+.custom-scrollbar--post::-webkit-scrollbar-thumb:hover {
+  background: #7a46db;
 }

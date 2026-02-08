@@ -10,6 +10,7 @@ import {
   Post,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentRequest } from './dto/comment.dto';
@@ -18,7 +19,7 @@ import { AuthGuard } from '@nestjs/passport';
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(private readonly commentService: CommentService) { }
 
   @Get('post/:id/')
   @HttpCode(HttpStatus.OK)
@@ -41,7 +42,7 @@ export class CommentController {
 
   @Delete(':id/')
   @HttpCode(HttpStatus.OK)
-  deleteComment(@Param('id', ParseIntPipe) commentId: number) {
-    return this.commentService.deleteComment(commentId);
+  deleteComment(@Param('id', ParseIntPipe) commentId: number, @Request() req) {
+    return this.commentService.deleteComment(commentId, req.user.id);
   }
 }

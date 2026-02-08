@@ -37,6 +37,7 @@ import { PostResponse } from "@/store/post/post.type";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { TbUserStar } from "react-icons/tb";
+import PostComments from "./post-comments";
 
 const MAX_LINES = 4;
 type DataPostToDelete = {
@@ -284,20 +285,19 @@ export default function PostsPage({ type }: { type: string }) {
                         </div>
                       ) : (
                         <div
-                          className={`w-10 h-10  rounded-full flex items-center justify-center ${
-                            type === "all" || type === "saved"
-                              ? "cursor-pointer"
-                              : ""
-                          }`}
+                          className={`w-10 h-10  rounded-full flex items-center justify-center ${type === "all" || type === "saved"
+                            ? "cursor-pointer"
+                            : ""
+                            }`}
                           onClick={
                             type === "all" || type === "saved"
                               ? () => {
-                                  if (post.user.id === userData?.id) {
-                                    router.push("/profile?tab=my-posts");
-                                  } else {
-                                    router.push(`/user/${post.user.id}`);
-                                  }
+                                if (post.user.id === userData?.id) {
+                                  router.push("/profile?tab=my-posts");
+                                } else {
+                                  router.push(`/user/${post.user.id}`);
                                 }
+                              }
                               : undefined
                           }
                         >
@@ -361,9 +361,8 @@ export default function PostsPage({ type }: { type: string }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
-                      expanded[post.id] ? "" : "line-clamp-4"
-                    }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
+                      }`}
                   >
                     {post.text_content}
                   </p>
@@ -508,7 +507,7 @@ export default function PostsPage({ type }: { type: string }) {
                     >
                       <MessageCircle className="text-muted-foreground h-4 w-4" />
                       <label className="text-sm font-medium text-muted-foreground cursor-pointer">
-                        Comment
+                        {post.comments_count || 0}
                       </label>
                     </div>
                     <motion.button
@@ -530,15 +529,11 @@ export default function PostsPage({ type }: { type: string }) {
                 </CardFooter>
 
                 {commentInputVisible[post.id] && (
-                  <div className="px-5 flex  gap-3 items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <Input
-                      className=" w-full min-w-[200px] focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2"
-                      placeholder="Comment..."
-                    />
-                  </div>
+                  <PostComments
+                    postId={post.id}
+                    userData={userData}
+                    postAuthorId={post.user.id}
+                  />
                 )}
               </Card>
             ))}

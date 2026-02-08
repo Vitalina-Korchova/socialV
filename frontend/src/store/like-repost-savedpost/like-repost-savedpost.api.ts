@@ -2,7 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../baseQuery";
 
 export const likeRepostSavedpostApi = createApi({
-  reducerPath: "like-repost-savedpostApi",
+  reducerPath: "like-repost-savedpostFollowApi",
   baseQuery: baseQueryWithReauth,
   tagTypes: ["Liked-Post", "Repost-Post", "Saved-Post"],
   endpoints: (builder) => ({
@@ -27,6 +27,12 @@ export const likeRepostSavedpostApi = createApi({
       }),
       invalidatesTags: ["Saved-Post"],
     }),
+    followUser: builder.mutation<{ following: boolean }, { userId: number }>({
+      query: ({ userId }) => ({
+        url: `api/following/${userId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -34,4 +40,5 @@ export const {
   useLikePostMutation,
   useRepostPostMutation,
   useSavePostMutation,
+  useFollowUserMutation,
 } = likeRepostSavedpostApi;

@@ -1,10 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CommentRequest, PaginatedCommentsResponse } from './dto/comment.dto';
+import { ConfigService } from '@nestjs/config';
+import { item_shop_type } from '@prisma/client';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly baseUrl: string;
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
+    this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
+  }
   async createComment(userId: number, dto: CommentRequest) {
     return await this.prismaService.comment.create({
       data: {
@@ -50,6 +58,25 @@ export class CommentService {
             id: true,
             username: true,
             email: true,
+            user_shop_items: {
+              where: {
+                is_active: true,
+                shop_item: {
+                  type: item_shop_type.AVATAR,
+                },
+              },
+              select: {
+                shop_item: {
+                  select: {
+                    item_image: {
+                      select: {
+                        url: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         post_id: true,
@@ -62,13 +89,24 @@ export class CommentService {
     });
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
-      data: comments.map((comment) => ({
-        id: comment.id,
-        text: comment.text,
-        user: comment.user,
-        post_id: comment.post_id,
-        created_at: comment.created_at,
-      })),
+      data: comments.map((comment) => {
+        const avatar =
+          comment.user.user_shop_items[0]?.shop_item?.item_image?.url;
+        return {
+          id: comment.id,
+          text: comment.text,
+          user: {
+            id: comment.user.id,
+            username: comment.user.username,
+            email: comment.user.email,
+            avatar_url: avatar
+              ? `${this.baseUrl}/uploads/${avatar}`
+              : null,
+          },
+          post_id: comment.post_id,
+          created_at: comment.created_at,
+        };
+      }),
       current_page: currentPage,
       total_items: totalItems,
       has_next_page: currentPage < totalPages,
@@ -76,11 +114,20 @@ export class CommentService {
     };
   }
 
-  async deleteComment(commentId: number) {
+  async deleteComment(commentId: number, userId: number) {
     const existComment = await this.prismaService.comment.findUnique({
       where: { id: commentId },
+      include: { post: true },
     });
     if (!existComment) throw new NotFoundException('Comment not found');
+
+    if (
+      existComment.user_id !== userId &&
+      existComment.post.user_id !== userId
+    ) {
+      throw new NotFoundException('You are not allowed to delete this comment');
+    }
+
     return await this.prismaService.comment.delete({
       where: { id: commentId },
     });

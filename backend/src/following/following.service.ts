@@ -4,10 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FollowingResponseUsers } from './dto/following.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FollowingService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly baseUrl: string;
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
+    this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
+  }
 
   async toggleFollow(followerId: number, followingId: number) {
     if (followerId === followingId) {
@@ -50,5 +58,136 @@ export class FollowingService {
       });
       return { following: true };
     }
+  }
+
+  async isUserFollowing(
+    followerId: number,
+    followingId: number,
+  ): Promise<boolean> {
+    const following = await this.prismaService.following.findUnique({
+      where: {
+        follower_id_following_id: {
+          follower_id: followerId,
+          following_id: followingId,
+        },
+      },
+      select: { following_id: true },
+    });
+
+    return !!following;
+  }
+
+  async getAllFollowingUsers(userId: number): Promise<FollowingResponseUsers> {
+    const followingUsers = await this.prismaService.following.findMany({
+      where: {
+        follower_id: userId,
+      },
+      select: {
+        following_id: true,
+      },
+    });
+
+    const dataUsers = await this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: followingUsers.map((user) => user.following_id),
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        user_shop_items: {
+          where: {
+            is_active: true,
+            shop_item: {
+              type: 'AVATAR',
+            },
+          },
+          select: {
+            shop_item: {
+              select: {
+                item_image: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const users = dataUsers.map((user) => {
+      const firstItem = user.user_shop_items[0];
+      const avatarUrl = firstItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${firstItem.shop_item.item_image.url}`
+        : null;
+
+      return {
+        id: user.id,
+        username: user.username,
+        avatar_url: avatarUrl,
+      };
+    });
+
+    return { users };
+  }
+
+  async getAllFollowersUsers(userId: number): Promise<FollowingResponseUsers> {
+    const followers = await this.prismaService.following.findMany({
+      where: {
+        following_id: userId,
+      },
+      select: {
+        follower_id: true,
+      },
+    });
+
+    const dataUsers = await this.prismaService.user.findMany({
+      where: {
+        id: {
+          in: followers.map((f) => f.follower_id),
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        user_shop_items: {
+          where: {
+            is_active: true,
+            shop_item: {
+              type: 'AVATAR',
+            },
+          },
+          select: {
+            shop_item: {
+              select: {
+                item_image: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const users = dataUsers.map((user) => {
+      const firstItem = user.user_shop_items[0];
+      const avatarUrl = firstItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${firstItem.shop_item.item_image.url}`
+        : null;
+
+      return {
+        id: user.id,
+        username: user.username,
+        avatar_url: avatarUrl,
+      };
+    });
+
+    return { users };
   }
 }
