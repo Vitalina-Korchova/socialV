@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CommentRequest, PaginatedCommentsResponse } from './dto/comment.dto';
 import { ConfigService } from '@nestjs/config';
 import { item_shop_type } from '@prisma/client';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { notificationsType } from 'src/notifications/dto/notifications.dto';
 
 @Injectable()
 export class CommentService {
@@ -10,17 +12,29 @@ export class CommentService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
+    private readonly notificationsService: NotificationsService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
   async createComment(userId: number, dto: CommentRequest) {
-    return await this.prismaService.comment.create({
+    const comment = await this.prismaService.comment.create({
       data: {
         text: dto.text,
         user_id: userId,
         post_id: Number(dto.post_id),
       },
+      include: { post: true },
     });
+
+    // Create notification
+    await this.notificationsService.createNotification(
+      userId,
+      comment.post.user_id,
+      notificationsType.COMMENT,
+      Number(dto.post_id),
+    );
+
+    return comment;
   }
 
   async getAllComments(

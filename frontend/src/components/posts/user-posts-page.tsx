@@ -6,7 +6,9 @@ import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
+import { useGetMeQuery } from "@/store/user/user.api";
 import { useGetPostByUserIdQuery } from "@/store/post/post.api";
+import PostComments from "./post-comments";
 import { Loader } from "../ui/loader";
 import { ErrorState } from "../ui/error";
 import { formatDate } from "@/utils/format";
@@ -43,6 +45,8 @@ export default function UserPostsPage({ id }: { id: number }) {
     page: page,
     page_size: 200, //HardCode
   });
+
+  const { data: userData } = useGetMeQuery();
 
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
@@ -235,9 +239,8 @@ export default function UserPostsPage({ id }: { id: number }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
-                      expanded[post.id] ? "" : "line-clamp-4"
-                    }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
+                      }`}
                   >
                     {post.text_content}
                   </p>
@@ -299,26 +302,21 @@ export default function UserPostsPage({ id }: { id: number }) {
 
                 <CardFooter className="pt-4 flex justify-between items-center border-t">
                   <div className="flex gap-3">
-                    <div className="text-muted-foreground flex flex-row gap-1 items-end justify-end">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <div
-                          className=" cursor-pointer"
-                          onClick={() => handleLikePost(post.id)}
-                        >
-                          {isLikedPost[post.id] ? (
-                            <IoIosHeart className="h-5 w-5 text-primary" />
-                          ) : (
-                            <IoIosHeartEmpty className="h-5 w-5" />
-                          )}
-                        </div>
-                      </motion.button>
-                      <span className="text-xs">
-                        {countLikes[post.id] || 0}
-                      </span>
-                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
+                      onClick={() => handleLikePost(post.id)}
+                    >
+                      <div>
+                        {isLikedPost[post.id] ? (
+                          <IoIosHeart className="h-5 w-5 text-primary" />
+                        ) : (
+                          <IoIosHeartEmpty className="h-5 w-5" />
+                        )}
+                      </div>
+                      <span className="text-xs">{countLikes[post.id] || 0}</span>
+                    </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -336,16 +334,18 @@ export default function UserPostsPage({ id }: { id: number }) {
                     </motion.button>
                   </div>
                   <div className="flex gap-3">
-                    <div
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
                       className="flex items-center space-x-2 cursor-pointer
                  hover:text-blue-600 transition-colors"
                       onClick={() => toggleCommentInput(post.id)}
                     >
                       <MessageCircle className="text-muted-foreground h-4 w-4" />
                       <label className="text-sm font-medium text-muted-foreground cursor-pointer">
-                        Comment
+                        {post.comments_count || 0}
                       </label>
-                    </div>
+                    </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -365,15 +365,11 @@ export default function UserPostsPage({ id }: { id: number }) {
                 </CardFooter>
 
                 {commentInputVisible[post.id] && (
-                  <div className="px-5 flex  gap-3 items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <Input
-                      className=" w-full min-w-[200px] focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2"
-                      placeholder="Comment..."
-                    />
-                  </div>
+                  <PostComments
+                    postId={post.id}
+                    userData={userData}
+                    postAuthorId={post.user.id}
+                  />
                 )}
               </Card>
             ))}

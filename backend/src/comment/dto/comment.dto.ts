@@ -15,7 +15,7 @@ export class CommentResponse {
   user: {
     id: number;
     username: string;
-    email: string;
+    avatar_url: string | null;
   };
   post_id: number;
   created_at: Date;

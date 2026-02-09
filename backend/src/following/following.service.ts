@@ -6,6 +6,8 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FollowingResponseUsers } from './dto/following.dto';
 import { ConfigService } from '@nestjs/config';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { notificationsType } from 'src/notifications/dto/notifications.dto';
 
 @Injectable()
 export class FollowingService {
@@ -13,6 +15,7 @@ export class FollowingService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
+    private readonly notificationsService: NotificationsService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
@@ -56,6 +59,14 @@ export class FollowingService {
           following_id: followingId,
         },
       });
+
+      // Create notification
+      await this.notificationsService.createNotification(
+        followerId,
+        followingId,
+        notificationsType.FOLLOW,
+      );
+
       return { following: true };
     }
   }

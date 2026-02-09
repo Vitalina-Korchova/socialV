@@ -26,6 +26,7 @@ import { useLogoutUserMutation } from "@/store/auth/auth.api";
 import { useDispatch } from "react-redux";
 import { setSearch, clearSearch } from "@/store/post/search.slice";
 import { useDebouncedCallback } from "use-debounce";
+import { useGetUnreadCountQuery } from "@/store/notifications/notifications.api";
 
 export default function Navbar() {
   const router = useRouter();
@@ -36,6 +37,10 @@ export default function Navbar() {
   const bellRef = useRef<HTMLDivElement | null>(null);
   const [inputSearch, setInputSearch] = useState("");
   const dispatch = useDispatch();
+
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    skip: isAuthPage,
+  });
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     if (value.trim()) {
@@ -149,13 +154,18 @@ export default function Navbar() {
           </DropdownMenu>
           <div
             ref={bellRef}
+            className="relative"
             onClick={() => setShowNotifications((prev) => !prev)}
           >
             <Bell
-              className={`hover:text-[#8A3CFF] cursor-pointer ${
-                showNotifications ? "text-[#8A3CFF]" : ""
-              }`}
+              className={`hover:text-[#8A3CFF] cursor-pointer ${showNotifications ? "text-[#8A3CFF]" : ""
+                }`}
             />
+            {unreadData && unreadData.count > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px]">
+                {unreadData.count}
+              </span>
+            )}
           </div>
         </div>
       </Card>

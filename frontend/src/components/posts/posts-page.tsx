@@ -463,26 +463,21 @@ export default function PostsPage({ type }: { type: string }) {
 
                 <CardFooter className="pt-4 flex justify-between items-center border-t">
                   <div className="flex gap-3">
-                    <div className="text-muted-foreground flex flex-row gap-1 items-end justify-end">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <div
-                          className=" cursor-pointer"
-                          onClick={() => handleLikePost(post.id)}
-                        >
-                          {isLikedPost[post.id] ? (
-                            <IoIosHeart className="h-5 w-5 text-primary" />
-                          ) : (
-                            <IoIosHeartEmpty className="h-5 w-5" />
-                          )}
-                        </div>
-                      </motion.button>
-                      <span className="text-xs">
-                        {countLikes[post.id] || 0}
-                      </span>
-                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
+                      onClick={() => handleLikePost(post.id)}
+                    >
+                      <div>
+                        {isLikedPost[post.id] ? (
+                          <IoIosHeart className="h-5 w-5 text-primary" />
+                        ) : (
+                          <IoIosHeartEmpty className="h-5 w-5" />
+                        )}
+                      </div>
+                      <span className="text-xs">{countLikes[post.id] || 0}</span>
+                    </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -500,7 +495,9 @@ export default function PostsPage({ type }: { type: string }) {
                     </motion.button>
                   </div>
                   <div className="flex gap-3">
-                    <div
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
                       className="flex items-center space-x-2 cursor-pointer
                  hover:text-blue-600 transition-colors"
                       onClick={() => toggleCommentInput(post.id)}
@@ -509,7 +506,7 @@ export default function PostsPage({ type }: { type: string }) {
                       <label className="text-sm font-medium text-muted-foreground cursor-pointer">
                         {post.comments_count || 0}
                       </label>
-                    </div>
+                    </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}

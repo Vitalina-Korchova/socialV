@@ -15,6 +15,7 @@ import { RepostModule } from './repost/repost.module';
 import { CommentModule } from './comment/comment.module';
 import { FollowingModule } from './following/following.module';
 import { ShopItemModule } from './shop_item/shop_item.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ShopItemModule } from './shop_item/shop_item.module';
     CommentModule,
     FollowingModule,
     ShopItemModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

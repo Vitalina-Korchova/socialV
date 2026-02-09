@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { notificationsType } from 'src/notifications/dto/notifications.dto';
 
 @Injectable()
 export class LikeService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) { }
 
   async toggleLike(postId: number, userId: number) {
     const post = await this.prismaService.post.findUnique({
@@ -36,6 +41,15 @@ export class LikeService {
           user_id: userId,
         },
       });
+
+      // Create notification
+      await this.notificationsService.createNotification(
+        userId,
+        post.user_id,
+        notificationsType.LIKE,
+        postId,
+      );
+
       return { liked: true };
     }
   }

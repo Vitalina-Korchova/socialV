@@ -5,6 +5,7 @@ import { postApi } from "./post/post.api";
 import { likeRepostSavedpostApi } from "./like-repost-savedpost/like-repost-savedpost.api";
 import { followingApi } from "./following/following.api";
 import { commentApi } from "./comment/comment.api";
+import { notificationsApi } from "./notifications/notifications.api";
 import searchReducer from "./post/search.slice";
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   [likeRepostSavedpostApi.reducerPath]: likeRepostSavedpostApi.reducer,
   [followingApi.reducerPath]: followingApi.reducer,
   [commentApi.reducerPath]: commentApi.reducer,
+  [notificationsApi.reducerPath]: notificationsApi.reducer,
   search: searchReducer,
 });
 
@@ -26,7 +28,8 @@ export const store = configureStore({
       .concat(postApi.middleware)
       .concat(likeRepostSavedpostApi.middleware)
       .concat(followingApi.middleware)
-      .concat(commentApi.middleware),
+      .concat(commentApi.middleware)
+      .concat(notificationsApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

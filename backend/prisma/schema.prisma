@@ -26,6 +26,9 @@ model user{
   followers following[] @relation("UserFollowers")
   followings following[] @relation("UserFollowings")
   user_shop_items user_shop_item[]
+  
+  sent_notifications notification[] @relation("NotificationSender")
+  received_notifications notification[] @relation("NotificationRecipient")
 }
 
 model user_reset_password{
@@ -61,8 +64,10 @@ model post{
   saved_post saved_post[]
   reposts repost[]
   comments comment[]
+  notifications notification[]
 
   user user @relation(fields: [user_id], references: [id], onDelete: Cascade)  
+  
   
 }
 
@@ -174,4 +179,30 @@ model user_shop_item{
   shop_item shop_item @relation(fields: [shop_item_id], references: [id], onDelete: Cascade)
   @@unique([user_id, shop_item_id])
 
+}
+
+
+enum notifications_type {
+  LIKE
+  REPOST
+  COMMENT
+  FOLLOW
+  LVLUP
+}
+
+model notification{
+  id Int  @id @default(autoincrement())  
+  notification_type notifications_type
+  
+  sender_id Int
+  sender user @relation("NotificationSender", fields: [sender_id], references: [id], onDelete: Cascade)
+
+  recipient_id Int
+  recipient user @relation("NotificationRecipient", fields: [recipient_id], references: [id], onDelete: Cascade)
+
+  post_id Int?
+  post post? @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  is_read Boolean @default(false)
+  created_at DateTime @default(now())
 }

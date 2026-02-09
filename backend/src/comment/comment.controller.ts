@@ -10,11 +10,11 @@ import {
   Post,
   Query,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentRequest } from './dto/comment.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/comments')
@@ -42,7 +42,7 @@ export class CommentController {
 
   @Delete(':id/')
   @HttpCode(HttpStatus.OK)
-  deleteComment(@Param('id', ParseIntPipe) commentId: number, @Request() req) {
-    return this.commentService.deleteComment(commentId, req.user.id);
+  deleteComment(@Param('id', ParseIntPipe) commentId: number, @CurrentUser() user: { id: number },) {
+    return this.commentService.deleteComment(commentId, user.id);
   }
 }
