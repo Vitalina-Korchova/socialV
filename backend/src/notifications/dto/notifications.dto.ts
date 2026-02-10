@@ -10,7 +10,10 @@ export class NotificationsDto {
   notification_type: notificationsType;
   sender_id: number;
   recipient_id: number;
-  post_id: number | null;
+  post?: {
+    post_id: number;
+    post_image_url: string | null;
+  } | null;
   user: {
     id: number;
     username: string;
@@ -19,7 +22,6 @@ export class NotificationsDto {
   is_read: boolean;
   created_at: Date;
 }
-
 
 export class PaginatedNotificationsResponse {
   current_page: number;

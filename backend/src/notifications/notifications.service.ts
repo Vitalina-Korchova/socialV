@@ -25,7 +25,7 @@ export class NotificationsService {
             data: {
                 sender_id,
                 recipient_id,
-                notification_type: notification_type as any,
+                notification_type: notification_type,
                 post_id,
             },
         });
@@ -72,6 +72,20 @@ export class NotificationsService {
                         },
                     },
                 },
+                post: {
+                    include: {
+                        images: {
+                            take: 1,
+                            include: {
+                                image: {
+                                    select: {
+                                        url: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { created_at: 'desc' },
             skip: skip,
@@ -87,21 +101,25 @@ export class NotificationsService {
             has_previous_page: currentPage > 1,
             data: notifications.map((n) => {
                 const avatar = n.sender.user_shop_items[0]?.shop_item?.item_image?.url;
+                const postImage = n.post?.images[0]?.image?.url;
                 return {
                     id: n.id,
-                    notification_type: n.notification_type as any,
+                    notification_type: n.notification_type as notificationsType,
                     sender_id: n.sender_id,
                     recipient_id: n.recipient_id,
-                    post_id: n.post_id,
                     is_read: n.is_read,
                     created_at: n.created_at,
+                    post: n.post_id ? {
+                        post_id: n.post_id,
+                        post_image_url: postImage ? `${this.baseUrl}/uploads/${postImage}` : null,
+                    } : null,
                     user: {
                         id: n.sender.id,
                         username: n.sender.username,
                         avatar_url: avatar ? `${this.baseUrl}/uploads/${avatar}` : null,
                     },
                 };
-            }) as any,
+            }),
         };
     }
 

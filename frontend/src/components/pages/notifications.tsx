@@ -51,7 +51,7 @@ export default function Notifications() {
       case notificationsType.COMMENT:
         return `${username} commented on your post`;
       case notificationsType.FOLLOW:
-        return `${username} followed you`;
+        return `${username} started following you`;
       default:
         return `${username} sent you a notification`;
     }
@@ -74,10 +74,10 @@ export default function Notifications() {
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="absolute right-4 top-0.5"
     >
-      <Card className=" w-[400px] p-4 space-y-3 shadow-xl border-[#8A3CFF]/20">
+      <Card className=" w-[350px] p-4 space-y-3 shadow-xl border-[#8A3CFF]/20">
         <CardTitle className="text-lg font-bold">Notifications</CardTitle>
 
-        <div className="h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="h-[400px] overflow-y-auto pr-2 custom-scrollbar--post">
           {isLoading && page === 1 ? (
             <div className="flex justify-center py-10">
               <Loader2 className="animate-spin text-[#8A3CFF]" />
@@ -170,13 +170,24 @@ function NotificationItem({
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm leading-snug font-medium text-foreground">
+        <p className="text-sm leading-snug font-normal text-foreground">
           {text}
         </p>
         <p className="text-[10px] text-muted-foreground mt-0.5">
           {new Date(notification.created_at).toLocaleString()}
         </p>
       </div>
+
+      {notification.post?.post_image_url && (
+        <div className="relative h-12 w-12 flex-shrink-0 rounded-md overflow-hidden border border-muted/20">
+          <Image
+            src={notification.post.post_image_url}
+            alt="Post preview"
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
 
       {onMarkAsRead && (
         <button
