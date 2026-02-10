@@ -93,10 +93,10 @@ export default function CardProfileOptions() {
           <Button
             variant="ghost"
             className="w-full justify-start  cursor-pointer"
-            onClick={() => router.push("/messenger")}
+            onClick={() => router.push("/messages")}
           >
             <MessageCircle className="w-4 h-4 mr-3" />
-            Messenger
+            Messages
           </Button>
         </div>
       </CardContent>

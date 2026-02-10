@@ -8,7 +8,6 @@ import {
   LogOut,
   MessageCircle,
   Search,
-  User,
   X,
 } from "lucide-react";
 import { Input } from "../ui/input";
@@ -16,12 +15,6 @@ import { Card } from "../ui/card";
 import Notifications from "./notifications";
 import { AnimatePresence } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { useLogoutUserMutation } from "@/store/auth/auth.api";
 import { useDispatch } from "react-redux";
 import { setSearch, clearSearch } from "@/store/post/search.slice";
@@ -122,43 +115,36 @@ export default function Navbar() {
             />
           )}
         </div>
-        <div className="flex justify-between items-center gap-5">
-          <div onClick={() => router.push("/profile")}></div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <User className="hover:text-[#8A3CFF] cursor-pointer" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="z-99 mt-6 ">
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/profile?tab=my-posts")}
-              >
-                <CircleUser />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/messenger")}
-              >
-                <MessageCircle />
-                Messanger
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer text-primary hover:!text-primary"
-                onClick={handleLogout}
-              >
-                <LogOut className="text-primary" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex items-center gap-4">
+          {/* Profile Icon */}
+          <div
+            onClick={() => router.push("/profile?tab=my-posts")}
+            className="relative group cursor-pointer"
+            title="Profile"
+          >
+            <CircleUser className="w-5 h-5 text-muted-foreground hover:text-[#8A3CFF] transition-colors" />
+          </div>
+
+          {/* Messages Icon */}
+          <div
+            onClick={() => router.push("/messages")}
+            className="relative group cursor-pointer"
+            title="Messages"
+          >
+            <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-[#8A3CFF] transition-colors" />
+          </div>
+
+          {/* Notifications Icon */}
           <div
             ref={bellRef}
-            className="relative"
+            className="relative group cursor-pointer"
             onClick={() => setShowNotifications((prev) => !prev)}
+            title="Notifications"
           >
             <Bell
-              className={`hover:text-[#8A3CFF] cursor-pointer ${showNotifications ? "text-[#8A3CFF]" : ""
+              className={`w-5 h-5 transition-colors ${showNotifications
+                ? "text-[#8A3CFF]"
+                : "text-muted-foreground hover:text-[#8A3CFF]"
                 }`}
             />
             {unreadData && unreadData.count > 0 && (
@@ -166,6 +152,18 @@ export default function Navbar() {
                 {unreadData.count}
               </span>
             )}
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-muted-foreground/20" />
+
+          {/* Logout Icon */}
+          <div
+            onClick={handleLogout}
+            className="relative group cursor-pointer"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5 text-muted-foreground hover:text-red-500 transition-colors" />
           </div>
         </div>
       </Card>

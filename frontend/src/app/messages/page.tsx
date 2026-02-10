@@ -4,9 +4,16 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, CheckCheck, SquarePen, MessageCircle, SendHorizontal } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Check,
+  CheckCheck,
+  SquarePen,
+  MessageCircle,
+  SendHorizontal,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 export default function MessangerPage() {
   const chats = [
@@ -148,32 +155,19 @@ export default function MessangerPage() {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-81px)] w-full overflow-hidden bg-background">
-      {/* Messenger Header */}
-      <header className="px-8 py-4 border-b border-muted/50 flex justify-between items-center bg-card/40 backdrop-blur-md sticky top-0 z-10">
-        <div className="flex flex-col">
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-400">
-            Messages
-          </span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
-            Direct Communication
-          </span>
-        </div>
-
-
-      </header>
+    <div className="flex flex-col h-[calc(100vh-83px)] w-full overflow-hidden bg-transparent ">
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-[320px] border-r border-muted/50 flex flex-col bg-muted/5">
+        <Card className="w-[320px] border-r border-muted/50 flex flex-col rounded-none ">
           <div className="flex-1 overflow-y-auto custom-scrollbar--post scroll-smooth">
-            <div className="p-3 space-y-1">
+            <div className="p-3 space-y-1 ">
               {chats.map((chat) => (
                 <div
                   key={chat.id}
                   onClick={() => setActiveChat(chat)}
                   className={cn(
-                    "flex gap-3 px-4 py-3 cursor-pointer rounded-xl transition-all duration-200 group relative",
+                    "flex gap-3 px-4 py-3 cursor-pointer rounded-xl transition-all duration-200 group relative border-b",
                     activeChat.id === chat.id
                       ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
                       : "hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -194,7 +188,9 @@ export default function MessangerPage() {
                       height={44}
                       className={cn(
                         "w-11 h-11 rounded-full object-cover border-2 transition-all duration-300",
-                        activeChat.id === chat.id ? "border-primary p-0.5" : "border-transparent"
+                        activeChat.id === chat.id
+                          ? "border-primary p-0.5"
+                          : "border-transparent"
                       )}
                     />
                     {chat.online && (
@@ -202,10 +198,14 @@ export default function MessangerPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-col flex-1 min-w-0 justify-center">
+                  <div className="flex flex-col flex-1 min-w-0 justify-center ">
                     <div className="flex justify-between items-baseline">
-                      <span className="font-semibold text-sm truncate">{chat.name}</span>
-                      <span className="text-[10px] opacity-50 font-medium">12:45</span>
+                      <span className="font-semibold text-sm truncate">
+                        {chat.name}
+                      </span>
+                      <span className="text-[10px] opacity-50 font-medium">
+                        12:45
+                      </span>
                     </div>
                     <span className="text-xs truncate opacity-70 leading-relaxed">
                       {chat.lastMessage}
@@ -217,14 +217,12 @@ export default function MessangerPage() {
           </div>
 
           <div className="p-4 border-t border-muted/50 bg-muted/10">
-            <button
-              className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-background border border-muted-foreground/10 hover:border-primary/50 hover:bg-primary/5 transition-all group font-medium text-sm shadow-sm"
-            >
+            <button className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-background border border-muted-foreground/10 hover:border-primary/50 hover:bg-primary/5 transition-all group font-medium text-sm shadow-sm">
               <SquarePen className="size-4 group-hover:text-primary transition-transform group-hover:scale-110" />
               <span>New Message</span>
             </button>
           </div>
-        </aside>
+        </Card>
 
         {/* Chat Area */}
         <main className="flex flex-col flex-1 min-w-0 bg-transparent relative">
@@ -242,17 +240,10 @@ export default function MessangerPage() {
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-foreground">{activeChat.name}</span>
-                <span className="text-[10px] text-green-500 font-bold flex items-center gap-1">
-                  <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span>
-                  Online
+                <span className="text-sm font-bold text-foreground">
+                  {activeChat.name}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-              </button>
             </div>
           </div>
 
@@ -289,18 +280,19 @@ export default function MessangerPage() {
                   >
                     <p className="leading-relaxed font-normal">{msg.message}</p>
 
-                    <div className={cn(
-                      "flex flex-row gap-1.5 items-center justify-end mt-2 opacity-70 text-[9px] font-bold tracking-tighter",
-                      isOwn ? "text-white/80" : "text-muted-foreground"
-                    )}>
+                    <div
+                      className={cn(
+                        "flex flex-row gap-1.5 items-center justify-end mt-2 opacity-70 text-[9px] font-bold tracking-tighter",
+                        isOwn ? "text-white/80" : "text-muted-foreground"
+                      )}
+                    >
                       <span>{msg.time}</span>
-                      {isOwn && (
-                        msg.isRead ? (
+                      {isOwn &&
+                        (msg.isRead ? (
                           <CheckCheck className="size-3" />
                         ) : (
                           <Check className="size-3" />
-                        )
-                      )}
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -318,17 +310,28 @@ export default function MessangerPage() {
           </div>
 
           {/* Message Input Area */}
-          <div className="px-8 pb-8 pt-4 border-t-0 bg-transparent flex justify-center">
+          <div className="px-8 pb-8 pt-4 border-t-0 bg-background flex justify-center">
             <div className="flex gap-4 items-center max-w-5xl w-full bg-card/60 backdrop-blur-xl border border-muted/50 rounded-3xl px-3 py-2.5 shadow-2xl shadow-black/20 ring-1 ring-white/5">
               <div className="flex gap-1 shrink-0 px-1">
                 <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path></svg>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path>
+                  </svg>
                 </button>
               </div>
               <div className="relative flex-1">
                 <Input
                   placeholder="Type your message..."
-                  className="w-full rounded-2xl border-none px-4 py-6 text-[14px] bg-transparent focus-visible:ring-0 pr-12 transition-all placeholder:text-muted-foreground/40 font-medium h-12"
+                  className="w-full rounded-2xl px-4 py-6 text-[14px] bg-transparent  pr-12 transition-all placeholder:text-muted-foreground/40 font-medium h-12"
                 />
               </div>
               <div className="flex items-center gap-2">

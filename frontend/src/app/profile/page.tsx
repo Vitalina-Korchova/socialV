@@ -29,6 +29,7 @@ import { FollowingUser } from "@/store/following/following.type";
 import Link from "next/link";
 import { toast } from "sonner";
 
+
 type ProfileTab = "my-posts" | "saved" | "settings" | "store";
 
 export default function ProfilePage() {

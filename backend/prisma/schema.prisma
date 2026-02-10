@@ -29,6 +29,11 @@ model user{
   
   sent_notifications notification[] @relation("NotificationSender")
   received_notifications notification[] @relation("NotificationRecipient")
+
+  first_user_in_chat chat[] @relation("FirstUserChat")
+  second_user_in_chat chat[] @relation("SecondUserChat")
+
+
 }
 
 model user_reset_password{
@@ -206,3 +211,32 @@ model notification{
   is_read Boolean @default(false)
   created_at DateTime @default(now())
 }
+
+model chat{
+  id Int  @id @default(autoincrement()) 
+
+  first_user_id Int
+  first_user user @relation("FirstUserChat", fields: [first_user_id], references: [id], onDelete: Cascade)
+
+  second_user_id Int
+  second_user user @relation("SecondUserChat", fields: [ second_user_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  messages message[]
+
+  @@unique([first_user_id, second_user_id])
+}
+
+model message{
+  id Int  @id @default(autoincrement()) 
+
+  chat_id Int
+  chat chat @relation(fields: [chat_id ], references: [id], onDelete: Cascade)
+  text_content String
+  is_read Boolean @default(false)
+
+  created_at DateTime @default(now())
+
+}
+
