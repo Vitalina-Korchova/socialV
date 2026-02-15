@@ -31,13 +31,13 @@ export class CommentController {
     return this.commentService.getAllComments(postId, page, page_size);
   }
 
-  @Post('user/:id/')
+  @Post('')
   @HttpCode(HttpStatus.CREATED)
   createComment(
-    @Param('id', ParseIntPipe) userId: number,
     @Body() dto: CommentRequest,
+    @CurrentUser() user: { id: number },
   ) {
-    return this.commentService.createComment(userId, dto);
+    return this.commentService.createComment(user.id, dto);
   }
 
   @Delete(':id/')

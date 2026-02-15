@@ -71,7 +71,6 @@ export default function PostComments({
     if (!commentText.trim() || !userData) return;
     try {
       await createComment({
-        userId: userData.id,
         dto: { text: commentText, post_id: postId },
       }).unwrap();
       setCommentText("");

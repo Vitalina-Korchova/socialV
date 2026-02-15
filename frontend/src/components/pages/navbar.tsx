@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { setSearch, clearSearch } from "@/store/post/search.slice";
 import { useDebouncedCallback } from "use-debounce";
 import { useGetUnreadCountQuery } from "@/store/notifications/notifications.api";
+import { useGetUnreadEachQuery } from "@/store/chat/chat.api";
 
 export default function Navbar() {
   const router = useRouter();
@@ -34,6 +35,12 @@ export default function Navbar() {
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
     skip: isAuthPage,
   });
+
+  const { data: unreadChats } = useGetUnreadEachQuery(undefined, {
+    skip: isAuthPage,
+  });
+
+  const unreadChatsCount = unreadChats?.filter(c => c.unread_count > 0).length || 0;
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     if (value.trim()) {
@@ -132,6 +139,11 @@ export default function Navbar() {
             title="Messages"
           >
             <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-[#8A3CFF] transition-colors" />
+            {unreadChatsCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px]">
+                {unreadChatsCount}
+              </span>
+            )}
           </div>
 
           {/* Notifications Icon */}

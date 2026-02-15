@@ -6,6 +6,7 @@ import { likeRepostSavedpostApi } from "./like-repost-savedpost/like-repost-save
 import { followingApi } from "./following/following.api";
 import { commentApi } from "./comment/comment.api";
 import { notificationsApi } from "./notifications/notifications.api";
+import { chatApi } from "./chat/chat.api";
 import searchReducer from "./post/search.slice";
 
 const rootReducer = combineReducers({
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   [followingApi.reducerPath]: followingApi.reducer,
   [commentApi.reducerPath]: commentApi.reducer,
   [notificationsApi.reducerPath]: notificationsApi.reducer,
+  [chatApi.reducerPath]: chatApi.reducer,
   search: searchReducer,
 });
 
@@ -29,7 +31,8 @@ export const store = configureStore({
       .concat(likeRepostSavedpostApi.middleware)
       .concat(followingApi.middleware)
       .concat(commentApi.middleware)
-      .concat(notificationsApi.middleware),
+      .concat(notificationsApi.middleware)
+      .concat(chatApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

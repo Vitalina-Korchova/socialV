@@ -19,9 +19,9 @@ export const commentApi = createApi({
             providesTags: ["Comment"],
         }),
 
-        createComment: builder.mutation<CommentResponse, { userId: number; dto: CommentRequest }>({
-            query: ({ userId, dto }) => ({
-                url: `api/comments/user/${userId}`,
+        createComment: builder.mutation<CommentResponse, { dto: CommentRequest }>({
+            query: ({ dto }) => ({
+                url: `api/comments`,
                 method: "POST",
                 body: dto,
             }),

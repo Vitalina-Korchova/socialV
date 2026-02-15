@@ -16,6 +16,7 @@ import { CommentModule } from './comment/comment.module';
 import { FollowingModule } from './following/following.module';
 import { ShopItemModule } from './shop_item/shop_item.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     FollowingModule,
     ShopItemModule,
     NotificationsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

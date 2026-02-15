@@ -33,6 +33,8 @@ model user{
   first_user_in_chat chat[] @relation("FirstUserChat")
   second_user_in_chat chat[] @relation("SecondUserChat")
 
+  sent_messages message[] @relation("MessageSender")
+
 
 }
 
@@ -233,6 +235,10 @@ model message{
 
   chat_id Int
   chat chat @relation(fields: [chat_id ], references: [id], onDelete: Cascade)
+
+  sender_id    Int     
+  sender       user     @relation("MessageSender", fields: [sender_id], references: [id], onDelete: Cascade)
+
   text_content String
   is_read Boolean @default(false)
 
