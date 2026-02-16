@@ -14,10 +14,16 @@ export default function CardProfileOptions() {
   const { data: userData, isLoading: userLoading } = useGetMeQuery();
   const router = useRouter();
 
+  const navItems = [
+    { label: "Home", icon: Home, path: "/" },
+    { label: "Profile", icon: User, path: "/profile?tab=my-posts" },
+    { label: "Messages", icon: MessageCircle, path: "/messages" },
+  ];
+
   return (
     <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden ">
       <CardHeader className=" relative p-0! h-20 ">
-        <div className="abosulute top-0 right-0 left-0">
+        <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/card-back.jpg"
             alt="background"
@@ -25,14 +31,15 @@ export default function CardProfileOptions() {
             className="object-cover"
             priority
           />
+          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
         </div>
       </CardHeader>
 
       <CardContent className="space-y-1 relative">
-        <div className="absolute top-[-45px]">
-          <div className="flex flex-row gap-3 ">
-            <div className="w-14 h-14 relative flex items-center justify-center">
-              <div className="absolute inset-0  overflow-hidden">
+        <div className="absolute top-[-45px] left-0 right-0 flex flex-col items-center">
+          <div className="relative mb-2">
+            <div className="w-16 h-16 relative flex items-center justify-center">
+              <div className="absolute inset-0 overflow-hidden">
                 <Image
                   src="/border.webp"
                   alt="animated border"
@@ -42,17 +49,17 @@ export default function CardProfileOptions() {
                 />
               </div>
               {userLoading ? (
-                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
                   <TbUserStar className="w-6 h-6 text-primary" />
                 </div>
               ) : (
-                <div className="w-10 h-10  rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden">
                   {userData?.avatar_url && (
                     <Image
                       src={userData.avatar_url}
                       alt="avatar"
-                      width={300}
-                      height={300}
+                      width={100}
+                      height={100}
                       className="rounded-full object-cover"
                     />
                   )}
@@ -60,44 +67,36 @@ export default function CardProfileOptions() {
               )}
             </div>
             <span
-              className="w-fit h-fit text-xs px-2 py-0.5 rounded-full
-             bg-purple-100 text-purple-700 font-semibold absolute top-7 left-15"
+              className="absolute -bottom-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full
+             bg-purple-600 text-white font-bold border-2 border-zinc-900 shadow-lg"
             >
-              Lv. 4
+              LV. 4
             </span>
           </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-semibold text-base">
-              {userData?.username || "Usename"}
+          <div className="flex flex-col items-center gap-1">
+            <h3 className="font-bold text-base text-white">
+              {userData?.username || "Username"}
             </h3>
-            <Badge variant="default" className="text-xs">
+            <Badge variant="secondary" className="text-[10px] h-5 bg-zinc-800 text-zinc-400 border-none">
               Software Engineer
             </Badge>
           </div>
         </div>
-        <div className="pt-20 pb-5">
-          <Button className=" w-full justify-start  cursor-pointer">
-            <Home className="w-4 h-4 mr-3" />
-            Home
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="w-full justify-start  cursor-pointer"
-            onClick={() => router.push("/profile?tab=my-posts")}
-          >
-            <User className="w-4 h-4 mr-3" />
-            Profile
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="w-full justify-start  cursor-pointer"
-            onClick={() => router.push("/messages")}
-          >
-            <MessageCircle className="w-4 h-4 mr-3" />
-            Messages
-          </Button>
+        <div className="pt-20 pb-5 space-y-1">
+          {navItems.map((item) => (
+            <Button
+              key={item.label}
+              variant="ghost"
+              className="cursor-pointer w-full justify-start gap-4 h-11 px-4 text-zinc-400 hover:text-white hover:bg-zinc-800/30 group transition-all duration-300 rounded-xl relative overflow-hidden"
+              onClick={() => router.push(item.path)}
+            >
+              <item.icon className="w-[18px] h-[18px] transition-all duration-300 group-hover:scale-110 group-hover:text-purple-500" />
+              <span className="text-sm font-medium tracking-wide">
+                {item.label}
+              </span>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 bg-purple-500 group-hover:h-1/2 transition-all duration-300 rounded-r-full" />
+            </Button>
+          ))}
         </div>
       </CardContent>
     </Card>

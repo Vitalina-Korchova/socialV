@@ -91,31 +91,34 @@ export default function UserProfile() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="font-bold text-xl"> {UserData?.username}</div>
-                  <Badge variant="default" className="text-xs">
+                <div className="flex flex-col gap-1.5 items-start">
+                  <h2 className="font-bold text-2xl tracking-tight">{UserData?.username}</h2>
+                  <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-primary/10 text-primary font-bold border border-primary/20">
                     Software Engineer
                   </Badge>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-end text-xs">
-                      <span className="text-muted-foreground">
-                        Earned:{" "}
-                        <span className="font-medium text-foreground">
-                          {currentXP}/{totalXP} XP
-                        </span>
-                      </span>
 
-                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-semibold">
-                        Lv. 4
-                      </span>
+                  <div className="w-52 space-y-1 mt-1">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Level 4</span>
+                      <span className="text-[10px] font-medium text-muted-foreground"> {currentXP} <span className="text-zinc-300">/ {totalXP} XP</span></span>
                     </div>
-
-                    <div className="border border-purple-600 rounded-full h-4 overflow-hidden bg-gray-100">
+                    <div className="h-1.5 w-full bg-zinc-800/50 rounded-full overflow-hidden">
                       <div
-                        className="h-full transition-all duration-500
-                 bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800"
+                        className="h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)] transition-all duration-500 ease-out"
                         style={{ width: `${percentage}%` }}
                       />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+                      <Image
+                        src="/coins-icon.svg"
+                        alt="coins"
+                        width={12}
+                        height={12}
+                      />
+                      <span className="text-[11px] font-bold text-yellow-500">234 Coins</span>
                     </div>
                   </div>
                 </div>
