@@ -35,6 +35,22 @@ export class UserService {
             followings: true,
           },
         },
+
+        user_shop_items: {
+          where: { is_active: true },
+          select: {
+            shop_item: {
+              select: {
+                type: true,
+                item_image: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -42,26 +58,12 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const activeAvatar = await this.prismaService.user_shop_item.findFirst({
-      where: {
-        user_id: userId,
-        is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
-      },
-      select: {
-        shop_item: {
-          select: {
-            item_image: {
-              select: {
-                url: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const getImageUrl = (type: item_shop_type) => {
+      const item = user.user_shop_items.find((i) => i.shop_item.type === type);
+      return item?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`
+        : null;
+    };
 
     return {
       id: user.id,
@@ -71,7 +73,9 @@ export class UserService {
       posts_count: user._count.posts,
       followers_count: user._count.followings,
       followings_count: user._count.followers,
-      avatar_url: `${this.baseUrl}/uploads/${activeAvatar?.shop_item?.item_image?.url ?? null}`,
+      avatar_url: getImageUrl(item_shop_type.AVATAR),
+      background_url: getImageUrl(item_shop_type.BACKGROUND),
+      border_url: getImageUrl(item_shop_type.BORDER),
     };
   }
 

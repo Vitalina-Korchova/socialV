@@ -102,7 +102,7 @@ export default function PostsPage({ type }: { type: string }) {
     setPage(1);
   }, [type, search]);
 
-  const { data: userData, isLoading: userLoading } = useGetMeQuery();
+  const { data: userData, isLoading: userLoading, error: userError } = useGetMeQuery();
 
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
@@ -252,7 +252,11 @@ export default function PostsPage({ type }: { type: string }) {
     <>
       <div className="flex flex-col gap-7">
         {type === "all" && (
-          <CreatePostPage userData={userData!} userLoading={userLoading} />
+          <CreatePostPage
+            userData={userData!}
+            userLoading={userLoading}
+            userError={!!userError}
+          />
         )}
         {postsLoading && <Loader />}
         {postsError && <ErrorState />}
@@ -279,39 +283,55 @@ export default function PostsPage({ type }: { type: string }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      {postsLoading ? (
-                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                          <TbUserStar className="w-6 h-6 text-primary" />
-                        </div>
-                      ) : (
-                        <div
-                          className={`w-10 h-10  rounded-full flex items-center justify-center ${type === "all" || type === "saved"
-                            ? "cursor-pointer"
-                            : ""
-                            }`}
-                          onClick={
-                            type === "all" || type === "saved"
-                              ? () => {
-                                if (post.user.id === userData?.id) {
-                                  router.push("/profile?tab=my-posts");
-                                } else {
-                                  router.push(`/user/${post.user.id}`);
-                                }
+                      <div
+                        className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved" ? "cursor-pointer" : ""
+                          }`}
+                        onClick={
+                          type === "all" || type === "saved"
+                            ? () => {
+                              if (post.user.id === userData?.id) {
+                                router.push("/profile?tab=my-posts");
+                              } else {
+                                router.push(`/user/${post.user.id}`);
                               }
-                              : undefined
-                          }
-                        >
-                          {post.user?.avatar_url && (
+                            }
+                            : undefined
+                        }
+                      >
+                        {post.user?.border_url && (
+                          <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
                             <Image
-                              src={post.user.avatar_url}
-                              alt="avatar"
-                              width={300}
-                              height={300}
-                              className="rounded-full object-cover"
+                              src={post.user.border_url}
+                              alt="animated border"
+                              width={100}
+                              height={100}
+                              className="w-full h-full object-cover scale-150"
+                              priority
                             />
-                          )}
-                        </div>
-                      )}
+                          </div>
+                        )}
+                        {postsLoading ? (
+                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
+                            <TbUserStar className="w-5 h-5 text-primary" />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+                            {post.user?.avatar_url ? (
+                              <Image
+                                src={post.user.avatar_url}
+                                alt="avatar"
+                                width={300}
+                                height={300}
+                                className="rounded-full object-cover w-full h-full"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-black flex items-center justify-center">
+                                <TbUserStar className="w-5 h-5 text-primary" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       <div>
                         <h3 className="font-semibold text-lg">
@@ -424,31 +444,39 @@ export default function PostsPage({ type }: { type: string }) {
                 {post.repostedByUsers && post.repostedByUsers.length > 1 && (
                   <div className="px-5 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="flex -space-x-2">
-                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
-                        {post.repostedByUsers[0].avatar_url && (
-                          <Image
-                            src={post.repostedByUsers[0].avatar_url}
-                            alt="avatar"
-                            width={300}
-                            height={300}
-                            className="rounded-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background">
-                        {post.repostedByUsers[1].avatar_url && (
-                          <Image
-                            src={post.repostedByUsers[1].avatar_url}
-                            alt="avatar"
-                            width={300}
-                            height={300}
-                            className="rounded-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background text-[10px]">
-                        +1
-                      </div>
+                      {post.repostedByUsers.slice(0, 2).map((user, idx) => (
+                        <div key={idx} className="h-6 w-6 relative flex items-center justify-center">
+                          {user.border_url && (
+                            <div className="absolute inset-0 overflow-hidden">
+                              <Image
+                                src={user.border_url}
+                                alt="border"
+                                width={50}
+                                height={50}
+                                className="w-full h-full object-cover scale-150"
+                              />
+                            </div>
+                          )}
+                          <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center border border-background relative z-10 overflow-hidden">
+                            {user.avatar_url ? (
+                              <Image
+                                src={user.avatar_url}
+                                alt="avatar"
+                                width={100}
+                                height={100}
+                                className="rounded-full object-cover w-full h-full"
+                              />
+                            ) : (
+                              <TbUserStar className="text-primary size-3" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {post.repostedByUsers.length > 2 && (
+                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background text-[10px] relative z-10">
+                          +{post.repostedByUsers.length - 2}
+                        </div>
+                      )}
                     </div>
 
                     <span>

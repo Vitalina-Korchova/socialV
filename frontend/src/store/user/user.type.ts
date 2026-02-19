@@ -6,6 +6,8 @@ export interface UserResponse {
   followers_count: number;
   followings_count: number;
   avatar_url: string | null;
+  background_url: string | null;
+  border_url: string | null;
   created_at: string;
 }
 

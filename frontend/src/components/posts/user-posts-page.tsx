@@ -204,15 +204,39 @@ export default function UserPostsPage({ id }: { id: number }) {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10  rounded-full flex items-center justify-center">
-                        {post.user?.avatar_url && (
-                          <Image
-                            src={post.user.avatar_url}
-                            alt="avatar"
-                            width={300}
-                            height={300}
-                            className="rounded-full object-cover"
-                          />
+                      <div className="w-10 h-10 relative flex items-center justify-center">
+                        {post.user?.border_url && (
+                          <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
+                            <Image
+                              src={post.user.border_url}
+                              alt="animated border"
+                              width={100}
+                              height={100}
+                              className="w-full h-full object-cover scale-150"
+                              priority
+                            />
+                          </div>
+                        )}
+                        {postsLoading ? (
+                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
+                            <TbUserStar className="w-5 h-5 text-primary" />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+                            {post.user?.avatar_url ? (
+                              <Image
+                                src={post.user.avatar_url}
+                                alt="avatar"
+                                width={300}
+                                height={300}
+                                className="rounded-full object-cover w-full h-full"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-black flex items-center justify-center">
+                                <TbUserStar className="w-5 h-5 text-primary" />
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
 

@@ -17,9 +17,11 @@ type ImagePreview = {
 export default function CreatePostPage({
   userData,
   userLoading,
+  userError,
 }: {
   userData: UserResponse;
   userLoading: boolean;
+  userError: boolean;
 }) {
   const [textContent, setTextContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -77,23 +79,37 @@ export default function CreatePostPage({
            transition-shadow duration-300 flex flex-col px-8 pt-8 pb-5"
       >
         <div className="flex flex-row gap-4 items-top">
-          {userLoading ? (
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-              <TbUserStar className="w-6 h-6 text-primary" />
-            </div>
-          ) : (
-            <div className="w-10 h-10  rounded-full flex items-center justify-center">
-              {userData?.avatar_url && (
+          <div className="w-10 h-10 relative flex items-center justify-center">
+            {userData?.border_url && (
+              <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
                 <Image
-                  src={userData.avatar_url}
-                  alt="avatar"
-                  width={300}
-                  height={300}
-                  className="rounded-full object-cover"
+                  src={userData.border_url}
+                  alt="animated border"
+                  width={100}
+                  height={100}
+                  className="w-full h-full object-cover scale-150"
+                  priority
                 />
-              )}
-            </div>
-          )}
+              </div>
+            )}
+            {userLoading || userError ? (
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
+                <TbUserStar className="w-5 h-5 text-primary" />
+              </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10">
+                {userData?.avatar_url && (
+                  <Image
+                    src={userData.avatar_url}
+                    alt="avatar"
+                    width={300}
+                    height={300}
+                    className="rounded-full object-cover w-full h-full"
+                  />
+                )}
+              </div>
+            )}
+          </div>
 
           <Textarea
             ref={textareaRef}

@@ -11,6 +11,8 @@ export interface PostResponse {
     username: string;
     email: string;
     avatar_url: string | null;
+    border_url: string | null;
+    background_url: string | null;
   };
   created_at: Date;
   images: Image[];
@@ -23,6 +25,7 @@ export interface PostResponse {
     id: number;
     username: string;
     avatar_url: string | null;
+    border_url: string | null;
   }[];
 }
 

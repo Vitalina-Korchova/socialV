@@ -51,25 +51,56 @@ export class AuthService {
       },
     });
 
-    const freeItemsAvatars = await this.prismaService.shop_item.findMany({
+
+    const freeAvatar = await this.prismaService.shop_item.findFirst({
       where: {
         type: 'AVATAR',
         is_free: true,
         required_level: 1,
       },
+      orderBy: {
+        id: 'asc',
+      },
     });
 
-    const firstAvatarRandom = freeItemsAvatars.find((i) => i.type === 'AVATAR');
-
-    const userFreeShopItemsAvatars = freeItemsAvatars.map((item) => ({
-      user_id: user.id,
-      shop_item_id: item.id,
-      is_obtained: true,
-      is_active: firstAvatarRandom ? firstAvatarRandom.id === item.id : false,
-    }));
-    await this.prismaService.user_shop_item.createMany({
-      data: userFreeShopItemsAvatars,
+    const freeBackground = await this.prismaService.shop_item.findFirst({
+      where: {
+        type: 'BACKGROUND',
+        is_free: true,
+        required_level: 1,
+      },
     });
+
+    const userShopItems: {
+      user_id: number;
+      shop_item_id: number;
+      is_obtained: boolean;
+      is_active: boolean;
+    }[] = [];
+
+    if (freeAvatar) {
+      userShopItems.push({
+        user_id: user.id,
+        shop_item_id: freeAvatar.id,
+        is_obtained: true,
+        is_active: true,
+      });
+    }
+
+    if (freeBackground) {
+      userShopItems.push({
+        user_id: user.id,
+        shop_item_id: freeBackground.id,
+        is_obtained: true,
+        is_active: true,
+      });
+    }
+
+    if (userShopItems.length > 0) {
+      await this.prismaService.user_shop_item.createMany({
+        data: userShopItems,
+      });
+    }
     return this.auth(res, user.id);
   }
 

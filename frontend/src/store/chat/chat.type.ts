@@ -9,11 +9,13 @@ export interface Chat {
         id: number;
         username: string;
         avatar_url: string | null;
+        border_url: string | null;
     };
     second_user: {
         id: number;
         username: string;
         avatar_url: string | null;
+        border_url: string | null;
     };
     last_message: {
         id: number;
@@ -41,6 +43,7 @@ export interface Message {
         id: number;
         username: string;
         avatar_url: string | null;
+        border_url: string | null;
     };
     created_at: Date;
     is_read: boolean;

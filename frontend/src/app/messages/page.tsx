@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { NewChatModal } from "@/components/chat/new-chat-modal";
+import { TbUserStar } from "react-icons/tb";
 
 export default function MessangerPage() {
   const { data: me } = useGetMeQuery();
@@ -116,7 +117,8 @@ export default function MessangerPage() {
       return {
         id: chat.id,
         name: otherUser.username,
-        img: otherUser.avatar_url || "/back2.jpg",
+        img: otherUser.avatar_url,
+        border: otherUser.border_url,
         lastMessage: chat.last_message?.text_content || "No messages yet",
         online: false,
         time: chat.last_message ? formatTime(chat.last_message.created_at) : "",
@@ -165,21 +167,32 @@ export default function MessangerPage() {
                     />
                   )}
 
-                  <div className="relative shrink-0">
-                    <Image
-                      src={chat.img}
-                      alt={chat.name}
-                      width={44}
-                      height={44}
-                      className={cn(
-                        "w-11 h-11 rounded-full object-cover border-2 transition-all duration-300",
-                        activeChatId === chat.id
-                          ? "border-primary p-0.5"
-                          : "border-transparent"
+                  <div className="relative shrink-0 flex items-center justify-center size-11">
+                    {chat.border && (
+                      <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
+                        <Image
+                          src={chat.border}
+                          alt="border"
+                          width={100}
+                          height={100}
+                          className="w-full h-full object-cover scale-150"
+                        />
+                      </div>
+                    )}
+                    <div className="size-9 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                      {chat.img ? (
+                        <Image
+                          src={chat.img}
+                          alt={chat.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <TbUserStar className="text-primary size-5" />
                       )}
-                    />
+                    </div>
                     {chat.online && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm" />
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm z-20" />
                     )}
                   </div>
 
@@ -240,19 +253,34 @@ export default function MessangerPage() {
         <main className="flex flex-col flex-1 min-w-0 bg-transparent relative">
           {activeChat ? (
             <>
-              {/* Active Chat Header */}
               <div className="px-6 py-3.5 border-b border-muted/30 flex items-center justify-between bg-card/20 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Image
-                      src={activeChat.img}
-                      alt={activeChat.name}
-                      width={34}
-                      height={34}
-                      className="w-9 h-9 rounded-full border border-primary/20 object-cover shadow-sm"
-                    />
+                  <div className="relative flex items-center justify-center size-9">
+                    {activeChat.border && (
+                      <div className="absolute inset-0 overflow-hidden">
+                        <Image
+                          src={activeChat.border}
+                          alt="border"
+                          width={100}
+                          height={100}
+                          className="w-full h-full object-cover scale-150"
+                        />
+                      </div>
+                    )}
+                    <div className="size-7 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                      {activeChat.img ? (
+                        <Image
+                          src={activeChat.img}
+                          alt={activeChat.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <TbUserStar className="text-primary size-4" />
+                      )}
+                    </div>
                     {activeChat.online && (
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background" />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background z-20" />
                     )}
                   </div>
                   <div className="flex flex-col">
@@ -287,13 +315,31 @@ export default function MessangerPage() {
                         )}
                       >
                         {!isOwn && (
-                          <Image
-                            src={msg.sender.avatar_url || "/back2.jpg"}
-                            alt={msg.sender.username}
-                            width={32}
-                            height={32}
-                            className="w-7 h-7 rounded-full object-cover border border-muted/50 shrink-0 mb-1"
-                          />
+                          <div className="relative flex items-center justify-center size-8 shrink-0 mb-1">
+                            {msg.sender.border_url && (
+                              <div className="absolute inset-0 overflow-hidden">
+                                <Image
+                                  src={msg.sender.border_url}
+                                  alt="border"
+                                  width={100}
+                                  height={100}
+                                  className="w-full h-full object-cover scale-150"
+                                />
+                              </div>
+                            )}
+                            <div className="size-6 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                              {msg.sender.avatar_url ? (
+                                <Image
+                                  src={msg.sender.avatar_url}
+                                  alt={msg.sender.username}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <TbUserStar className="text-primary size-4" />
+                              )}
+                            </div>
+                          </div>
                         )}
 
                         <div
@@ -342,13 +388,31 @@ export default function MessangerPage() {
               <div className="px-8 pb-8 pt-4 border-t-0 bg-background flex justify-center">
                 <div className="flex gap-4 items-center max-w-5xl w-full bg-card/60 backdrop-blur-xl border border-muted/50 rounded-3xl px-3 py-2.5 shadow-2xl shadow-black/20 ring-1 ring-white/5">
                   <div className="flex gap-1 shrink-0 px-1 items-center">
-                    <Image
-                      src={me?.avatar_url || "/back2.jpg"}
-                      alt="My Avatar"
-                      width={36}
-                      height={36}
-                      className="w-9 h-9 rounded-full object-cover border border-muted/50"
-                    />
+                    <div className="relative flex items-center justify-center size-10">
+                      {me?.border_url && (
+                        <div className="absolute inset-0 overflow-hidden">
+                          <Image
+                            src={me.border_url}
+                            alt="border"
+                            width={100}
+                            height={100}
+                            className="w-full h-full object-cover scale-150"
+                          />
+                        </div>
+                      )}
+                      <div className="size-8 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                        {me?.avatar_url ? (
+                          <Image
+                            src={me.avatar_url}
+                            alt="My Avatar"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <TbUserStar className="text-primary size-5" />
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <div className="relative flex-1">
                     <Input
@@ -401,6 +465,6 @@ export default function MessangerPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </div >
   );
 }

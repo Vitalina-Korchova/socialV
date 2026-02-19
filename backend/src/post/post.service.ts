@@ -181,18 +181,16 @@ export class PostService {
 
     const postUserIds = [...new Set(posts.map((p) => p.user.id))];
 
-    const activeAvatars = await this.prismaService.user_shop_item.findMany({
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: { in: postUserIds },
         is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
       },
       select: {
         user_id: true,
         shop_item: {
           select: {
+            type: true,
             item_image: {
               select: { url: true },
             },
@@ -201,13 +199,15 @@ export class PostService {
       },
     });
 
-    const avatarMap = new Map<number, string>();
-    activeAvatars.forEach((a) => {
-      if (a.shop_item.item_image?.url) {
-        avatarMap.set(
-          a.user_id,
-          `${this.baseUrl}/uploads/${a.shop_item.item_image.url}`,
-        );
+    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    activeShopItems.forEach((item) => {
+      if (item.shop_item.item_image?.url) {
+        let userItems = userShopItemMap.get(item.user_id);
+        if (!userItems) {
+          userItems = {};
+          userShopItemMap.set(item.user_id, userItems);
+        }
+        userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
 
@@ -215,19 +215,17 @@ export class PostService {
       ...new Set(repostOfMyFollowings.map((repost) => repost.user.id)),
     ];
 
-    const activeAvatarsReposrFollowings =
+    const activeReposrFollowingsItems =
       await this.prismaService.user_shop_item.findMany({
         where: {
           user_id: { in: repostUserIds },
           is_active: true,
-          shop_item: {
-            type: item_shop_type.AVATAR,
-          },
         },
         select: {
           user_id: true,
           shop_item: {
             select: {
+              type: true,
               item_image: {
                 select: { url: true },
               },
@@ -236,45 +234,57 @@ export class PostService {
         },
       });
 
+    const repostItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    activeReposrFollowingsItems.forEach((item) => {
+      if (item.shop_item.item_image?.url) {
+        let userItems = repostItemMap.get(item.user_id);
+        if (!userItems) {
+          userItems = {};
+          repostItemMap.set(item.user_id, userItems);
+        }
+        userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
+    });
+
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
-      data: posts.map((post) => ({
-        id: post.id,
-        text_content: post.text_content,
-        created_at: post.created_at,
-        user: {
-          id: post.user.id,
-          username: post.user.username,
-          email: post.user.email,
-          avatar_url: avatarMap.get(post.user.id) || null,
-        },
-        images: post.images.map((img) => ({
-          id: img.image.id,
-          url: `${this.baseUrl}/uploads/${img.image.url}`,
-        })),
-        isLikedByMe: existMyLike.some((like) => like.post_id === post.id),
-        isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
-        isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
-        likes: post.likes.length,
-        comments_count: post._count.comments,
-        repostedByUsers: repostOfMyFollowings
-          .filter((repost) => repost.post_id === post.id)
-          .slice(0, 2)
-          .map((repost) => {
-            const avatarObj = activeAvatarsReposrFollowings.find(
-              (a) => a.user_id === repost.user.id,
-            );
-            const avatarUrl = avatarObj?.shop_item?.item_image?.url
-              ? `${this.baseUrl}/uploads/${avatarObj.shop_item.item_image.url}`
-              : null;
-
-            return {
-              id: repost.user.id,
-              username: repost.user.username,
-              avatar_url: avatarUrl,
-            };
-          }),
-      })),
+      data: posts.map((post) => {
+        const userItems = userShopItemMap.get(post.user.id);
+        return {
+          id: post.id,
+          text_content: post.text_content,
+          created_at: post.created_at,
+          user: {
+            id: post.user.id,
+            username: post.user.username,
+            email: post.user.email,
+            avatar_url: userItems?.[item_shop_type.AVATAR] || null,
+            border_url: userItems?.[item_shop_type.BORDER] || null,
+            background_url: userItems?.[item_shop_type.BACKGROUND] || null,
+          },
+          images: post.images.map((img) => ({
+            id: img.image.id,
+            url: `${this.baseUrl}/uploads/${img.image.url}`,
+          })),
+          isLikedByMe: existMyLike.some((like) => like.post_id === post.id),
+          isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
+          isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
+          likes: post.likes.length,
+          comments_count: post._count.comments,
+          repostedByUsers: repostOfMyFollowings
+            .filter((repost) => repost.post_id === post.id)
+            .slice(0, 2)
+            .map((repost) => {
+              const repItems = repostItemMap.get(repost.user.id);
+              return {
+                id: repost.user.id,
+                username: repost.user.username,
+                avatar_url: repItems?.[item_shop_type.AVATAR] || null,
+                border_url: repItems?.[item_shop_type.BORDER] || null,
+              };
+            }),
+        };
+      }),
       current_page: currentPage,
       total_items: totalItems,
       has_next_page: currentPage < totalPages,
@@ -419,17 +429,15 @@ export class PostService {
       },
     });
 
-    const activeAvatarUser = await this.prismaService.user_shop_item.findFirst({
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: userId,
         is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
       },
       select: {
         shop_item: {
           select: {
+            type: true,
             item_image: {
               select: {
                 url: true,
@@ -438,6 +446,13 @@ export class PostService {
           },
         },
       },
+    });
+
+    const itemUrls: { [key in item_shop_type]?: string } = {};
+    activeShopItems.forEach((item) => {
+      if (item.shop_item.item_image?.url) {
+        itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
     });
 
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -450,9 +465,9 @@ export class PostService {
           id: post.user_id,
           username: post.user.username,
           email: post.user.email,
-          avatar_url: activeAvatarUser?.shop_item?.item_image?.url
-            ? `${this.baseUrl}/uploads/${activeAvatarUser.shop_item.item_image.url}`
-            : null,
+          avatar_url: itemUrls[item_shop_type.AVATAR] || null,
+          border_url: itemUrls[item_shop_type.BORDER] || null,
+          background_url: itemUrls[item_shop_type.BACKGROUND] || null,
         },
         images: post.images.map((img) => ({
           id: img.image.id,

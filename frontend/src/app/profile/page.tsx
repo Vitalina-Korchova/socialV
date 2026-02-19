@@ -29,7 +29,6 @@ import { FollowingUser } from "@/store/following/following.type";
 import Link from "next/link";
 import { toast } from "sonner";
 
-
 type ProfileTab = "my-posts" | "saved" | "settings" | "store";
 
 export default function ProfilePage() {
@@ -72,32 +71,36 @@ export default function ProfilePage() {
     <>
       <div className="flex flex-row gap-6 py-6 px-8">
         <div className="flex-1">
-          <Card className="p-0! overflow-hidden">
-            <CardHeader className="relative p-0! h-24">
+          <Card className="p-0! overflow-hidden relative">
+            <CardHeader className="relative p-0! h-24 ">
               <div className="abosulute top-0 right-0 left-0">
-                <Image
-                  src="/back2.jpg"
-                  alt="background"
-                  height={750}
-                  width={750}
-                  className="object-cover w-full h-28"
-                />
-                <div className="absolute bottom-[-18px] left-0 right-0 h-16 bg-gradient-to-t from-[#18181B] to-transparent" />
+                {userData?.background_url && (
+                  <Image
+                    src={userData?.background_url}
+                    alt="background"
+                    height={750}
+                    width={750}
+                    className="object-cover w-full h-44"
+                  />
+                )}
+                <div className="absolute bottom-[-80px] left-0 right-0 h-6 bg-gradient-to-t from-[#18181B] to-transparent" />
               </div>
             </CardHeader>
 
-            <CardContent className="pb-5 px-16 flex justify-between items-center">
+            <CardContent className="pb-5 px-16 flex justify-between items-center z-10">
               <div className="flex flex-row items-center gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
-                  <div className="absolute inset-0 overflow-hidden">
-                    <Image
-                      src="/border.webp"
-                      alt="animated border"
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  {userData?.border_url && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      <Image
+                        src={userData?.border_url}
+                        alt="animated border"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
 
                   <div className="w-22 h-22  rounded-full flex items-center justify-center">
                     {userData?.avatar_url && (
@@ -112,15 +115,26 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5 items-start">
-                  <h2 className="font-bold text-2xl tracking-tight">{userData?.username}</h2>
-                  <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-primary/10 text-primary font-bold border border-primary/20">
+                  <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">
+                    {userData?.username}
+                  </h2>
+                  <Badge
+                    variant="secondary"
+                    className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-primary/10 text-primary font-bold border border-primary/20"
+                  >
                     Software Engineer
                   </Badge>
 
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Level 4</span>
-                      <span className="text-[10px] font-medium text-muted-foreground"> {currentXP} <span className="text-zinc-300">/ {totalXP} XP</span></span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Level 4
+                      </span>
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        {" "}
+                        {currentXP}{" "}
+                        <span className="text-zinc-300">/ {totalXP} XP</span>
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-zinc-800/50 rounded-full overflow-hidden">
                       <div
@@ -138,7 +152,9 @@ export default function ProfilePage() {
                         width={12}
                         height={12}
                       />
-                      <span className="text-[11px] font-bold text-yellow-500">234 Coins</span>
+                      <span className="text-[11px] font-bold text-yellow-500">
+                        234 Coins
+                      </span>
                     </div>
                   </div>
                 </div>

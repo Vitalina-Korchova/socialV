@@ -165,18 +165,16 @@ export class ChatService {
       ),
     ];
 
-    const activeAvatars = await this.prismaService.user_shop_item.findMany({
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: { in: participantIds },
         is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
       },
       select: {
         user_id: true,
         shop_item: {
           select: {
+            type: true,
             item_image: {
               select: { url: true },
             },
@@ -185,36 +183,46 @@ export class ChatService {
       },
     });
 
-    const avatarMap = new Map<number, string>();
-    activeAvatars.forEach((aa) => {
+    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    activeShopItems.forEach((aa) => {
       if (aa.shop_item?.item_image?.url) {
-        avatarMap.set(
-          aa.user_id,
-          `${this.baseUrl}/uploads/${aa.shop_item.item_image.url}`,
-        );
+        let userItems = userShopItemMap.get(aa.user_id);
+        if (!userItems) {
+          userItems = {};
+          userShopItemMap.set(aa.user_id, userItems);
+        }
+        userItems[aa.shop_item.type] = `${this.baseUrl}/uploads/${aa.shop_item.item_image.url}`;
       }
     });
 
-    const data = chats.map((chat) => ({
-      id: chat.id,
-      first_user: {
-        id: chat.first_user.id,
-        username: chat.first_user.username,
-        avatar_url: avatarMap.get(chat.first_user.id) || null,
-      },
-      second_user: {
-        id: chat.second_user.id,
-        username: chat.second_user.username,
-        avatar_url: avatarMap.get(chat.second_user.id) || null,
-      },
-      last_message: chat.messages[0] ? {
-        id: chat.messages[0].id,
-        text_content: chat.messages[0].text_content,
-        sender_id: chat.messages[0].sender_id,
-        is_read: chat.messages[0].is_read,
-        created_at: chat.messages[0].created_at,
-      } : null,
-    }));
+    const data = chats.map((chat) => {
+      const firstUserItems = userShopItemMap.get(chat.first_user.id);
+      const secondUserItems = userShopItemMap.get(chat.second_user.id);
+      return {
+        id: chat.id,
+        first_user: {
+          id: chat.first_user.id,
+          username: chat.first_user.username,
+          avatar_url: firstUserItems?.[item_shop_type.AVATAR] || null,
+          border_url: firstUserItems?.[item_shop_type.BORDER] || null,
+        },
+        second_user: {
+          id: chat.second_user.id,
+          username: chat.second_user.username,
+          avatar_url: secondUserItems?.[item_shop_type.AVATAR] || null,
+          border_url: secondUserItems?.[item_shop_type.BORDER] || null,
+        },
+        last_message: chat.messages[0]
+          ? {
+            id: chat.messages[0].id,
+            text_content: chat.messages[0].text_content,
+            sender_id: chat.messages[0].sender_id,
+            is_read: chat.messages[0].is_read,
+            created_at: chat.messages[0].created_at,
+          }
+          : null,
+      };
+    });
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
@@ -255,17 +263,15 @@ export class ChatService {
       },
     });
 
-    const activeAvatar = await this.prismaService.user_shop_item.findFirst({
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: userId,
         is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
       },
       select: {
         shop_item: {
           select: {
+            type: true,
             item_image: {
               select: { url: true },
             },
@@ -274,9 +280,12 @@ export class ChatService {
       },
     });
 
-    const avatarUrl = activeAvatar?.shop_item?.item_image?.url
-      ? `${this.baseUrl}/uploads/${activeAvatar.shop_item.item_image.url}`
-      : null;
+    const itemUrls: { [key in item_shop_type]?: string } = {};
+    activeShopItems.forEach((item) => {
+      if (item.shop_item.item_image?.url) {
+        itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
+    });
 
     const response: Message = {
       id: message.id,
@@ -288,7 +297,8 @@ export class ChatService {
       sender: {
         id: message.sender.id,
         username: message.sender.username,
-        avatar_url: avatarUrl,
+        avatar_url: itemUrls[item_shop_type.AVATAR] || null,
+        border_url: itemUrls[item_shop_type.BORDER] || null,
       },
     };
 
@@ -340,18 +350,16 @@ export class ChatService {
 
     const participantIds = [...new Set(messages.map((m) => m.sender_id))];
 
-    const activeAvatars = await this.prismaService.user_shop_item.findMany({
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: { in: participantIds },
         is_active: true,
-        shop_item: {
-          type: item_shop_type.AVATAR,
-        },
       },
       select: {
         user_id: true,
         shop_item: {
           select: {
+            type: true,
             item_image: {
               select: { url: true },
             },
@@ -360,29 +368,35 @@ export class ChatService {
       },
     });
 
-    const avatarMap = new Map<number, string>();
-    activeAvatars.forEach((aa) => {
+    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    activeShopItems.forEach((aa) => {
       if (aa.shop_item?.item_image?.url) {
-        avatarMap.set(
-          aa.user_id,
-          `${this.baseUrl}/uploads/${aa.shop_item.item_image.url}`,
-        );
+        let userItems = userShopItemMap.get(aa.user_id);
+        if (!userItems) {
+          userItems = {};
+          userShopItemMap.set(aa.user_id, userItems);
+        }
+        userItems[aa.shop_item.type] = `${this.baseUrl}/uploads/${aa.shop_item.item_image.url}`;
       }
     });
 
-    const data = messages.map((m) => ({
-      id: m.id,
-      chat_id: m.chat_id,
-      text_content: m.text_content,
-      sender_id: m.sender_id,
-      is_read: m.is_read,
-      created_at: m.created_at,
-      sender: {
-        id: m.sender.id,
-        username: m.sender.username,
-        avatar_url: avatarMap.get(m.sender.id) || null,
-      },
-    }));
+    const data = messages.map((m) => {
+      const userItems = userShopItemMap.get(m.sender_id);
+      return {
+        id: m.id,
+        chat_id: m.chat_id,
+        text_content: m.text_content,
+        sender_id: m.sender_id,
+        is_read: m.is_read,
+        created_at: m.created_at,
+        sender: {
+          id: m.sender.id,
+          username: m.sender.username,
+          avatar_url: userItems?.[item_shop_type.AVATAR] || null,
+          border_url: userItems?.[item_shop_type.BORDER] || null,
+        },
+      };
+    });
 
     return {
       current_page: currentPage,

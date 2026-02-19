@@ -56,13 +56,15 @@ export default function UserProfile() {
           <Card className="p-0! overflow-hidden pb-4!">
             <CardHeader className="relative p-0! h-24">
               <div className="abosulute top-0 right-0 left-0">
-                <Image
-                  src="/back2.jpg"
-                  alt="background"
-                  height={750}
-                  width={750}
-                  className="object-cover w-full h-28"
-                />
+                {UserData?.background_url && (
+                  <Image
+                    src={UserData.background_url}
+                    alt="background"
+                    height={750}
+                    width={750}
+                    className="object-cover w-full h-28"
+                  />
+                )}
                 <div className="absolute bottom-[-18px] left-0 right-0 h-16 bg-gradient-to-t from-[#18181B] to-transparent" />
               </div>
             </CardHeader>
@@ -70,15 +72,17 @@ export default function UserProfile() {
             <CardContent className="pb-5 px-16 flex justify-between items-center">
               <div className="flex flex-row items-center gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
-                  <div className="absolute inset-0 overflow-hidden">
-                    <Image
-                      src="/border.webp"
-                      alt="animated border"
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  {UserData?.border_url && (
+                    <div className="absolute inset-0 overflow-hidden">
+                      <Image
+                        src={UserData.border_url}
+                        alt="animated border"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   <div className="w-22 h-22  rounded-full flex items-center justify-center">
                     {UserData?.avatar_url && (
                       <Image

@@ -11,7 +11,7 @@ import { useGetMeQuery } from "@/store/user/user.api";
 import { TbUserStar } from "react-icons/tb";
 
 export default function CardProfileOptions() {
-  const { data: userData, isLoading: userLoading } = useGetMeQuery();
+  const { data: userData, isLoading: userLoading, error: userError } = useGetMeQuery();
   const router = useRouter();
 
   const navItems = [
@@ -24,13 +24,15 @@ export default function CardProfileOptions() {
     <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden ">
       <CardHeader className=" relative p-0! h-20 ">
         <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src="/card-back.jpg"
-            alt="background"
-            fill
-            className="object-cover"
-            priority
-          />
+          {userData?.background_url && (
+            <Image
+              src={userData.background_url}
+              alt="background"
+              fill
+              className="object-cover"
+              priority
+            />
+          )}
           <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
         </div>
       </CardHeader>
@@ -39,16 +41,18 @@ export default function CardProfileOptions() {
         <div className="absolute top-[-45px] left-0 right-0 flex flex-col items-center">
           <div className="relative mb-2">
             <div className="w-16 h-16 relative flex items-center justify-center">
-              <div className="absolute inset-0 overflow-hidden">
-                <Image
-                  src="/border.webp"
-                  alt="animated border"
-                  width={100}
-                  height={100}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {userLoading ? (
+              {userData?.border_url && (
+                <div className="absolute inset-0 overflow-hidden">
+                  <Image
+                    src={userData.border_url}
+                    alt="animated border"
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              {userLoading || userError ? (
                 <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
                   <TbUserStar className="w-6 h-6 text-primary" />
                 </div>
@@ -77,7 +81,10 @@ export default function CardProfileOptions() {
             <h3 className="font-bold text-base text-white">
               {userData?.username || "Username"}
             </h3>
-            <Badge variant="secondary" className="text-[10px] h-5 bg-zinc-800 text-zinc-400 border-none">
+            <Badge
+              variant="secondary"
+              className="text-[10px] h-5 bg-zinc-800 text-zinc-400 border-none"
+            >
               Software Engineer
             </Badge>
           </div>

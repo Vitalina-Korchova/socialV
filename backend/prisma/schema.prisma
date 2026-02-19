@@ -246,3 +246,32 @@ model message{
 
 }
 
+enum action_type_score {
+  CREATE_POST
+  SET_LIKE
+  SET_REPOST
+  SET_BOOKMARK
+  SET_COMMENT
+  RECEIVE_LIKE
+  RECEIVE_REPOST
+  RECEIVE_COMMENT
+  START_FOLLOW
+  RECEIVE_FOLLOW
+  CREATE_MESSAGE
+  RECEIVE_MESSAGE
+}
+
+model xp_rules{
+  id Int  @id @default(autoincrement()) 
+  type action_type_score
+  xp_amount Int @default(5)
+  coins_amount Int @default(5)
+  daily_limit Int 
+}
+
+model user_level{
+  id Int  @id @default(autoincrement()) 
+  level Int @unique
+  required_experience Int
+  reward_coins Int @default(0)
+}
