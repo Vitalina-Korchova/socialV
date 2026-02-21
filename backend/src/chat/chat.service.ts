@@ -14,8 +14,9 @@ import {
   MarkedMessage,
 } from './dto/chat.dto';
 import { ConfigService } from '@nestjs/config';
-import { item_shop_type } from '@prisma/client';
+import { item_shop_type, action_type_score } from '@prisma/client';
 import { ChatGateway } from './chat.gateway';
+import { XpService } from 'src/xp/xp.service';
 
 @Injectable()
 export class ChatService {
@@ -25,6 +26,7 @@ export class ChatService {
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
+    private readonly xpService: XpService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
@@ -308,6 +310,14 @@ export class ChatService {
         .to(`chat_${dto.chat_id}`)
         .emit('new_message', response);
     }
+
+    // Award XP — determine the other participant
+    const receiverId =
+      chat.first_user_id === userId ? chat.second_user_id : chat.first_user_id;
+    await Promise.all([
+      this.xpService.awardXp(userId, action_type_score.CREATE_MESSAGE),
+      this.xpService.awardXp(receiverId, action_type_score.RECEIVE_MESSAGE),
+    ]);
 
     return response;
   }

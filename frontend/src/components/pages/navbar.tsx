@@ -140,7 +140,7 @@ export default function Navbar() {
           >
             <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-[#8A3CFF] transition-colors" />
             {unreadChatsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px]">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
                 {unreadChatsCount}
               </span>
             )}
@@ -154,13 +154,13 @@ export default function Navbar() {
             title="Notifications"
           >
             <Bell
-              className={`w-5 h-5 transition-colors ${showNotifications
+              className={`w-5.5 h-5.5 transition-colors ${showNotifications
                 ? "text-[#8A3CFF]"
                 : "text-muted-foreground hover:text-[#8A3CFF]"
                 }`}
             />
             {unreadData && unreadData.count > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px]">
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
                 {unreadData.count}
               </span>
             )}

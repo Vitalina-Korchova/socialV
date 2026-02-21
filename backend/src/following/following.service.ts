@@ -8,6 +8,8 @@ import { FollowingResponseUsers } from './dto/following.dto';
 import { ConfigService } from '@nestjs/config';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { notificationsType } from 'src/notifications/dto/notifications.dto';
+import { XpService } from 'src/xp/xp.service';
+import { action_type_score } from '@prisma/client';
 
 @Injectable()
 export class FollowingService {
@@ -16,6 +18,7 @@ export class FollowingService {
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly notificationsService: NotificationsService,
+    private readonly xpService: XpService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
@@ -66,6 +69,12 @@ export class FollowingService {
         followingId,
         notificationsType.FOLLOW,
       );
+
+      // Award XP
+      await Promise.all([
+        this.xpService.awardXp(followerId, action_type_score.START_FOLLOW),
+        this.xpService.awardXp(followingId, action_type_score.RECEIVE_FOLLOW),
+      ]);
 
       return { following: true };
     }

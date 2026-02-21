@@ -12,7 +12,6 @@ export interface PostResponse {
     email: string;
     avatar_url: string | null;
     border_url: string | null;
-    background_url: string | null;
   };
   created_at: Date;
   images: Image[];

@@ -14,7 +14,11 @@ model user{
   username String
   email String @unique
   password String
+  amount_xp Int @default(0)
+  level Int @default(1)
+  amount_coins Int @default(50)
   created_at DateTime @default(now())
+
 
   reset_password user_reset_password[]
   refresh_token used_refresh_token[]
@@ -169,6 +173,7 @@ model shop_item {
   required_level Int 
   price_coins Int @default(0)
   is_free Boolean @default(false)
+  badge_name String? 
 
   item_image image? @relation(fields: [item_image_id], references: [id], onDelete: Cascade)
   user_shop_items user_shop_item[]
@@ -180,14 +185,12 @@ model user_shop_item{
   user_id Int
   shop_item_id Int
   is_active Boolean  @default(false)
-  is_obtained Boolean  @default(false)
 
   user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
   shop_item shop_item @relation(fields: [shop_item_id], references: [id], onDelete: Cascade)
   @@unique([user_id, shop_item_id])
 
 }
-
 
 enum notifications_type {
   LIKE
@@ -212,6 +215,7 @@ model notification{
 
   is_read Boolean @default(false)
   created_at DateTime @default(now())
+  metadata String?
 }
 
 model chat{
@@ -269,7 +273,7 @@ model xp_rules{
   daily_limit Int 
 }
 
-model user_level{
+model user_level_rules{
   id Int  @id @default(autoincrement()) 
   level Int @unique
   required_experience Int

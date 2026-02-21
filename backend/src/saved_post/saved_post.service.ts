@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { XpService } from 'src/xp/xp.service';
+import { action_type_score } from '@prisma/client';
 
 @Injectable()
 export class SavedPostService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly xpService: XpService,
+  ) { }
 
   async toggleSavedPost(postId: number, userId: number) {
     const post = await this.prismaService.post.findUnique({
@@ -36,6 +41,10 @@ export class SavedPostService {
           user_id: userId,
         },
       });
+
+      // Award XP for bookmarking
+      await this.xpService.awardXp(userId, action_type_score.SET_BOOKMARK);
+
       return { saved_post: true };
     }
   }

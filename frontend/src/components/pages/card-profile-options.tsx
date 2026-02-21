@@ -11,7 +11,11 @@ import { useGetMeQuery } from "@/store/user/user.api";
 import { TbUserStar } from "react-icons/tb";
 
 export default function CardProfileOptions() {
-  const { data: userData, isLoading: userLoading, error: userError } = useGetMeQuery();
+  const {
+    data: userData,
+    isLoading: userLoading,
+    error: userError,
+  } = useGetMeQuery();
   const router = useRouter();
 
   const navItems = [
@@ -33,19 +37,22 @@ export default function CardProfileOptions() {
               priority
             />
           )}
-          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
+          <div
+            className="absolute inset-x-0 bottom-0 h-full
+  bg-[linear-gradient(360deg,_rgba(24,24,27,1)_6%,_rgba(24,24,27,0.38)_25%,_rgba(24,24,27,0.26)_37%,_rgba(0,0,0,0)_58%)]"
+          />
         </div>
       </CardHeader>
 
       <CardContent className="space-y-1 relative">
-        <div className="absolute top-[-45px] left-0 right-0 flex flex-col items-center">
+        <div className="absolute top-[-65px] left-0 right-0  flex flex-col items-center">
           <div className="relative mb-2">
             <div className="w-16 h-16 relative flex items-center justify-center">
               {userData?.border_url && (
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
                     src={userData.border_url}
-                    alt="animated border"
+                    alt=" border"
                     width={100}
                     height={100}
                     className="w-full h-full object-cover"
@@ -74,19 +81,30 @@ export default function CardProfileOptions() {
               className="absolute -bottom-1 -right-1 text-[10px] px-1.5 py-0.5 rounded-full
              bg-purple-600 text-white font-bold border-2 border-zinc-900 shadow-lg"
             >
-              LV. 4
+              LV. {userData?.level}
             </span>
           </div>
           <div className="flex flex-col items-center gap-1">
             <h3 className="font-bold text-base text-white">
               {userData?.username || "Username"}
             </h3>
-            <Badge
-              variant="secondary"
-              className="text-[10px] h-5 bg-zinc-800 text-zinc-400 border-none"
-            >
-              Software Engineer
-            </Badge>
+            <div className="flex flex-wrap justify-center gap-1 px-4">
+              <Badge className="text-[10px] bg-zinc-800 text-zinc-400 border-none">
+                Software Engineer
+              </Badge>
+
+              <Badge className="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30">
+                🚀 Active
+              </Badge>
+
+              <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                🔥 Top 10%
+              </Badge>
+
+              <Badge className="text-[10px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                💎 Pro
+              </Badge>
+            </div>
           </div>
         </div>
         <div className="pt-20 pb-5 space-y-1">

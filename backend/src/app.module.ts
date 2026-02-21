@@ -17,6 +17,7 @@ import { FollowingModule } from './following/following.module';
 import { ShopItemModule } from './shop_item/shop_item.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ChatModule } from './chat/chat.module';
+import { XpModule } from './xp/xp.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ChatModule } from './chat/chat.module';
     ShopItemModule,
     NotificationsModule,
     ChatModule,
+    XpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

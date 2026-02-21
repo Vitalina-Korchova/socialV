@@ -11,7 +11,8 @@ import {
   PostRequestUpdate,
 } from './dto/post.dto';
 import { ConfigService } from '@nestjs/config';
-import { item_shop_type, Prisma } from '@prisma/client';
+import { item_shop_type, Prisma, action_type_score } from '@prisma/client';
+import { XpService } from 'src/xp/xp.service';
 
 type PostsType = 'all' | 'mine' | 'saved';
 
@@ -22,6 +23,7 @@ export class PostService {
     private readonly prismaService: PrismaService,
     private readonly imageService: ImageService,
     private readonly configService: ConfigService,
+    private readonly xpService: XpService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
@@ -51,6 +53,7 @@ export class PostService {
         },
       });
     }
+    await this.xpService.awardXp(userId, action_type_score.CREATE_POST);
     return post;
   }
 
@@ -260,7 +263,6 @@ export class PostService {
             email: post.user.email,
             avatar_url: userItems?.[item_shop_type.AVATAR] || null,
             border_url: userItems?.[item_shop_type.BORDER] || null,
-            background_url: userItems?.[item_shop_type.BACKGROUND] || null,
           },
           images: post.images.map((img) => ({
             id: img.image.id,

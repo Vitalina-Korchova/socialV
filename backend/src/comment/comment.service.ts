@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CommentRequest, PaginatedCommentsResponse } from './dto/comment.dto';
 import { ConfigService } from '@nestjs/config';
-import { item_shop_type } from '@prisma/client';
+import { item_shop_type, action_type_score } from '@prisma/client';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { notificationsType } from 'src/notifications/dto/notifications.dto';
+import { XpService } from 'src/xp/xp.service';
 
 @Injectable()
 export class CommentService {
@@ -13,6 +14,7 @@ export class CommentService {
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly notificationsService: NotificationsService,
+    private readonly xpService: XpService,
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
@@ -33,6 +35,12 @@ export class CommentService {
       notificationsType.COMMENT,
       Number(dto.post_id),
     );
+
+    // Award XP
+    await Promise.all([
+      this.xpService.awardXp(userId, action_type_score.SET_COMMENT),
+      this.xpService.awardXp(comment.post.user_id, action_type_score.RECEIVE_COMMENT),
+    ]);
 
     return comment;
   }

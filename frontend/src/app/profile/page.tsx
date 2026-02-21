@@ -46,9 +46,7 @@ export default function ProfilePage() {
     refetch: refetchMe,
   } = useGetMeQuery();
 
-  const currentXP = 450;
-  const totalXP = 500;
-  const percentage = (currentXP / totalXP) * 100;
+
 
   const handleTabChange = (value: string) => {
     const tab = value as ProfileTab;
@@ -72,7 +70,7 @@ export default function ProfilePage() {
       <div className="flex flex-row gap-6 py-6 px-8">
         <div className="flex-1">
           <Card className="p-0! overflow-hidden relative">
-            <CardHeader className="relative p-0! h-24 ">
+            <CardHeader className="relative p-0! h-24">
               <div className="abosulute top-0 right-0 left-0">
                 {userData?.background_url && (
                   <Image
@@ -87,7 +85,7 @@ export default function ProfilePage() {
               </div>
             </CardHeader>
 
-            <CardContent className="pb-5 px-16 flex justify-between items-center z-10">
+            <CardContent className="pb-5 pt-3 px-16 flex justify-between items-center z-10">
               <div className="flex flex-row items-center gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
                   {userData?.border_url && (
@@ -128,18 +126,19 @@ export default function ProfilePage() {
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Level 4
+                        Level {userData?.level}
                       </span>
                       <span className="text-[10px] font-medium text-muted-foreground">
-                        {" "}
-                        {currentXP}{" "}
-                        <span className="text-zinc-300">/ {totalXP} XP</span>
+                        {userData?.amount_xp}{" "}
+                        <span className="text-zinc-300">/ {userData?.total_xp_required_level} XP</span>
                       </span>
                     </div>
                     <div className="h-1.5 w-full bg-zinc-800/50 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)] transition-all duration-500 ease-out"
-                        style={{ width: `${percentage}%` }}
+                        style={{
+                          width: `${((userData?.amount_xp ?? 0) / (userData?.total_xp_required_level ?? 1)) * 100}%`
+                        }}
                       />
                     </div>
                   </div>
@@ -153,7 +152,7 @@ export default function ProfilePage() {
                         height={12}
                       />
                       <span className="text-[11px] font-bold text-yellow-500">
-                        234 Coins
+                        {userData?.amount_coins} Coins
                       </span>
                     </div>
                   </div>

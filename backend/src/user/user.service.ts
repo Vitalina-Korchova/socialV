@@ -27,6 +27,9 @@ export class UserService {
         username: true,
         email: true,
         created_at: true,
+        amount_xp: true,
+        level: true,
+        amount_coins: true,
 
         _count: {
           select: {
@@ -65,6 +68,17 @@ export class UserService {
         : null;
     };
 
+    const totalXpRequiredLvlUp = await this.prismaService.user_level_rules.findUnique(
+      {
+        where: {
+          level: user.level + 1,
+        },
+        select: {
+          required_experience: true,
+        },
+      },
+    );
+
     return {
       id: user.id,
       username: user.username,
@@ -76,6 +90,10 @@ export class UserService {
       avatar_url: getImageUrl(item_shop_type.AVATAR),
       background_url: getImageUrl(item_shop_type.BACKGROUND),
       border_url: getImageUrl(item_shop_type.BORDER),
+      amount_xp: user.amount_xp,
+      level: user.level,
+      amount_coins: user.amount_coins,
+      total_xp_required_level: totalXpRequiredLvlUp?.required_experience || 0,
     };
   }
 

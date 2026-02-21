@@ -2,12 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { notificationsType } from 'src/notifications/dto/notifications.dto';
+import { XpService } from 'src/xp/xp.service';
+import { action_type_score } from '@prisma/client';
 
 @Injectable()
 export class RepostService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly xpService: XpService,
   ) { }
 
   async toggleRepost(postId: number, userId: number) {
@@ -49,6 +52,12 @@ export class RepostService {
         notificationsType.REPOST,
         postId,
       );
+
+      // Award XP
+      await Promise.all([
+        this.xpService.awardXp(userId, action_type_score.SET_REPOST),
+        this.xpService.awardXp(post.user_id, action_type_score.RECEIVE_REPOST),
+      ]);
 
       return { repost: true };
     }

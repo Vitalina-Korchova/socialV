@@ -52,6 +52,8 @@ export default function Notifications() {
         return `${username} commented on your post`;
       case notificationsType.FOLLOW:
         return `${username} started following you`;
+      case notificationsType.LVLUP:
+        return `You leveled up! 🎉 A new badge has been unlocked and new items are now available in the shop.`;
       default:
         return `${username} sent you a notification`;
     }

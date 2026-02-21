@@ -8,6 +8,10 @@ export interface UserResponse {
   avatar_url: string | null;
   background_url: string | null;
   border_url: string | null;
+  amount_xp: number;
+  level: number;
+  amount_coins: number;
+  total_xp_required_level: number;
   created_at: string;
 }
 
