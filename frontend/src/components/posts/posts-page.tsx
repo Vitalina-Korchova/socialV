@@ -38,6 +38,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { TbUserStar } from "react-icons/tb";
 import PostComments from "./post-comments";
+import { UserBadgesList } from "../ui/user-badge";
 
 const MAX_LINES = 4;
 type DataPostToDelete = {
@@ -337,9 +338,7 @@ export default function PostsPage({ type }: { type: string }) {
                         <h3 className="font-semibold text-lg">
                           {post.user.username}
                         </h3>
-                        <Badge variant={"default"} className="text-xs">
-                          Static badge
-                        </Badge>
+                        <UserBadgesList badges={post.user.badges} />
                       </div>
                     </div>
 

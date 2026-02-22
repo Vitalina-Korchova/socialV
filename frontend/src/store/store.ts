@@ -7,6 +7,7 @@ import { followingApi } from "./following/following.api";
 import { commentApi } from "./comment/comment.api";
 import { notificationsApi } from "./notifications/notifications.api";
 import { chatApi } from "./chat/chat.api";
+import { shopItemApi } from "./shop_item/shop_item.api";
 import searchReducer from "./post/search.slice";
 
 const rootReducer = combineReducers({
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   [commentApi.reducerPath]: commentApi.reducer,
   [notificationsApi.reducerPath]: notificationsApi.reducer,
   [chatApi.reducerPath]: chatApi.reducer,
+  [shopItemApi.reducerPath]: shopItemApi.reducer,
   search: searchReducer,
 });
 
@@ -32,7 +34,8 @@ export const store = configureStore({
       .concat(followingApi.middleware)
       .concat(commentApi.middleware)
       .concat(notificationsApi.middleware)
-      .concat(chatApi.middleware),
+      .concat(chatApi.middleware)
+      .concat(shopItemApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

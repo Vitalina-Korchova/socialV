@@ -53,7 +53,7 @@ export default function Notifications() {
       case notificationsType.FOLLOW:
         return `${username} started following you`;
       case notificationsType.LVLUP:
-        return `You leveled up! 🎉 A new badge has been unlocked and new items are now available in the shop.`;
+        return `You leveled up! 🎉 A new badge-reward has been unlocked and new items are now available in the shop.`;
       default:
         return `${username} sent you a notification`;
     }

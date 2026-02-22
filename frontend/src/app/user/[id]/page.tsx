@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { UserBadgesList } from "@/components/ui/user-badge";
 import { useGetUserByIdQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
@@ -94,9 +95,7 @@ export default function UserProfile() {
                 </div>
                 <div className="flex flex-col gap-1.5 items-start">
                   <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">{UserData?.username}</h2>
-                  <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-primary/10 text-primary font-bold border border-primary/20">
-                    Software Engineer
-                  </Badge>
+                  <UserBadgesList badges={UserData?.badges} />
 
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">

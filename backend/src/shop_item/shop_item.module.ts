@@ -6,4 +6,4 @@ import { ShopItemController } from './shop_item.controller';
   controllers: [ShopItemController],
   providers: [ShopItemService],
 })
-export class ShopItemModule {}
+export class ShopItemModule { }

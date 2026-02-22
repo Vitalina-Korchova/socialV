@@ -21,6 +21,7 @@ export class UserResponse {
   level: number;
   amount_coins: number;
   total_xp_required_level: number;
+  badges: string[];
 }
 
 export class UserRequestUpdate {

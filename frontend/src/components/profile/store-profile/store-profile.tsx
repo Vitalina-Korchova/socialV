@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CircleUserRound, Sparkles, Wallpaper } from "lucide-react";
+import { CircleUserRound, Sparkles, Wallpaper, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import BuyAvatarStore from "./tabs-content/buy-avatar";
 import BuyBackgroundStore from "./tabs-content/buy-background";
 import BuyBorderStore from "./tabs-content/buy-border";
+import BuyBadgesStore from "./tabs-content/buy-badges";
 
 export default function StoreProfile() {
   const [activeTab, setActiveTab] = useState("buy-avatar");
@@ -24,6 +25,7 @@ export default function StoreProfile() {
               { id: "buy-avatar", label: "Buy Avatars", icon: CircleUserRound, color: "text-purple-400" },
               { id: "buy-background", label: "Buy Backgrounds", icon: Wallpaper, color: "text-cyan-400" },
               { id: "buy-border", label: "Buy Borders", icon: Sparkles, color: "text-amber-400" },
+              { id: "buy-badge", label: "Buy Badges", icon: Star, color: "text-rose-400" },
             ].map((tab) => (
               <Button
                 key={tab.id}
@@ -52,6 +54,7 @@ export default function StoreProfile() {
             {activeTab === "buy-avatar" && <BuyAvatarStore />}
             {activeTab === "buy-background" && <BuyBackgroundStore />}
             {activeTab === "buy-border" && <BuyBorderStore />}
+            {activeTab === "buy-badge" && <BuyBadgesStore />}
           </div>
         </div>
       </div>

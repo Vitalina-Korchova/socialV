@@ -194,6 +194,7 @@ export class PostService {
         shop_item: {
           select: {
             type: true,
+            badge_name: true,
             item_image: {
               select: { url: true },
             },
@@ -202,14 +203,22 @@ export class PostService {
       },
     });
 
-    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string | string[] }>();
     activeShopItems.forEach((item) => {
-      if (item.shop_item.item_image?.url) {
-        let userItems = userShopItemMap.get(item.user_id);
-        if (!userItems) {
-          userItems = {};
-          userShopItemMap.set(item.user_id, userItems);
+      let userItems = userShopItemMap.get(item.user_id);
+      if (!userItems) {
+        userItems = {};
+        userShopItemMap.set(item.user_id, userItems);
+      }
+
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!userItems[item_shop_type.BADGE]) {
+          userItems[item_shop_type.BADGE] = [];
         }
+        if (item.shop_item.badge_name) {
+          (userItems[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+        }
+      } else if (item.shop_item.item_image?.url) {
         userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
@@ -229,6 +238,7 @@ export class PostService {
           shop_item: {
             select: {
               type: true,
+              badge_name: true,
               item_image: {
                 select: { url: true },
               },
@@ -237,14 +247,22 @@ export class PostService {
         },
       });
 
-    const repostItemMap = new Map<number, { [key in item_shop_type]?: string }>();
+    const repostItemMap = new Map<number, { [key in item_shop_type]?: string | string[] }>();
     activeReposrFollowingsItems.forEach((item) => {
-      if (item.shop_item.item_image?.url) {
-        let userItems = repostItemMap.get(item.user_id);
-        if (!userItems) {
-          userItems = {};
-          repostItemMap.set(item.user_id, userItems);
+      let userItems = repostItemMap.get(item.user_id);
+      if (!userItems) {
+        userItems = {};
+        repostItemMap.set(item.user_id, userItems);
+      }
+
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!userItems[item_shop_type.BADGE]) {
+          userItems[item_shop_type.BADGE] = [];
         }
+        if (item.shop_item.badge_name) {
+          (userItems[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+        }
+      } else if (item.shop_item.item_image?.url) {
         userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
@@ -261,8 +279,9 @@ export class PostService {
             id: post.user.id,
             username: post.user.username,
             email: post.user.email,
-            avatar_url: userItems?.[item_shop_type.AVATAR] || null,
-            border_url: userItems?.[item_shop_type.BORDER] || null,
+            avatar_url: (userItems?.[item_shop_type.AVATAR] as string) || null,
+            border_url: (userItems?.[item_shop_type.BORDER] as string) || null,
+            badges: (userItems?.[item_shop_type.BADGE] as string[]) || [],
           },
           images: post.images.map((img) => ({
             id: img.image.id,
@@ -281,8 +300,9 @@ export class PostService {
               return {
                 id: repost.user.id,
                 username: repost.user.username,
-                avatar_url: repItems?.[item_shop_type.AVATAR] || null,
-                border_url: repItems?.[item_shop_type.BORDER] || null,
+                avatar_url: (repItems?.[item_shop_type.AVATAR] as string) || null,
+                border_url: (repItems?.[item_shop_type.BORDER] as string) || null,
+                badges: (repItems?.[item_shop_type.BADGE] as string[]) || [],
               };
             }),
         };
@@ -331,11 +351,50 @@ export class PostService {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
 
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
+      where: {
+        user_id: post.user.id,
+        is_active: true,
+      },
+      select: {
+        shop_item: {
+          select: {
+            type: true,
+            badge_name: true,
+            item_image: {
+              select: { url: true },
+            },
+          },
+        },
+      },
+    });
+
+    const itemUrls: { [key in item_shop_type]?: string | string[] } = {};
+    activeShopItems.forEach((item) => {
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!itemUrls[item_shop_type.BADGE]) {
+          itemUrls[item_shop_type.BADGE] = [];
+        }
+        if (item.shop_item.badge_name) {
+          (itemUrls[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+        }
+      } else if (item.shop_item.item_image?.url) {
+        itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
+    });
+
     return {
       id: post.id,
       text_content: post.text_content,
       created_at: post.created_at,
-      user: post.user,
+      user: {
+        id: post.user.id,
+        username: post.user.username,
+        email: post.user.email,
+        avatar_url: (itemUrls[item_shop_type.AVATAR] as string) || null,
+        border_url: (itemUrls[item_shop_type.BORDER] as string) || null,
+        badges: (itemUrls[item_shop_type.BADGE] as string[]) || [],
+      },
       images: post.images.map((img) => ({
         id: img.image.id,
         url: `${this.baseUrl}/uploads/${img.image.url}`,
@@ -440,6 +499,7 @@ export class PostService {
         shop_item: {
           select: {
             type: true,
+            badge_name: true,
             item_image: {
               select: {
                 url: true,
@@ -450,9 +510,16 @@ export class PostService {
       },
     });
 
-    const itemUrls: { [key in item_shop_type]?: string } = {};
+    const itemUrls: { [key in item_shop_type]?: string | string[] } = {};
     activeShopItems.forEach((item) => {
-      if (item.shop_item.item_image?.url) {
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!itemUrls[item_shop_type.BADGE]) {
+          itemUrls[item_shop_type.BADGE] = [];
+        }
+        if (item.shop_item.badge_name) {
+          (itemUrls[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+        }
+      } else if (item.shop_item.item_image?.url) {
         itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
@@ -467,9 +534,10 @@ export class PostService {
           id: post.user_id,
           username: post.user.username,
           email: post.user.email,
-          avatar_url: itemUrls[item_shop_type.AVATAR] || null,
-          border_url: itemUrls[item_shop_type.BORDER] || null,
-          background_url: itemUrls[item_shop_type.BACKGROUND] || null,
+          avatar_url: (itemUrls[item_shop_type.AVATAR] as string) || null,
+          border_url: (itemUrls[item_shop_type.BORDER] as string) || null,
+          background_url: (itemUrls[item_shop_type.BACKGROUND] as string) || null,
+          badges: (itemUrls[item_shop_type.BADGE] as string[]) || [],
         },
         images: post.images.map((img) => ({
           id: img.image.id,

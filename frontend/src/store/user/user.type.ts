@@ -13,6 +13,7 @@ export interface UserResponse {
   amount_coins: number;
   total_xp_required_level: number;
   created_at: string;
+  badges: string[];
 }
 
 export interface UserRequestUpdate {

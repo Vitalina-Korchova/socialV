@@ -51,13 +51,12 @@ export class AuthService {
       },
     });
 
-
-    const freeAvatar = await this.prismaService.shop_item.findFirst({
+    const freeAvatars = await this.prismaService.shop_item.findMany({
       where: {
         type: 'AVATAR',
         is_free: true,
-        required_level: 1,
       },
+      take: 2,
       orderBy: {
         id: 'asc',
       },
@@ -67,31 +66,27 @@ export class AuthService {
       where: {
         type: 'BACKGROUND',
         is_free: true,
-        required_level: 1,
       },
     });
 
     const userShopItems: {
       user_id: number;
       shop_item_id: number;
-      is_obtained: boolean;
       is_active: boolean;
     }[] = [];
 
-    if (freeAvatar) {
+    freeAvatars.forEach((avatar, index) => {
       userShopItems.push({
         user_id: user.id,
-        shop_item_id: freeAvatar.id,
-        is_obtained: true,
-        is_active: true,
+        shop_item_id: avatar.id,
+        is_active: index === 0, // Only the first avatar is active
       });
-    }
+    });
 
     if (freeBackground) {
       userShopItems.push({
         user_id: user.id,
         shop_item_id: freeBackground.id,
-        is_obtained: true,
         is_active: true,
       });
     }

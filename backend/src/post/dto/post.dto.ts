@@ -18,6 +18,7 @@ export class PostResponse {
     email: string;
     avatar_url: string | null;
     border_url: string | null;
+    badges: string[];
   };
   created_at: Date;
   images: Image[];
@@ -31,6 +32,7 @@ export class PostResponse {
     username: string;
     avatar_url: string | null;
     border_url: string | null;
+    badges: string[];
   }[];
 }
 

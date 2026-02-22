@@ -45,6 +45,7 @@ export class UserService {
             shop_item: {
               select: {
                 type: true,
+                badge_name: true,
                 item_image: {
                   select: {
                     url: true,
@@ -79,6 +80,11 @@ export class UserService {
       },
     );
 
+    const activeBadges = user.user_shop_items
+      .filter((i) => i.shop_item.type === item_shop_type.BADGE)
+      .map((i) => i.shop_item.badge_name)
+      .filter((name): name is string => !!name);
+
     return {
       id: user.id,
       username: user.username,
@@ -94,6 +100,7 @@ export class UserService {
       level: user.level,
       amount_coins: user.amount_coins,
       total_xp_required_level: totalXpRequiredLvlUp?.required_experience || 0,
+      badges: activeBadges,
     };
   }
 

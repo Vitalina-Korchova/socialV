@@ -81,7 +81,7 @@ export default function CreatePostPage({
         <div className="flex flex-row gap-4 items-top">
           <div className="w-10 h-10 relative flex items-center justify-center">
             {userData?.border_url && (
-              <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden z-10">
                 <Image
                   src={userData.border_url}
                   alt="animated border"
@@ -93,17 +93,17 @@ export default function CreatePostPage({
               </div>
             )}
             {userLoading || userError ? (
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                 <TbUserStar className="w-5 h-5 text-primary" />
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
                 {userData?.avatar_url && (
                   <Image
                     src={userData.avatar_url}
                     alt="avatar"
-                    width={300}
-                    height={300}
+                    width={100}
+                    height={100}
                     className="rounded-full object-cover w-full h-full"
                   />
                 )}

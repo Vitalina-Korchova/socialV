@@ -9,6 +9,7 @@ import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { TbUserStar } from "react-icons/tb";
+import { UserBadgesList } from "../ui/user-badge";
 
 export default function CardProfileOptions() {
   const {
@@ -89,21 +90,7 @@ export default function CardProfileOptions() {
               {userData?.username || "Username"}
             </h3>
             <div className="flex flex-wrap justify-center gap-1 px-4">
-              <Badge className="text-[10px] bg-zinc-800 text-zinc-400 border-none">
-                Software Engineer
-              </Badge>
-
-              <Badge className="text-[10px] bg-purple-600/20 text-purple-400 border border-purple-500/30">
-                🚀 Active
-              </Badge>
-
-              <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                🔥 Top 10%
-              </Badge>
-
-              <Badge className="text-[10px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                💎 Pro
-              </Badge>
+              <UserBadgesList badges={userData?.badges} className="justify-center" />
             </div>
           </div>
         </div>

@@ -30,6 +30,7 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 import { TbUserStar } from "react-icons/tb";
+import { UserBadgesList } from "../ui/user-badge";
 
 const MAX_LINES = 4;
 
@@ -244,9 +245,7 @@ export default function UserPostsPage({ id }: { id: number }) {
                         <h3 className="font-semibold text-lg">
                           {post.user.username || "Username"}
                         </h3>
-                        <Badge variant={"default"} className="text-xs">
-                          Static badge
-                        </Badge>
+                        <UserBadgesList badges={post.user.badges} />
                       </div>
                     </div>
 

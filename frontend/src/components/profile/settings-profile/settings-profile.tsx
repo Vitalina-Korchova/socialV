@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CircleUserRound, Sparkles, User, Wallpaper } from "lucide-react";
+import { CircleUserRound, Sparkles, User, Wallpaper, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import ProfileSettings from "./tabs-content/profile-tab";
 import MyAvatarsTabSettings from "./tabs-content/my-avatars-tab";
 import MyBackgroundsTabSettings from "./tabs-content/my-backgrounds-tab";
 import MyBordersTabSettings from "./tabs-content/my-borders-tab";
+import MyBadgesTabSettings from "./tabs-content/my-badges-tab";
 
 export default function SettingsProfile() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -26,6 +27,7 @@ export default function SettingsProfile() {
               { id: "avatar", label: "My Avatars", icon: CircleUserRound, color: "text-purple-400" },
               { id: "background", label: "My Backgrounds", icon: Wallpaper, color: "text-cyan-400" },
               { id: "border", label: "My Borders", icon: Sparkles, color: "text-amber-400" },
+              { id: "badge", label: "My Badges", icon: Star, color: "text-rose-400" },
             ].map((tab) => (
               <Button
                 key={tab.id}
@@ -55,6 +57,7 @@ export default function SettingsProfile() {
             {activeTab === "avatar" && <MyAvatarsTabSettings />}
             {activeTab === "background" && <MyBackgroundsTabSettings />}
             {activeTab === "border" && <MyBordersTabSettings />}
+            {activeTab === "badge" && <MyBadgesTabSettings />}
           </div>
         </div>
       </div>

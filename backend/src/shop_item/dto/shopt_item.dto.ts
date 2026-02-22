@@ -1,8 +1,22 @@
-export class ShopItemResposne {
+export class MyShopItemsResponse {
   id: number;
   type: string;
-  item_image_id: number;
+  required_level: number;
+  is_active: boolean;
+  badge_name: string | null;
+  image_url: string | null;
+}
+
+export class SetShopItemActiveOrBuy {
+  itemId: number;
+  type: string;
+}
+
+export class ShopItemsToBuy {
+  id: number;
+  type: string;
   required_level: number;
   price_coins: number;
-  is_free: boolean;
+  badge_name: string | null;
+  image_url: string | null;
 }
