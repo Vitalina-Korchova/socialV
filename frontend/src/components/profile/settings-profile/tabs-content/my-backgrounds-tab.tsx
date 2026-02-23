@@ -8,6 +8,7 @@ import {
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function MyBackgroundsTabSettings() {
   const {
@@ -24,7 +25,7 @@ export default function MyBackgroundsTabSettings() {
     try {
       await setActive({ itemId: id, type: "BACKGROUND" }).unwrap();
     } catch (err) {
-      console.error("Failed to activate background", err);
+      toast.error("Failed to update background");
     }
   };
 

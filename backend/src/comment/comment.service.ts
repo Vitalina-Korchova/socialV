@@ -84,12 +84,13 @@ export class CommentService {
               where: {
                 is_active: true,
                 shop_item: {
-                  type: item_shop_type.AVATAR,
+                  type: { in: [item_shop_type.AVATAR, item_shop_type.BORDER] },
                 },
               },
               select: {
                 shop_item: {
                   select: {
+                    type: true,
                     item_image: {
                       select: {
                         url: true,
@@ -112,18 +113,24 @@ export class CommentService {
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: comments.map((comment) => {
-        const avatar =
-          comment.user.user_shop_items[0]?.shop_item?.item_image?.url;
+        const avatarItem = comment.user.user_shop_items.find(
+          (item) => item.shop_item.type === item_shop_type.AVATAR,
+        );
+        const borderItem = comment.user.user_shop_items.find(
+          (item) => item.shop_item.type === item_shop_type.BORDER,
+        );
+
+        const avatar = avatarItem?.shop_item?.item_image?.url;
+        const border = borderItem?.shop_item?.item_image?.url;
+
         return {
           id: comment.id,
           text: comment.text,
           user: {
             id: comment.user.id,
             username: comment.user.username,
-            email: comment.user.email,
-            avatar_url: avatar
-              ? `${this.baseUrl}/uploads/${avatar}`
-              : null,
+            avatar_url: avatar ? `${this.baseUrl}/uploads/${avatar}` : null,
+            border_url: border ? `${this.baseUrl}/uploads/${border}` : null,
           },
           post_id: comment.post_id,
           created_at: comment.created_at,

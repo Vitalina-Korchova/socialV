@@ -23,7 +23,7 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/posts')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -53,10 +53,11 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   async getPostsByUserId(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { id: number },
     @Query('page') page?: number,
     @Query('page_size') page_size?: number,
   ) {
-    return this.postService.getPostsByUserId(id, page, page_size);
+    return this.postService.getPostsByUserId(id, user.id, page, page_size);
   }
 
   @Post()

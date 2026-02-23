@@ -8,6 +8,7 @@ import {
 import { Loader } from "@/components/ui/loader";
 import { ErrorState } from "@/components/ui/error";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function MyBordersTabSettings() {
   const {
@@ -24,7 +25,7 @@ export default function MyBordersTabSettings() {
     try {
       await setActive({ itemId: id, type: "BORDER" }).unwrap();
     } catch (err) {
-      console.error("Failed to activate border", err);
+      toast.error("Failed to update border");
     }
   };
 

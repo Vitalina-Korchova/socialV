@@ -215,7 +215,6 @@ model notification{
 
   is_read Boolean @default(false)
   created_at DateTime @default(now())
-  metadata String?
 }
 
 model chat{

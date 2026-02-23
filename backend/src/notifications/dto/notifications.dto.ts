@@ -18,6 +18,7 @@ export class NotificationsDto {
     id: number;
     username: string;
     avatar_url: string | null;
+    border_url: string | null;
   };
   is_read: boolean;
   created_at: Date;

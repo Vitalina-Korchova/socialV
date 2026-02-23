@@ -92,18 +92,31 @@ export default function PostComments({
     <div className="flex flex-col gap-4 px-5 pb-4 pt-4">
       {/* Input Section */}
       <div className="flex gap-3 items-center">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-secondary">
-          {userData?.avatar_url ? (
-            <Image
-              src={userData.avatar_url}
-              alt="My Avatar"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <User className="w-5 h-5 text-muted-foreground" />
+        <div className="w-10 h-10 relative flex items-center justify-center flex-shrink-0">
+          {userData?.border_url && (
+            <div className="absolute inset-0 z-10">
+              <Image
+                src={userData.border_url}
+                alt="border"
+                width={100}
+                height={100}
+                className="w-full h-full object-cover"
+              />
+            </div>
           )}
+          <div className="size-8 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
+            {userData?.avatar_url ? (
+              <Image
+                src={userData.avatar_url}
+                alt="My Avatar"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-5 h-5 text-muted-foreground" />
+            )}
+          </div>
         </div>
         <div className="relative w-full">
           <Input
@@ -148,20 +161,33 @@ export default function PostComments({
           <div className="flex flex-col gap-4">
             {comments.map((comment) => (
               <div key={comment.id} className="group flex gap-3">
-                <div className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden bg-secondary">
-                  {comment.user.avatar_url ? (
-                    <Image
-                      src={comment.user.avatar_url}
-                      alt={comment.user.username}
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-xs">
-                      {comment.user.username.charAt(0).toUpperCase()}
+                <div className="w-10 h-10 relative flex-shrink-0 flex items-center justify-center">
+                  {comment.user.border_url && (
+                    <div className="absolute inset-0 z-10">
+                      <Image
+                        src={comment.user.border_url}
+                        alt="border"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
+                  <div className="size-8 rounded-full flex-shrink-0 overflow-hidden bg-muted relative flex items-center justify-center">
+                    {comment.user.avatar_url ? (
+                      <Image
+                        src={comment.user.avatar_url}
+                        alt={comment.user.username}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-xs">
+                        {comment.user.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1 bg-muted/30 p-2 rounded-lg w-full relative">
                   <div className="flex justify-between items-start">

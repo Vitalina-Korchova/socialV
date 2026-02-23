@@ -10,6 +10,7 @@ export interface CommentResponse {
         id: number;
         username: string;
         avatar_url: string | null;
+        border_url: string | null;
     };
     post_id: number;
     created_at: Date;

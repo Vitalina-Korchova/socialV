@@ -158,16 +158,29 @@ function NotificationItem({
 }) {
   return (
     <div className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-muted/50 transition-all border-b border-muted/30 last:border-0 relative group">
-      <div className="relative h-10 w-10 flex-shrink-0">
-        <Image
-          src={notification.user.avatar_url || "/default-avatar.png"}
-          alt={notification.user.username}
-          width={40}
-          height={40}
-          className="h-10 w-10 rounded-full object-cover border border-[#8A3CFF]/10"
-        />
+      <div className="relative h-10 w-10 flex-shrink-0 flex items-center justify-center">
+        {notification.user.border_url && (
+          <div className="absolute inset-0 z-10">
+            <Image
+              src={notification.user.border_url}
+              alt="border"
+              width={100}
+              height={100}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="size-8 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
+          <Image
+            src={notification.user.avatar_url || "/default-avatar.png"}
+            alt={notification.user.username}
+            width={40}
+            height={40}
+            className="h-full w-full object-cover"
+          />
+        </div>
         {!notification.is_read && (
-          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-primary rounded-full border-2 border-background" />
+          <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-primary rounded-full border-2 border-background z-20" />
         )}
       </div>
 

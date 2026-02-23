@@ -7,16 +7,16 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import CreatePostPage from "./create-post";
-import { useGetAllPostsQuery } from "@/store/post/post.api";
+import {
+  useGetAllPostsQuery,
+  useLikePostMutation,
+  useRepostPostMutation,
+  useSavePostMutation,
+} from "@/store/post/post.api";
 import { Loader } from "../ui/loader";
 import { ErrorState } from "../ui/error";
 import { formatDate } from "@/utils/format";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
-import {
-  useLikePostMutation,
-  useRepostPostMutation,
-  useSavePostMutation,
-} from "@/store/like-repost-savedpost/like-repost-savedpost.api";
 import { toast } from "sonner";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
@@ -283,55 +283,53 @@ export default function PostsPage({ type }: { type: string }) {
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved" ? "cursor-pointer" : ""
-                          }`}
-                        onClick={
-                          type === "all" || type === "saved"
-                            ? () => {
-                              if (post.user.id === userData?.id) {
-                                router.push("/profile?tab=my-posts");
-                              } else {
-                                router.push(`/user/${post.user.id}`);
+                    <div className="flex items-center space-x-2">
+                      <div className="px-2">
+                        <div
+                          className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved" ? "cursor-pointer" : ""
+                            }`}
+                          onClick={
+                            type === "all" || type === "saved"
+                              ? () => {
+                                if (post.user.id === userData?.id) {
+                                  router.push("/profile?tab=my-posts");
+                                } else {
+                                  router.push(`/user/${post.user.id}`);
+                                }
                               }
-                            }
-                            : undefined
-                        }
-                      >
-                        {post.user?.border_url && (
-                          <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
-                            <Image
-                              src={post.user.border_url}
-                              alt="animated border"
-                              width={100}
-                              height={100}
-                              className="w-full h-full object-cover scale-150"
-                              priority
-                            />
-                          </div>
-                        )}
-                        {postsLoading ? (
-                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
-                            <TbUserStar className="w-5 h-5 text-primary" />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
-                            {post.user?.avatar_url ? (
+                              : undefined
+                          }
+                        >
+                          {post.user?.border_url && (
+                            <div className="absolute inset-0 overflow-hidden z-10 ">
                               <Image
-                                src={post.user.avatar_url}
-                                alt="avatar"
-                                width={300}
-                                height={300}
-                                className="rounded-full object-cover w-full h-full"
+                                src={post.user.border_url}
+                                alt="animated border"
+                                width={100}
+                                height={100}
+                                className="w-full h-full object-cover "
+                                priority
                               />
-                            ) : (
-                              <div className="w-full h-full bg-black flex items-center justify-center">
-                                <TbUserStar className="w-5 h-5 text-primary" />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                            </div>
+                          )}
+                          {postsLoading ? (
+                            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center  ">
+                              <TbUserStar className="w-5 h-5 text-primary" />
+                            </div>
+                          ) : (
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center   overflow-hidden">
+                              {post.user?.avatar_url && (
+                                <Image
+                                  src={post.user.avatar_url}
+                                  alt="avatar"
+                                  width={300}
+                                  height={300}
+                                  className="rounded-full object-cover"
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div>

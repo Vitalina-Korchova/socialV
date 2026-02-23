@@ -4,20 +4,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle, Repeat, User } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
 import { useGetMeQuery } from "@/store/user/user.api";
-import { useGetPostByUserIdQuery } from "@/store/post/post.api";
+import {
+  useGetPostByUserIdQuery,
+  useLikePostMutation,
+  useRepostPostMutation,
+  useSavePostMutation,
+} from "@/store/post/post.api";
 import PostComments from "./post-comments";
 import { Loader } from "../ui/loader";
 import { ErrorState } from "../ui/error";
 import { formatDate } from "@/utils/format";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
-import {
-  useLikePostMutation,
-  useRepostPostMutation,
-  useSavePostMutation,
-} from "@/store/like-repost-savedpost/like-repost-savedpost.api";
 import { toast } from "sonner";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
@@ -187,7 +185,7 @@ export default function UserPostsPage({ id }: { id: number }) {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex flex-col gap-7">
         {postsLoading && <Loader />}
         {postsError && <ErrorState />}
         {postsData?.data.length === 0 && (
@@ -199,7 +197,7 @@ export default function UserPostsPage({ id }: { id: number }) {
             postsData?.data.map((post) => (
               <Card
                 key={post.id}
-                className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
+                className="  w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
            transition-shadow duration-300 gap-3! break-inside-avoid"
               >
                 <CardHeader className="pb-3">
@@ -207,23 +205,23 @@ export default function UserPostsPage({ id }: { id: number }) {
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 relative flex items-center justify-center">
                         {post.user?.border_url && (
-                          <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
+                          <div className="absolute inset-0 overflow-hidden z-10">
                             <Image
                               src={post.user.border_url}
                               alt="animated border"
                               width={100}
                               height={100}
-                              className="w-full h-full object-cover scale-150"
+                              className="w-full h-full object-cover "
                               priority
                             />
                           </div>
                         )}
                         {postsLoading ? (
-                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative z-10">
+                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center relative">
                             <TbUserStar className="w-5 h-5 text-primary" />
                           </div>
                         ) : (
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center relative overflow-hidden">
                             {post.user?.avatar_url ? (
                               <Image
                                 src={post.user.avatar_url}

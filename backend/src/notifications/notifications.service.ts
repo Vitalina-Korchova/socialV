@@ -55,12 +55,13 @@ export class NotificationsService {
                             where: {
                                 is_active: true,
                                 shop_item: {
-                                    type: 'AVATAR',
+                                    type: { in: ['AVATAR', 'BORDER'] },
                                 },
                             },
                             select: {
                                 shop_item: {
                                     select: {
+                                        type: true,
                                         item_image: {
                                             select: {
                                                 url: true,
@@ -100,8 +101,17 @@ export class NotificationsService {
             has_next_page: currentPage < totalPages,
             has_previous_page: currentPage > 1,
             data: notifications.map((n) => {
-                const avatar = n.sender.user_shop_items[0]?.shop_item?.item_image?.url;
+                const avatarItem = n.sender.user_shop_items.find(
+                    (usi) => usi.shop_item.type === 'AVATAR',
+                );
+                const borderItem = n.sender.user_shop_items.find(
+                    (usi) => usi.shop_item.type === 'BORDER',
+                );
+
+                const avatar = avatarItem?.shop_item?.item_image?.url;
+                const border = borderItem?.shop_item?.item_image?.url;
                 const postImage = n.post?.images[0]?.image?.url;
+
                 return {
                     id: n.id,
                     notification_type: n.notification_type as notificationsType,
@@ -109,14 +119,19 @@ export class NotificationsService {
                     recipient_id: n.recipient_id,
                     is_read: n.is_read,
                     created_at: n.created_at,
-                    post: n.post_id ? {
-                        post_id: n.post_id,
-                        post_image_url: postImage ? `${this.baseUrl}/uploads/${postImage}` : null,
-                    } : null,
+                    post: n.post_id
+                        ? {
+                            post_id: n.post_id,
+                            post_image_url: postImage
+                                ? `${this.baseUrl}/uploads/${postImage}`
+                                : null,
+                        }
+                        : null,
                     user: {
                         id: n.sender.id,
                         username: n.sender.username,
                         avatar_url: avatar ? `${this.baseUrl}/uploads/${avatar}` : null,
+                        border_url: border ? `${this.baseUrl}/uploads/${border}` : null,
                     },
                 };
             }),

@@ -117,7 +117,7 @@ export default function ProfilePage() {
                   <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">
                     {userData?.username}
                   </h2>
-                  <UserBadgesList badges={userData?.badges} />
+                  <UserBadgesList badges={userData?.badges} itemClassName="text-[10px] mt-2" />
 
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">
@@ -346,21 +346,34 @@ function UserItem({
   return (
     <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
       <Link href={`/user/${user.id}`} className="flex items-center gap-3">
-        <div className="relative w-10 h-10 overflow-hidden rounded-full">
-          {user.avatar_url ? (
-            <Image
-              src={user.avatar_url}
-              alt={user.username}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-secondary flex items-center justify-center">
-              <span className="text-xs font-bold">
-                {user.username.charAt(0).toUpperCase()}
-              </span>
+        <div className="relative w-12 h-12 flex items-center justify-center">
+          {user.border_url && (
+            <div className="absolute inset-x-0 inset-y-0 z-10">
+              <Image
+                src={user.border_url}
+                alt="border"
+                width={100}
+                height={100}
+                className="w-full h-full object-cover"
+              />
             </div>
           )}
+          <div className="size-10 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
+            {user.avatar_url ? (
+              <Image
+                src={user.avatar_url}
+                alt={user.username}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-black flex items-center justify-center">
+                <span className="text-xs font-bold text-primary">
+                  {user.username.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         <span className="font-medium">{user.username}</span>
       </Link>

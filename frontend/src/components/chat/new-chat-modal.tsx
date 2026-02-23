@@ -79,14 +79,35 @@ export function NewChatModal({ isOpen, onClose, onSelectChat }: NewChatModalProp
                                         "hover:bg-primary/5 hover:text-primary active:scale-[0.98] group disabled:opacity-50 disabled:pointer-events-none"
                                     )}
                                 >
-                                    <div className="relative shrink-0">
-                                        <Image
-                                            src={user.avatar_url || "/back2.jpg"}
-                                            alt={user.username}
-                                            width={40}
-                                            height={40}
-                                            className="w-10 h-10 rounded-full object-cover border border-muted/30 group-hover:border-primary/30 transition-colors"
-                                        />
+                                    <div className="relative shrink-0 w-12 h-12 flex items-center justify-center">
+                                        {user.border_url && (
+                                            <div className="absolute inset-0 z-10">
+                                                <Image
+                                                    src={user.border_url}
+                                                    alt="border"
+                                                    width={100}
+                                                    height={100}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="size-10 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
+                                            {user.avatar_url ? (
+                                                <Image
+                                                    src={user.avatar_url}
+                                                    alt={user.username}
+                                                    width={40}
+                                                    height={40}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-black flex items-center justify-center">
+                                                    <span className="text-xs font-bold text-primary">
+                                                        {user.username.charAt(0).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <span className="font-semibold text-sm truncate">

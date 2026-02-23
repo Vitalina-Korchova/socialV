@@ -73,6 +73,31 @@ export class XpService {
                     notification_type: 'LVLUP',
                 },
             });
+
+            // Grant free shop items for the new level and below (catch up)
+            const freeItems = await this.prismaService.shop_item.findMany({
+                where: {
+                    is_free: true,
+                    required_level: { lte: user.level },
+                },
+            });
+
+            for (const item of freeItems) {
+                await this.prismaService.user_shop_item.upsert({
+                    where: {
+                        user_id_shop_item_id: {
+                            user_id: userId,
+                            shop_item_id: item.id,
+                        },
+                    },
+                    update: {},
+                    create: {
+                        user_id: userId,
+                        shop_item_id: item.id,
+                        is_active: false,
+                    },
+                });
+            }
         }
     }
 

@@ -69,16 +69,16 @@ export class UserService {
         : null;
     };
 
-    const totalXpRequiredLvlUp = await this.prismaService.user_level_rules.findUnique(
-      {
+    const targetLevel = user.level >= 10 ? 10 : user.level + 1;
+    const totalXpRequiredLvlUp =
+      await this.prismaService.user_level_rules.findUnique({
         where: {
-          level: user.level + 1,
+          level: targetLevel,
         },
         select: {
           required_experience: true,
         },
-      },
-    );
+      });
 
     const activeBadges = user.user_shop_items
       .filter((i) => i.shop_item.type === item_shop_type.BADGE)

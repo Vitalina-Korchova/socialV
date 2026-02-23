@@ -169,17 +169,17 @@ export default function MessangerPage() {
 
                   <div className="relative shrink-0 flex items-center justify-center size-11">
                     {chat.border && (
-                      <div className="absolute inset-x-0 inset-y-0 overflow-hidden">
+                      <div className="absolute inset-0 overflow-hidden z-10">
                         <Image
                           src={chat.border}
                           alt="border"
                           width={100}
                           height={100}
-                          className="w-full h-full object-cover scale-150"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     )}
-                    <div className="size-9 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                    <div className="size-9 rounded-full bg-muted flex items-center justify-center relative  overflow-hidden">
                       {chat.img ? (
                         <Image
                           src={chat.img}
@@ -257,17 +257,17 @@ export default function MessangerPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative flex items-center justify-center size-9">
                     {activeChat.border && (
-                      <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute inset-0 overflow-hidden z-10">
                         <Image
                           src={activeChat.border}
                           alt="border"
                           width={100}
                           height={100}
-                          className="w-full h-full object-cover scale-150"
+                          className="w-full h-full object-cover "
                         />
                       </div>
                     )}
-                    <div className="size-7 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                    <div className="size-7 rounded-full bg-muted flex items-center justify-center relative  overflow-hidden">
                       {activeChat.img ? (
                         <Image
                           src={activeChat.img}
@@ -317,17 +317,17 @@ export default function MessangerPage() {
                         {!isOwn && (
                           <div className="relative flex items-center justify-center size-8 shrink-0 mb-1">
                             {msg.sender.border_url && (
-                              <div className="absolute inset-0 overflow-hidden">
+                              <div className="absolute inset-0 overflow-hidden z-10">
                                 <Image
                                   src={msg.sender.border_url}
                                   alt="border"
                                   width={100}
                                   height={100}
-                                  className="w-full h-full object-cover scale-150"
+                                  className="w-full h-full object-cover "
                                 />
                               </div>
                             )}
-                            <div className="size-6 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                            <div className="size-6 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
                               {msg.sender.avatar_url ? (
                                 <Image
                                   src={msg.sender.avatar_url}
@@ -390,17 +390,17 @@ export default function MessangerPage() {
                   <div className="flex gap-1 shrink-0 px-1 items-center">
                     <div className="relative flex items-center justify-center size-10">
                       {me?.border_url && (
-                        <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute inset-0 overflow-hidden z-10">
                           <Image
                             src={me.border_url}
                             alt="border"
                             width={100}
                             height={100}
-                            className="w-full h-full object-cover scale-150"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       )}
-                      <div className="size-8 rounded-full bg-muted flex items-center justify-center relative z-10 overflow-hidden">
+                      <div className="size-8 rounded-full bg-muted flex items-center justify-center relative  overflow-hidden">
                         {me?.avatar_url ? (
                           <Image
                             src={me.avatar_url}

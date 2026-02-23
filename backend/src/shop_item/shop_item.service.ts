@@ -26,6 +26,39 @@ export class ShopItemService {
     if (!Object.values(item_shop_type).includes(typeEnum)) {
       throw new BadRequestException('Invalid item type.');
     }
+
+    // Capture user's current level to sync free items
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: { level: true },
+    });
+
+    if (user) {
+      const freeItemsToGrant = await this.prismaService.shop_item.findMany({
+        where: {
+          type: typeEnum,
+          is_free: true,
+          required_level: { lte: user.level },
+          user_shop_items: {
+            none: {
+              user_id: userId,
+            },
+          },
+        },
+      });
+
+      if (freeItemsToGrant.length > 0) {
+        await this.prismaService.user_shop_item.createMany({
+          data: freeItemsToGrant.map((item) => ({
+            user_id: userId,
+            shop_item_id: item.id,
+            is_active: false,
+          })),
+        });
+      }
+    }
+    //can be deleted in the future
+
     const userShopItems = await this.prismaService.user_shop_item.findMany({
       where: {
         user_id: userId,
@@ -176,6 +209,7 @@ export class ShopItemService {
     const shopItems = await this.prismaService.shop_item.findMany({
       where: {
         type: typeEnum,
+        is_free: false,
         user_shop_items: {
           none: {
             user_id: userId,

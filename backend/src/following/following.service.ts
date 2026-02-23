@@ -120,12 +120,13 @@ export class FollowingService {
           where: {
             is_active: true,
             shop_item: {
-              type: 'AVATAR',
+              type: { in: ['AVATAR', 'BORDER'] },
             },
           },
           select: {
             shop_item: {
               select: {
+                type: true,
                 item_image: {
                   select: {
                     url: true,
@@ -139,15 +140,26 @@ export class FollowingService {
     });
 
     const users = dataUsers.map((user) => {
-      const firstItem = user.user_shop_items[0];
-      const avatarUrl = firstItem?.shop_item?.item_image?.url
-        ? `${this.baseUrl}/uploads/${firstItem.shop_item.item_image.url}`
+      const avatarItem = user.user_shop_items.find(
+        (item) => item.shop_item.type === 'AVATAR',
+      );
+      const borderItem = user.user_shop_items.find(
+        (item) => item.shop_item.type === 'BORDER',
+      );
+
+      const avatarUrl = avatarItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${avatarItem.shop_item.item_image.url}`
+        : null;
+
+      const borderUrl = borderItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${borderItem.shop_item.item_image.url}`
         : null;
 
       return {
         id: user.id,
         username: user.username,
         avatar_url: avatarUrl,
+        border_url: borderUrl,
       };
     });
 
@@ -177,12 +189,13 @@ export class FollowingService {
           where: {
             is_active: true,
             shop_item: {
-              type: 'AVATAR',
+              type: { in: ['AVATAR', 'BORDER'] },
             },
           },
           select: {
             shop_item: {
               select: {
+                type: true,
                 item_image: {
                   select: {
                     url: true,
@@ -196,15 +209,26 @@ export class FollowingService {
     });
 
     const users = dataUsers.map((user) => {
-      const firstItem = user.user_shop_items[0];
-      const avatarUrl = firstItem?.shop_item?.item_image?.url
-        ? `${this.baseUrl}/uploads/${firstItem.shop_item.item_image.url}`
+      const avatarItem = user.user_shop_items.find(
+        (item) => item.shop_item.type === 'AVATAR',
+      );
+      const borderItem = user.user_shop_items.find(
+        (item) => item.shop_item.type === 'BORDER',
+      );
+
+      const avatarUrl = avatarItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${avatarItem.shop_item.item_image.url}`
+        : null;
+
+      const borderUrl = borderItem?.shop_item?.item_image?.url
+        ? `${this.baseUrl}/uploads/${borderItem.shop_item.item_image.url}`
         : null;
 
       return {
         id: user.id,
         username: user.username,
         avatar_url: avatarUrl,
+        border_url: borderUrl,
       };
     });
 

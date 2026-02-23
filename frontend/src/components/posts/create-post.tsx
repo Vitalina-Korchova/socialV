@@ -79,7 +79,7 @@ export default function CreatePostPage({
            transition-shadow duration-300 flex flex-col px-8 pt-8 pb-5"
       >
         <div className="flex flex-row gap-4 items-top">
-          <div className="w-10 h-10 relative flex items-center justify-center">
+          <div className="w-12 h-10 relative flex items-center justify-center">
             {userData?.border_url && (
               <div className="absolute inset-0 overflow-hidden z-10">
                 <Image
@@ -87,7 +87,7 @@ export default function CreatePostPage({
                   alt="animated border"
                   width={100}
                   height={100}
-                  className="w-full h-full object-cover scale-150"
+                  className="w-full h-full object-cover"
                   priority
                 />
               </div>
@@ -104,7 +104,7 @@ export default function CreatePostPage({
                     alt="avatar"
                     width={100}
                     height={100}
-                    className="rounded-full object-cover w-full h-full"
+                    className="rounded-full object-cover"
                   />
                 )}
               </div>

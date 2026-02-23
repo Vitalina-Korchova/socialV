@@ -13,7 +13,7 @@ export const UserBadge = ({ badgeName, className }: UserBadgeProps) => {
     return (
         <Badge
             className={cn(
-                "text-[10px] px-2 py-0.5 h-auto font-black flex items-center gap-1 border shadow-sm uppercase tracking-wider whitespace-nowrap",
+                "text-[8px] px-2 py-0.5 h-auto font-black flex items-center gap-1 border shadow-sm uppercase tracking-wider whitespace-nowrap",
                 className
             )}
             style={{
@@ -27,13 +27,13 @@ export const UserBadge = ({ badgeName, className }: UserBadgeProps) => {
     );
 };
 
-export const UserBadgesList = ({ badges, className }: { badges?: string[], className?: string }) => {
+export const UserBadgesList = ({ badges, className, itemClassName }: { badges?: string[], className?: string, itemClassName?: string }) => {
     if (!badges || badges.length === 0) return null;
 
     return (
         <div className={cn("flex flex-wrap gap-1.5", className)}>
             {badges.map((badge, index) => (
-                <UserBadge key={index} badgeName={badge} />
+                <UserBadge key={index} badgeName={badge} className={itemClassName} />
             ))}
         </div>
     );

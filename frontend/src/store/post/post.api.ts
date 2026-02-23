@@ -3,7 +3,7 @@ import { baseQueryWithReauth } from "../baseQuery";
 import { PaginatedPostResponse, PostResponse } from "./post.type";
 
 export const postApi = createApi({
-  reducerPath: "pistApi",
+  reducerPath: "postApi",
   baseQuery: baseQueryWithReauth,
   tagTypes: ["Post"],
   endpoints: (builder) => ({
@@ -62,6 +62,27 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Post"],
     }),
+    likePost: builder.mutation<{ liked: boolean }, { postId: number }>({
+      query: ({ postId }) => ({
+        url: `api/likes/${postId}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Post"],
+    }),
+    repostPost: builder.mutation<{ repost: boolean }, { postId: number }>({
+      query: ({ postId }) => ({
+        url: `api/reposts/${postId}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Post"],
+    }),
+    savePost: builder.mutation<{ saved_post: boolean }, { postId: number }>({
+      query: ({ postId }) => ({
+        url: `api/saved-post/${postId}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Post"],
+    }),
   }),
 });
 
@@ -72,4 +93,7 @@ export const {
   useGetPostByIdQuery,
   useUpdatePostMutation,
   useGetPostByUserIdQuery,
+  useLikePostMutation,
+  useRepostPostMutation,
+  useSavePostMutation,
 } = postApi;

@@ -95,7 +95,7 @@ export default function UserProfile() {
                 </div>
                 <div className="flex flex-col gap-1.5 items-start">
                   <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">{UserData?.username}</h2>
-                  <UserBadgesList badges={UserData?.badges} />
+                  <UserBadgesList badges={UserData?.badges} itemClassName="text-[10px]" />
 
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">

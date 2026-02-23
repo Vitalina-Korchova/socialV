@@ -5,7 +5,6 @@ import { User, Home, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { TbUserStar } from "react-icons/tb";
@@ -45,10 +44,10 @@ export default function CardProfileOptions() {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-1 relative">
-        <div className="absolute top-[-65px] left-0 right-0  flex flex-col items-center">
+      <CardContent className="space-y-4">
+        <div className="relative flex flex-col items-center z-10 -mt-16">
           <div className="relative mb-2">
-            <div className="w-16 h-16 relative flex items-center justify-center">
+            <div className="w-15 h-15 relative flex items-center justify-center">
               {userData?.border_url && (
                 <div className="absolute inset-0 overflow-hidden">
                   <Image
@@ -94,7 +93,8 @@ export default function CardProfileOptions() {
             </div>
           </div>
         </div>
-        <div className="pt-20 pb-5 space-y-1">
+
+        <div className="space-y-1 pb-4">
           {navItems.map((item) => (
             <Button
               key={item.label}

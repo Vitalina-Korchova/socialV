@@ -405,6 +405,7 @@ export class PostService {
 
   async getPostsByUserId(
     userId: number,
+    currentUserId: number,
     page?: number,
     page_size?: number,
   ): Promise<PaginatedPostResponse> {
@@ -469,7 +470,7 @@ export class PostService {
         post_id: {
           in: posts.map((post) => post.id),
         },
-        user_id: userId,
+        user_id: currentUserId,
       },
     });
 
@@ -478,7 +479,7 @@ export class PostService {
         post_id: {
           in: posts.map((post) => post.id),
         },
-        user_id: userId,
+        user_id: currentUserId,
       },
     });
     const isSaved = await this.prismaService.saved_post.findMany({
@@ -486,7 +487,7 @@ export class PostService {
         post_id: {
           in: posts.map((post) => post.id),
         },
-        user_id: userId,
+        user_id: currentUserId,
       },
     });
 
