@@ -4,8 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-import { UserRequestUpdate, UserResponse } from './dto/user.dto';
+import { TopUserResponse, UserRequestUpdate, UserResponse } from './dto/user.dto';
 import { item_shop_type } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 
@@ -128,5 +127,64 @@ export class UserService {
       message: 'User updated successfully',
       data: updateUser,
     };
+  }
+
+  async getTopUsers(currentUserId: number): Promise<TopUserResponse[]> {
+    const users = await this.prismaService.user.findMany({
+      where: {
+        id: { not: currentUserId },
+      },
+      orderBy: { amount_xp: 'desc' },
+      take: 4,
+      select: {
+        id: true,
+        username: true,
+        level: true,
+        user_shop_items: {
+          where: { is_active: true },
+          select: {
+            shop_item: {
+              select: {
+                type: true,
+                badge_name: true,
+                item_image: {
+                  select: { url: true },
+                },
+              },
+            },
+          },
+        },
+        followings: {
+          where: { follower_id: currentUserId },
+          select: { id: true },
+        },
+      },
+    });
+
+    return users.map((user) => {
+      const getImageUrl = (type: item_shop_type) => {
+        const item = user.user_shop_items.find((i) => i.shop_item.type === type);
+        return item?.shop_item?.item_image?.url
+          ? `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`
+          : null;
+      };
+
+      const badgeToDisplay = user.user_shop_items.find((i) => {
+        if (i.shop_item.type !== item_shop_type.BADGE || !i.shop_item.badge_name)
+          return false;
+        const namePart = i.shop_item.badge_name.split('|')[0].trim();
+        return namePart.length <= 23;
+      })?.shop_item.badge_name || null;
+
+      return {
+        id: user.id,
+        username: user.username,
+        avatar_url: getImageUrl(item_shop_type.AVATAR),
+        border_url: getImageUrl(item_shop_type.BORDER),
+        first_badge: badgeToDisplay,
+        is_following: user.followings.length > 0,
+        level: user.level,
+      };
+    });
   }
 }

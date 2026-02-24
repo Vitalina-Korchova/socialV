@@ -339,7 +339,7 @@ export class ChatService {
     }
 
     const currentPage = page && page > 0 ? page : 1;
-    const pageSize = page_size && page_size > 0 ? page_size : 10;
+    const pageSize = page_size && page_size > 0 ? page_size : 20;
     const skip = (currentPage - 1) * pageSize;
 
     const totalItems = await this.prismaService.message.count({

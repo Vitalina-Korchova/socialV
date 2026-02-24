@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../baseQuery";
 import { FollowingUsersResponse } from "./following.type";
+import { TopUserResponse } from "../user/user.type";
 
 export const followingApi = createApi({
   reducerPath: "followingApi",
@@ -18,6 +19,14 @@ export const followingApi = createApi({
     getFollowing: builder.query<boolean, { userId: number }>({
       query: ({ userId }) => ({
         url: `api/following/${userId}`,
+        method: "GET",
+      }),
+      providesTags: ["Following"],
+    }),
+
+    getTopUsers: builder.query<TopUserResponse[], void>({
+      query: () => ({
+        url: "api/top-users",
         method: "GET",
       }),
       providesTags: ["Following"],
@@ -46,4 +55,5 @@ export const {
   useGetFollowingQuery,
   useGetMyFollowingsQuery,
   useGetMyFollowersQuery,
+  useGetTopUsersQuery,
 } = followingApi;

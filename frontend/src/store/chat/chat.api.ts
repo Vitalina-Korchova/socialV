@@ -87,6 +87,22 @@ export const chatApi = createApi({
                 method: "GET",
                 params: { page, page_size },
             }),
+            serializeQueryArgs: ({ queryArgs }) => {
+                return { chatId: queryArgs.chatId };
+            },
+            merge: (currentCache, newItems, { arg }) => {
+                if (arg.page === 1) {
+                    return newItems;
+                }
+                const existingIds = new Set(currentCache.data.map(m => m.id));
+                const uniqueNewItems = newItems.data.filter(m => !existingIds.has(m.id));
+                currentCache.data.push(...uniqueNewItems);
+                currentCache.has_next_page = newItems.has_next_page;
+                currentCache.current_page = newItems.current_page;
+            },
+            forceRefetch({ currentArg, previousArg }) {
+                return currentArg?.page !== previousArg?.page || currentArg?.chatId !== previousArg?.chatId;
+            },
             providesTags: ["Message"],
             async onCacheEntryAdded(
                 { chatId },
@@ -100,7 +116,8 @@ export const chatApi = createApi({
 
                     socket.on("new_message", (message: Message) => {
                         updateCachedData((draft) => {
-                            if (draft.current_page === 1) {
+                            const exists = draft.data.some(m => m.id === message.id);
+                            if (!exists) {
                                 draft.data.unshift(message);
                             }
                         });

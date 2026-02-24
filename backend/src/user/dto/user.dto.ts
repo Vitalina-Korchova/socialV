@@ -36,3 +36,12 @@ export class UserRequestUpdate {
   @IsEmail({}, { message: 'Email is invalid' })
   email: string;
 }
+export class TopUserResponse {
+  id: number;
+  username: string;
+  avatar_url: string | null;
+  border_url: string | null;
+  first_badge: string | null;
+  is_following: boolean;
+  level: number;
+}

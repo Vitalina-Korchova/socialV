@@ -17,7 +17,7 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
@@ -29,6 +29,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async getUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.getUser(id);
+  }
+
+  @Get('top-users')
+  @HttpCode(HttpStatus.OK)
+  async getTopUsers(@CurrentUser() user: { id: number }) {
+    return this.userService.getTopUsers(user.id);
   }
 
   @Put('me')

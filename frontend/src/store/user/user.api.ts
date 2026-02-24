@@ -1,11 +1,11 @@
 import { baseQueryWithReauth } from "../baseQuery";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { UserResponse, UserRequestUpdate } from "./user.type";
+import { UserResponse, UserRequestUpdate, TopUserResponse } from "./user.type";
 
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["User"],
+  tagTypes: ["User", "Following"],
   endpoints: (builder) => ({
     getMe: builder.query<UserResponse, void>({
       query: () => ({
@@ -22,6 +22,7 @@ export const userApi = createApi({
       }),
       providesTags: ["User"],
     }),
+
     updateUser: builder.mutation<UserResponse, UserRequestUpdate>({
       query: (dto) => ({
         url: "api/me",
@@ -33,5 +34,8 @@ export const userApi = createApi({
   }),
 });
 
-export const { useGetMeQuery, useUpdateUserMutation, useGetUserByIdQuery } =
-  userApi;
+export const {
+  useGetMeQuery,
+  useUpdateUserMutation,
+  useGetUserByIdQuery,
+} = userApi;

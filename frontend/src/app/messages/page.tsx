@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -38,13 +38,19 @@ import {
 import { toast } from "sonner";
 import { NewChatModal } from "@/components/chat/new-chat-modal";
 import { TbUserStar } from "react-icons/tb";
+import { useRouter } from "next/navigation";
 
 export default function MessangerPage() {
+  const router = useRouter();
   const { data: me } = useGetMeQuery();
   const { data: chatsResponse, isLoading: chatsLoading } = useGetAllChatsQuery({});
   const { data: unreadEach } = useGetUnreadEachQuery();
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+
+  // Pagination state
+  const [messagePage, setMessagePage] = useState(1);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   const [deleteState, setDeleteState] = useState<{
     isOpen: boolean;
@@ -52,10 +58,32 @@ export default function MessangerPage() {
     id: number | null;
   }>({ isOpen: false, type: null, id: null });
 
-  const { data: messagesResponse, isLoading: messagesLoading } = useGetAllMessagesQuery(
-    { chatId: activeChatId! },
+  const { data: messagesResponse, isLoading: messagesLoading, isFetching: messagesFetching } = useGetAllMessagesQuery(
+    { chatId: activeChatId!, page: messagePage, page_size: 20 },
     { skip: !activeChatId }
   );
+
+  // Reset pagination when active chat changes
+  useEffect(() => {
+    setMessagePage(1);
+  }, [activeChatId]);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!loaderRef.current || !messagesResponse?.has_next_page || messagesFetching) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setMessagePage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [messagesResponse?.has_next_page, messagesFetching]);
 
   const [sendMessage] = useSendMessageMutation();
   const [removeChat] = useRemoveChatMutation();
@@ -299,89 +327,105 @@ export default function MessangerPage() {
               </div>
 
               {/* Message History */}
-              <div className="flex-1 overflow-y-auto px-10 py-8 space-y-6 custom-scrollbar--post bg-[radial-gradient(circle_at_bottom_right,rgba(138,60,255,0.03),transparent)] flex flex-col-reverse">
-                <div className="flex flex-col gap-6 ">
-                  {messagesLoading ? (
-                    <div className="text-center text-muted-foreground py-10 font-medium">Loading messages...</div>
-                  ) : messagesResponse?.data.slice().reverse().map((msg) => {
-                    const isOwn = msg.sender.id === me?.id;
+              <div className="flex-1 overflow-y-auto px-10 py-8 gap-6 custom-scrollbar--post bg-[radial-gradient(circle_at_bottom_right,rgba(138,60,255,0.03),transparent)] flex flex-col-reverse relative">
+                {messagesResponse?.has_next_page && (
+                  <div ref={loaderRef} className="text-center py-4">
+                    {messagesFetching ? (
+                      <div className="text-muted-foreground flex items-center justify-center gap-2 text-sm">
+                        <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                        Loading older messages...
+                      </div>
+                    ) : (
+                      <div className="h-4"></div>
+                    )}
+                  </div>
+                )}
 
-                    return (
+                {messagesResponse?.data.map((msg) => {
+                  const isOwn = msg.sender.id === me?.id;
+
+                  return (
+                    <div
+                      key={msg.id}
+                      className={cn(
+                        "flex items-end gap-3",
+                        isOwn ? "justify-end" : "justify-start"
+                      )}
+                    >
+                      {!isOwn && (
+                        <div
+                          className="relative flex items-center justify-center size-8 shrink-0 mb-1 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => router.push(`/user/${msg.sender.id}`)}
+                        >
+                          {msg.sender.border_url && (
+                            <div className="absolute inset-0 overflow-hidden z-10">
+                              <Image
+                                src={msg.sender.border_url}
+                                alt="border"
+                                width={100}
+                                height={100}
+                                className="w-full h-full object-cover "
+                              />
+                            </div>
+                          )}
+                          <div className="size-6 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
+                            {msg.sender.avatar_url ? (
+                              <Image
+                                src={msg.sender.avatar_url}
+                                alt={msg.sender.username}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <TbUserStar className="text-primary size-4" />
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div
-                        key={msg.id}
                         className={cn(
-                          "flex items-end gap-3",
-                          isOwn ? "justify-end" : "justify-start"
+                          "max-w-[65%] px-5 py-3.5 rounded-2xl text-[13.5px] shadow-sm transition-all relative group",
+                          isOwn
+                            ? "bg-gradient-to-tr from-indigo-600 to-primary text-white rounded-br-none shadow-indigo-500/10"
+                            : "bg-card border border-muted-foreground/10 rounded-bl-none shadow-black/5"
                         )}
                       >
-                        {!isOwn && (
-                          <div className="relative flex items-center justify-center size-8 shrink-0 mb-1">
-                            {msg.sender.border_url && (
-                              <div className="absolute inset-0 overflow-hidden z-10">
-                                <Image
-                                  src={msg.sender.border_url}
-                                  alt="border"
-                                  width={100}
-                                  height={100}
-                                  className="w-full h-full object-cover "
-                                />
-                              </div>
-                            )}
-                            <div className="size-6 rounded-full bg-muted flex items-center justify-center relative overflow-hidden">
-                              {msg.sender.avatar_url ? (
-                                <Image
-                                  src={msg.sender.avatar_url}
-                                  alt={msg.sender.username}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <TbUserStar className="text-primary size-4" />
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        <div className="flex justify-between items-start gap-2">
+                          <p className="leading-relaxed font-normal">{msg.text_content}</p>
+                          {isOwn && (
+                            <button
+                              onClick={() => handleRemoveMessage(msg.id)}
+                              className="opacity-0 group-hover:opacity-100 text-white/50 hover:text-white transition-opacity"
+                              title="Delete Message"
+                            >
+                              <Trash2 className="size-3.5 cursor-pointer" />
+                            </button>
+                          )}
+                        </div>
 
                         <div
                           className={cn(
-                            "max-w-[65%] px-5 py-3.5 rounded-2xl text-[13.5px] shadow-sm transition-all relative group",
-                            isOwn
-                              ? "bg-gradient-to-tr from-indigo-600 to-primary text-white rounded-br-none shadow-indigo-500/10"
-                              : "bg-card border border-muted-foreground/10 rounded-bl-none shadow-black/5"
+                            "flex flex-row gap-1.5 items-center justify-end mt-2 opacity-70 text-[9px] font-bold tracking-tighter",
+                            isOwn ? "text-white/80" : "text-muted-foreground"
                           )}
                         >
-                          <div className="flex justify-between items-start gap-2">
-                            <p className="leading-relaxed font-normal">{msg.text_content}</p>
-                            {isOwn && (
-                              <button
-                                onClick={() => handleRemoveMessage(msg.id)}
-                                className="opacity-0 group-hover:opacity-100 text-white/50 hover:text-white transition-opacity"
-                                title="Delete Message"
-                              >
-                                <Trash2 className="size-3.5 cursor-pointer" />
-                              </button>
-                            )}
-                          </div>
-
-                          <div
-                            className={cn(
-                              "flex flex-row gap-1.5 items-center justify-end mt-2 opacity-70 text-[9px] font-bold tracking-tighter",
-                              isOwn ? "text-white/80" : "text-muted-foreground"
-                            )}
-                          >
-                            <span>{formatTime(msg.created_at)}</span>
-                            {isOwn &&
-                              (msg.is_read ? (
-                                <CheckCheck className="size-3" />
-                              ) : (
-                                <Check className="size-3" />
-                              ))}
-                          </div>
+                          <span>{formatTime(msg.created_at)}</span>
+                          {isOwn &&
+                            (msg.is_read ? (
+                              <CheckCheck className="size-3" />
+                            ) : (
+                              <Check className="size-3" />
+                            ))}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
+
+                {messagesLoading && (!messagesResponse || messagesResponse?.data?.length === 0) && (
+                  <div className="text-center text-muted-foreground py-10 font-medium">Loading messages...</div>
+                )}
               </div>
 
               {/* Message Input Area */}

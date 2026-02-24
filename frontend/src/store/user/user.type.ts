@@ -20,3 +20,13 @@ export interface UserRequestUpdate {
   username: string;
   email: string;
 }
+
+export interface TopUserResponse {
+  id: number;
+  username: string;
+  avatar_url: string | null;
+  border_url: string | null;
+  first_badge: string | null;
+  is_following: boolean;
+  level: number;
+}

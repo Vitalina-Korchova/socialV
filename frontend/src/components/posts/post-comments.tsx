@@ -12,6 +12,7 @@ import { CommentResponse } from "@/store/comment/comment.type";
 import { UserResponse } from "@/store/user/user.type";
 import { formatDate } from "@/utils/format";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface PostCommentsProps {
   postId: number;
@@ -24,6 +25,7 @@ export default function PostComments({
   postAuthorId,
   userData,
 }: PostCommentsProps) {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [commentText, setCommentText] = useState("");
@@ -161,7 +163,10 @@ export default function PostComments({
           <div className="flex flex-col gap-4">
             {comments.map((comment) => (
               <div key={comment.id} className="group flex gap-3">
-                <div className="w-10 h-10 relative flex-shrink-0 flex items-center justify-center">
+                <div
+                  className="w-10 h-10 relative flex-shrink-0 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => router.push(`/user/${comment.user.id}`)}
+                >
                   {comment.user.border_url && (
                     <div className="absolute inset-0 z-10">
                       <Image

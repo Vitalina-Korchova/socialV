@@ -238,12 +238,17 @@ export default function PostsPage({ type }: { type: string }) {
 
   const handleSavePost = async (postId: number) => {
     try {
-      await savePost({ postId }).unwrap();
-      const currentSaveStatus = isSavedPost[postId];
+      const res = await savePost({ postId }).unwrap();
+      const isSaved = res.saved_post;
+
       setIsSavedPost((prev) => ({
         ...prev,
-        [postId]: !currentSaveStatus,
+        [postId]: isSaved,
       }));
+
+      if (type === "saved" && !isSaved) {
+        setAllPosts((prev) => prev.filter((p) => p.id !== postId));
+      }
     } catch (error) {
       toast.error("Error occurred while saving post");
     }
