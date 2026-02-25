@@ -158,9 +158,6 @@ export default function PostsPage({ type }: { type: string }) {
   const [commentInputVisible, setCommentInputVisible] = useState<{
     [key: number]: boolean;
   }>({});
-  const [commentTexts, setCommentTexts] = useState<{ [key: number]: string }>(
-    {}
-  );
 
   const toggleCommentInput = (postId: number) => {
     setCommentInputVisible((prev) => ({
@@ -283,7 +280,7 @@ export default function PostsPage({ type }: { type: string }) {
             allPosts?.map((post) => (
               <Card
                 key={post.id}
-                className=" w-full max-w-xl mx-auto shadow-lg hover:shadow-xl
+                className=" w-full w-[320px] sm:w-auto sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
            transition-shadow duration-300 gap-3! break-inside-avoid"
               >
                 <CardHeader className="pb-3">

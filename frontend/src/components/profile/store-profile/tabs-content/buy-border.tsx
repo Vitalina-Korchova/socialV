@@ -25,8 +25,9 @@ export default function BuyBorderStore() {
     try {
       await buyItem({ itemId: id, type: "BORDER" }).unwrap();
       toast.success("Border purchased successfully!");
-    } catch (err: any) {
-      const errorMessage = err?.data?.message || "Failed to buy border";
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      const errorMessage = error?.data?.message || "Failed to buy border";
       toast.error(errorMessage);
     } finally {
       setBuyingItemId(null);

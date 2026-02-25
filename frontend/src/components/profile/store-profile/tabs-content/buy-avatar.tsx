@@ -25,8 +25,9 @@ export default function BuyAvatarStore() {
     try {
       await buyItem({ itemId: id, type: "AVATAR" }).unwrap();
       toast.success("Avatar purchased successfully!");
-    } catch (err: any) {
-      const errorMessage = err?.data?.message || "Failed to buy avatar";
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      const errorMessage = error?.data?.message || "Failed to buy avatar";
       toast.error(errorMessage);
     } finally {
       setBuyingItemId(null);

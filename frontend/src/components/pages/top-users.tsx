@@ -28,7 +28,7 @@ export default function TopUsers() {
 
   if (isLoading) {
     return (
-      <Card className="w-64 h-fit sticky top-26">
+      <Card className="w-64 h-fit sticky top-26 hidden xl:block">
         <CardHeader>
           <h3 className="font-bold text-lg">Top Users</h3>
         </CardHeader>
@@ -44,9 +44,9 @@ export default function TopUsers() {
   }
 
   return (
-    <Card className="w-64 h-fit sticky top-26">
+    <Card className="w-64 h-fit sticky top-26 hidden xl:block">
       <CardHeader >
-        <h3 className="font-bold text-lg leading-none">Top Users</h3>
+        <h3 className="font-bold text-lg leading-none pb-3">Top Users</h3>
       </CardHeader>
       <CardContent className="space-y-4">
         {topUsers.map((user) => {

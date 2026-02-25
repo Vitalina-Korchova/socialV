@@ -26,8 +26,9 @@ export default function BuyBadgesStore() {
     try {
       await buyItem({ itemId: id, type: "BADGE" }).unwrap();
       toast.success("Badge purchased successfully!");
-    } catch (err: any) {
-      const errorMessage = err?.data?.message || "Failed to buy badge";
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      const errorMessage = error?.data?.message || "Failed to buy badge";
       toast.error(errorMessage);
     } finally {
       setBuyingItemId(null);

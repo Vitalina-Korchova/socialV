@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React from "react";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { UserBadgesList } from "@/components/ui/user-badge";
 import { useGetUserByIdQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";

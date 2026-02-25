@@ -75,7 +75,7 @@ export default function CreatePostPage({
   return (
     <>
       <Card
-        className="  w-xl mx-auto shadow-lg hover:shadow-xl
+        className=" w-[320px] sm:w-md lg:w-xl mx-auto shadow-lg hover:shadow-xl
            transition-shadow duration-300 flex flex-col px-8 pt-8 pb-5"
       >
         <div className="flex flex-row gap-4 items-top">

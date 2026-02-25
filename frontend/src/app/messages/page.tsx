@@ -423,7 +423,7 @@ export default function MessangerPage() {
                   );
                 })}
 
-                {messagesLoading && (!messagesResponse || messagesResponse?.data?.length === 0) && (
+                {messagesLoading && (!messagesResponse) && (
                   <div className="text-center text-muted-foreground py-10 font-medium">Loading messages...</div>
                 )}
               </div>

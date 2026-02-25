@@ -25,8 +25,9 @@ export default function BuyBackgroundStore() {
     try {
       await buyItem({ itemId: id, type: "BACKGROUND" }).unwrap();
       toast.success("Background purchased successfully!");
-    } catch (err: any) {
-      const errorMessage = err?.data?.message || "Failed to buy background";
+    } catch (err) {
+      const error = err as { data?: { message?: string } };
+      const errorMessage = error?.data?.message || "Failed to buy background";
       toast.error(errorMessage);
     } finally {
       setBuyingItemId(null);

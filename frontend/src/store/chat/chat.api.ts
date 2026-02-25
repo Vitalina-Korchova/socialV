@@ -3,6 +3,7 @@ import { baseQueryWithReauth } from "../baseQuery";
 import { getSocket } from "../../utils/socket";
 import { Chat, PaginatedChatsResponse, PaginatedMessagesResponse, Message, SendMessageDto } from "./chat.type";
 import { userApi } from "../user/user.api";
+import { RootState } from "../store";
 
 export const chatApi = createApi({
     reducerPath: "chatApi",
@@ -173,7 +174,7 @@ export const chatApi = createApi({
                     await cacheDataLoaded;
 
                     socket.on("new_message", (message: Message) => {
-                        const state = getState() as any;
+                        const state = getState() as RootState;
                         const user = userApi.endpoints.getMe.select()(state).data;
 
                         if (user && message.sender_id === user.id) {

@@ -25,7 +25,7 @@ export default function CardProfileOptions() {
   ];
 
   return (
-    <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden ">
+    <Card className="w-64 h-fit sticky top-26 py-0! overflow-hidden hidden md:block">
       <CardHeader className=" relative p-0! h-20 ">
         <div className="absolute inset-0 overflow-hidden">
           {userData?.background_url && (
@@ -45,7 +45,7 @@ export default function CardProfileOptions() {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="relative flex flex-col items-center z-10 -mt-16">
+        <div className="relative flex flex-col items-center z-10 -mt-10">
           <div className="relative mb-2">
             <div className="w-15 h-15 relative flex items-center justify-center">
               {userData?.border_url && (

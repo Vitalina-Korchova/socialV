@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <>
       <div className=" relative pt-6">
-        <div className="flex flex-row items-start justify-around">
+        <div className="flex flex-row items-start justify-around px-2 sm:px-0">
           <CardProfileOptions />
           <PostsPage type="all" />
           <TopUsers />

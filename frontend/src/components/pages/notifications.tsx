@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 
 export default function Notifications() {
   const [page, setPage] = useState(1);
+  const [isMd, setIsMd] = useState(false);
   const [allNotifications, setAllNotifications] = useState<NotificationsDto[]>([]);
 
   const { data, isLoading, isFetching } = useGetNotificationsQuery({
@@ -33,6 +34,16 @@ export default function Notifications() {
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    setIsMd(media.matches);
+
+    const listener = (e: MediaQueryListEvent) => setIsMd(e.matches);
+    media.addEventListener("change", listener);
+
+    return () => media.removeEventListener("change", listener);
+  }, []);
 
   const handleMarkAsRead = async (id: number) => {
     await markAsRead(id).unwrap();
@@ -70,13 +81,21 @@ export default function Notifications() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      initial={
+        isMd
+          ? { opacity: 0, y: -10, scale: 0.98 }
+          : { opacity: 0, x: 40 }
+      }
+      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      exit={
+        isMd
+          ? { opacity: 0, y: -10, scale: 0.98 }
+          : { opacity: 0, x: 40 }
+      }
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="absolute right-4 top-0.5"
+      className="absolute right-[-20px] md:right-4 top-0 md:top-0.5"
     >
-      <Card className=" w-[350px] p-4 space-y-3 shadow-xl border-[#8A3CFF]/20">
+      <Card className=" w-[350px] p-4 space-y-3 shadow-xl border-[#8A3CFF]/20 rounded-none md:rounded-xl">
         <CardTitle className="text-lg font-bold">Notifications</CardTitle>
 
         <div className="h-[400px] overflow-y-auto pr-2 custom-scrollbar--post">
@@ -157,7 +176,7 @@ function NotificationItem({
   text: string;
 }) {
   return (
-    <div className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-muted/50 transition-all border-b border-muted/30 last:border-0 relative group">
+    <div className="flex items-center gap-3 px-2 py-2.5  hover:bg-muted/50 transition-all border-b border-muted/30 last:border-0 relative group">
       <div className="relative h-10 w-10 flex-shrink-0 flex items-center justify-center">
         {notification.user.border_url && (
           <div className="absolute inset-0 z-10">

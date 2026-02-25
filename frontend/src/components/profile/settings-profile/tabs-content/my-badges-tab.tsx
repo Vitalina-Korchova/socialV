@@ -46,9 +46,8 @@ export default function MyBadgesTabSettings() {
     try {
       await setBadgesActive(selectedBadges).unwrap();
       toast.success("Badges updated successfully!");
-    } catch (err: any) {
-      const errorMessage = err?.data?.message || "Failed to update badges";
-      toast.error(errorMessage);
+    } catch (err) {
+      toast.error("Failed to update badges");
     }
   };
 

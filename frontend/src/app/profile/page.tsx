@@ -32,7 +32,9 @@ import { toast } from "sonner";
 
 type ProfileTab = "my-posts" | "saved" | "settings" | "store";
 
-export default function ProfilePage() {
+import { Suspense } from "react";
+
+function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -46,8 +48,6 @@ export default function ProfilePage() {
     isLoading: userLoading,
     refetch: refetchMe,
   } = useGetMeQuery();
-
-
 
   const handleTabChange = (value: string) => {
     const tab = value as ProfileTab;
@@ -262,6 +262,14 @@ export default function ProfilePage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<Loader />}>
+      <ProfileContent />
+    </Suspense>
   );
 }
 
