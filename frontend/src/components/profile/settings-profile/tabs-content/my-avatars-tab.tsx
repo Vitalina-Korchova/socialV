@@ -30,10 +30,10 @@ export default function MyAvatarsTabSettings() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 md:px-0">
       <div>
-        <h2 className="text-2xl font-bold">Avatar</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl md:text-2xl font-bold">Avatar</h2>
+        <p className=" text-sm md:text-base text-muted-foreground ">
           Choose an avatar to represent your profile.
         </p>
       </div>
@@ -63,10 +63,14 @@ export default function MyAvatarsTabSettings() {
                     : "border-zinc-800 hover:border-primary/50 cursor-pointer hover:scale-[1.02]"
                 )}
               >
-                <div className={cn(
-                  "relative h-24 w-24 overflow-hidden rounded-full border transition-colors",
-                  isActive ? "border-primary" : "border-zinc-700 group-hover:border-primary/50"
-                )}>
+                <div
+                  className={cn(
+                    "relative h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-full border transition-colors",
+                    isActive
+                      ? "border-primary"
+                      : "border-zinc-700 group-hover:border-primary/50"
+                  )}
+                >
                   <Image
                     src={avatar.image_url || "/card-back.jpg"}
                     alt="Avatar"
@@ -94,7 +98,11 @@ export default function MyAvatarsTabSettings() {
                       : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white cursor-pointer"
                   )}
                 >
-                  {isActive ? "Equipped" : isUpdating ? "Equipping..." : "Equip"}
+                  {isActive
+                    ? "Equipped"
+                    : isUpdating
+                    ? "Equipping..."
+                    : "Equip"}
                 </button>
               </div>
             );

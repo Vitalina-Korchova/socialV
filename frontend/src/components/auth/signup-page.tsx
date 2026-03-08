@@ -51,7 +51,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Username"
-            className="pl-10 h-12"
+            className="pl-10 h-10 sm:h-12 text-sm sm:text-base"
             {...register("username")}
           />
         </div>
@@ -63,7 +63,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
           <Input
             type="email"
             placeholder="Email"
-            className="pl-10 h-12"
+            className="pl-10 h-10 sm:h-12 text-sm sm:text-base"
             {...register("email")}
           />
         </div>
@@ -76,7 +76,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
           <Input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className="pl-10 pr-10 h-12"
+            className="pl-10 pr-10 h-10 sm:h-12 text-sm sm:text-base"
             {...register("password")}
           />
           <button
@@ -102,7 +102,7 @@ export default function SignUpPage({ setMode }: SignUpPageProps) {
         )}
 
         <Button
-          className="h-12 text-base font-semibold cursor-pointer"
+          className="h-10 text-sm sm:h-12 sm:text-base font-semibold cursor-pointer"
           disabled={registerLoading}
         >
           {registerLoading ? "Loading..." : "Create Account"}

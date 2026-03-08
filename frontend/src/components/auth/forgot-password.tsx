@@ -64,7 +64,7 @@ export default function ForgotPasswordPage({
         {step === 1 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-base text-gray-400 font-light">
+              <span className="text-sm sm:text-base text-gray-400 font-light">
                 Enter your email to reset password
               </span>
               <div className="relative">
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage({
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   placeholder="Email"
-                  className="pl-10 h-12"
+                  className="pl-10 h-10 sm:h-12 text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage({
             )}
 
             <Button
-              className="h-12 text-base font-semibold cursor-pointer"
+              className="h-10 text-sm sm:h-12 sm:text-base font-semibold cursor-pointer"
               onClick={() => handleSendCodeEmail(email)}
               disabled={sendCodeEmailLoading}
             >
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage({
         {step === 2 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-base text-gray-400 font-light">
+              <span className="text-sm sm:text-base text-gray-400 font-light">
                 Enter verification code
               </span>
               <div className="relative">
@@ -116,7 +116,7 @@ export default function ForgotPasswordPage({
                   onChange={(e) => setCode(e.target.value)}
                   type="number"
                   placeholder="000000"
-                  className="pl-10 h-12"
+                  className="pl-10 h-10 sm:h-12 text-sm sm:text-base"
                   maxLength={6}
                 />
               </div>
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage({
               </p>
             )}
             <Button
-              className="h-12 text-base font-semibold cursor-pointer"
+              className="h-10 text-sm sm:h-12 sm:text-base font-semibold cursor-pointer"
               onClick={() => handleVeriifyCode(email, code)}
               disabled={verifyCodeLoading}
             >
@@ -149,7 +149,7 @@ export default function ForgotPasswordPage({
         {step === 3 && (
           <>
             <div className="flex flex-col gap-2">
-              <span className="text-base text-gray-400 font-light">
+              <span className="text-sm sm:text-base text-gray-400 font-light">
                 Enter new password
               </span>
               <div className="relative">
@@ -159,7 +159,7 @@ export default function ForgotPasswordPage({
                   onChange={(e) => setPassword(e.target.value)}
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  className="pl-10 pr-10 h-12"
+                  className="pl-10 pr-10 h-10 sm:h-12 text-sm sm:text-base"
                   min={6}
                 />
                 <button
@@ -178,7 +178,7 @@ export default function ForgotPasswordPage({
                   onChange={(e) => setPasswordConfirm(e.target.value)}
                   type={showPasswordConfirm ? "text" : "password"}
                   placeholder="Confirm password"
-                  className="pl-10 pr-10 h-12"
+                  className="pl-10 pr-10 h-10 sm:h-12 text-sm sm:text-base"
                   min={6}
                 />
                 <button
@@ -211,7 +211,7 @@ export default function ForgotPasswordPage({
               </p>
             )}
             <Button
-              className="h-12 text-base font-semibold cursor-pointer"
+              className="h-10 text-sm sm:h-12 sm:text-base font-semibold cursor-pointer"
               onClick={() => handleResetPassword(email, code, password)}
               disabled={resetPasswordLoading}
             >

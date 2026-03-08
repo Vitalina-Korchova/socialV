@@ -68,10 +68,10 @@ function ProfileContent() {
 
   return (
     <>
-      <div className="flex flex-row gap-6 py-6 px-8">
+      <div className="flex flex-col gap-6 py-4 px-4 md:py-6 md:px-8 mb-10 md:mb-0 ">
         <div className="flex-1">
-          <Card className="p-0! overflow-hidden relative">
-            <CardHeader className="relative p-0! h-24">
+          <Card className="p-0! overflow-hidden relative border-none sm:border-solid">
+            <CardHeader className="relative p-0! h-16 sm:h-24">
               <div className="abosulute top-0 right-0 left-0">
                 {userData?.background_url && (
                   <Image
@@ -79,15 +79,15 @@ function ProfileContent() {
                     alt="background"
                     height={750}
                     width={750}
-                    className="object-cover w-full h-44"
+                    className="object-cover w-full h-36 sm:h-44"
                   />
                 )}
                 <div className="absolute bottom-[-80px] left-0 right-0 h-6 bg-gradient-to-t from-[#18181B] to-transparent" />
               </div>
             </CardHeader>
 
-            <CardContent className="pb-5 pt-3 px-16 flex justify-between items-center z-10">
-              <div className="flex flex-row items-center gap-4">
+            <CardContent className="pb-2 sm:pb-5 pt-3 px-8 sm:px-16 flex flex-col sm:flex-row gap-5 justify-between items-center z-10">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
                 <div className="w-30 h-30 relative flex items-center justify-center">
                   {userData?.border_url && (
                     <div className="absolute inset-0 overflow-hidden">
@@ -113,27 +113,36 @@ function ProfileContent() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5 items-start">
+                <div className="flex flex-col gap-3 sm:gap-1.5 items-center sm:items-start ">
                   <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">
                     {userData?.username}
                   </h2>
-                  <UserBadgesList badges={userData?.badges} itemClassName="text-[10px] mt-2" />
+                  <UserBadgesList
+                    badges={userData?.badges}
+                    itemClassName="text-[8px] sm:text-[10px] mt-2"
+                  />
 
                   <div className="w-52 space-y-1 mt-1">
-                    <div className="flex justify-between items-end">
+                    <div className="flex justify-between items-end ">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         Level {userData?.level}
                       </span>
                       <span className="text-[10px] font-medium text-muted-foreground">
                         {userData?.amount_xp}{" "}
-                        <span className="text-zinc-300">/ {userData?.total_xp_required_level} XP</span>
+                        <span className="text-zinc-300">
+                          / {userData?.total_xp_required_level} XP
+                        </span>
                       </span>
                     </div>
                     <div className="h-1.5 w-full bg-zinc-800/50 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)] transition-all duration-500 ease-out"
                         style={{
-                          width: `${((userData?.amount_xp ?? 0) / (userData?.total_xp_required_level ?? 1)) * 100}%`
+                          width: `${
+                            ((userData?.amount_xp ?? 0) /
+                              (userData?.total_xp_required_level ?? 1)) *
+                            100
+                          }%`,
                         }}
                       />
                     </div>
@@ -156,7 +165,7 @@ function ProfileContent() {
               </div>
               <div className="flex flex-row gap-5">
                 <div className="flex flex-col gap-1 items-center">
-                  <span className="font-bold text-4xl">
+                  <span className="font-bold text-3xl sm:text-4xl">
                     {userData?.posts_count}
                   </span>
                   <span className="text-muted-foreground text-sm">Posts</span>
@@ -165,7 +174,7 @@ function ProfileContent() {
                 <Dialog>
                   <DialogTrigger asChild>
                     <div className="flex flex-col gap-1 items-center cursor-pointer hover:opacity-80 transition-opacity">
-                      <span className="font-bold text-4xl">
+                      <span className="font-bold text-3xl sm:text-4xl">
                         {userData?.followers_count}
                       </span>
                       <span className="text-muted-foreground text-sm">
@@ -184,7 +193,7 @@ function ProfileContent() {
                 <Dialog>
                   <DialogTrigger asChild>
                     <div className="flex flex-col gap-1 items-center cursor-pointer hover:opacity-80 transition-opacity">
-                      <span className="font-bold text-4xl">
+                      <span className="font-bold text-3xl sm:text-4xl">
                         {userData?.followings_count}
                       </span>
                       <span className="text-muted-foreground text-sm">
@@ -214,7 +223,7 @@ function ProfileContent() {
                     className="flex cursor-pointer items-center gap-2 px-4 h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
                   >
                     <FileText className="w-4 h-4" />
-                    My Posts
+                    <span className="hidden sm:block">My Posts</span>
                   </TabsTrigger>
 
                   <TabsTrigger
@@ -222,21 +231,21 @@ function ProfileContent() {
                     className="flex cursor-pointer items-center gap-2 px-4 h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
                   >
                     <Bookmark className="w-4 h-4" />
-                    Saved
+                    <span className="hidden sm:block">Saved</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="settings"
                     className="flex cursor-pointer items-center gap-2 px-4 h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
                   >
                     <Settings className="w-4 h-4" />
-                    Settings
+                    <span className="hidden sm:block">Settings</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="store"
                     className="flex cursor-pointer items-center gap-2 px-4 h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary text-muted-foreground hover:text-primary transition-colors font-medium text-sm"
                   >
                     <Store className="w-4 h-4" />
-                    Store
+                    <span className="hidden sm:block">Store</span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

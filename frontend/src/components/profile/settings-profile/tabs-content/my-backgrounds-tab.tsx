@@ -30,10 +30,10 @@ export default function MyBackgroundsTabSettings() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 md:px-0">
       <div>
-        <h2 className="text-2xl font-bold">Background</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl md:text-2xl font-bold">Background</h2>
+        <p className=" text-sm md:text-base text-muted-foreground ">
           Choose a background for your profile page.
         </p>
       </div>
@@ -73,10 +73,14 @@ export default function MyBackgroundsTabSettings() {
                       !isActive && "group-hover:scale-110"
                     )}
                   />
-                  <div className={cn(
-                    "absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity",
-                    isActive ? "opacity-40" : "opacity-60 group-hover:opacity-40"
-                  )} />
+                  <div
+                    className={cn(
+                      "absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity",
+                      isActive
+                        ? "opacity-40"
+                        : "opacity-60 group-hover:opacity-40"
+                    )}
+                  />
 
                   {isActive && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/10 backdrop-blur-[1px]">
@@ -84,7 +88,9 @@ export default function MyBackgroundsTabSettings() {
                         <div className="bg-primary text-white rounded-full p-2.5 shadow-xl">
                           <Check size={20} strokeWidth={3} />
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md">Active</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md">
+                          Active
+                        </span>
                       </div>
                     </div>
                   )}
@@ -100,7 +106,11 @@ export default function MyBackgroundsTabSettings() {
                         : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white cursor-pointer"
                     )}
                   >
-                    {isActive ? "Equipped" : isUpdating ? "Equipping..." : "Equip"}
+                    {isActive
+                      ? "Equipped"
+                      : isUpdating
+                      ? "Equipping..."
+                      : "Equip"}
                   </button>
                 </div>
               </div>

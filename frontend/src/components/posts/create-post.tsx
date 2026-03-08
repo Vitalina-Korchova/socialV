@@ -75,6 +75,7 @@ export default function CreatePostPage({
   return (
     <>
       <Card
+        id="create-post-component"
         className=" w-[320px] sm:w-md lg:w-xl mx-auto shadow-lg hover:shadow-xl
            transition-shadow duration-300 flex flex-col px-8 pt-8 pb-5"
       >
@@ -118,7 +119,7 @@ export default function CreatePostPage({
             onInput={handleInput}
             placeholder="What's on your mind?"
             rows={1}
-            className="resize-none overflow-hidden  text-base"
+            className="resize-none overflow-hidden  sm:text-base text-sm"
           />
         </div>
         {images.length > 0 && (
@@ -130,7 +131,7 @@ export default function CreatePostPage({
                   alt="preview"
                   width={200}
                   height={200}
-                  className="rounded-lg object-cover h-32 w-full"
+                  className="rounded-lg object-cover h-24 sm:h-32 w-full"
                 />
 
                 <button
@@ -144,7 +145,7 @@ export default function CreatePostPage({
           </div>
         )}
 
-        <div className="flex justify-between border-t pt-4 items-center px-5 mt-4">
+        <div className="flex justify-between border-t pt-4 items-center px-5 mt-1 sm:mt-4">
           <label className="flex gap-3 cursor-pointer hover:text-primary">
             <ImageIcon className="w-5 h-5" />
             <span className="text-sm">Add Images</span>

@@ -30,10 +30,10 @@ export default function MyBordersTabSettings() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 md:px-0">
       <div>
-        <h2 className="text-2xl font-bold">Border</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl md:text-2xl font-bold">Border</h2>
+        <p className=" text-sm md:text-base text-muted-foreground ">
           Choose a border for your profile.
         </p>
       </div>
@@ -63,12 +63,13 @@ export default function MyBordersTabSettings() {
                     : "border-zinc-800 hover:border-primary/50 cursor-pointer hover:scale-[1.02]"
                 )}
               >
-                <div className="relative h-24 w-24">
-                  {/* Avatar Placeholder with Border */}
-                  <div className={cn(
-                    "absolute inset-0 z-10 transition-transform duration-500",
-                    !isActive && "group-hover:scale-110"
-                  )}>
+                <div className="relative h-20 w-20 md:h-24 md:w-24">
+                  <div
+                    className={cn(
+                      "absolute inset-0 z-10 transition-transform duration-500",
+                      !isActive && "group-hover:scale-110"
+                    )}
+                  >
                     {border.image_url && (
                       <Image
                         src={border.image_url}
@@ -99,7 +100,11 @@ export default function MyBordersTabSettings() {
                       : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white cursor-pointer"
                   )}
                 >
-                  {isActive ? "Equipped" : isUpdating ? "Equipping..." : "Equip"}
+                  {isActive
+                    ? "Equipped"
+                    : isUpdating
+                    ? "Equipping..."
+                    : "Equip"}
                 </button>
               </div>
             );

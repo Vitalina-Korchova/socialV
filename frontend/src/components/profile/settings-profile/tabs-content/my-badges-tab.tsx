@@ -59,11 +59,11 @@ export default function MyBadgesTabSettings() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-3 px-5 md:px-0">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">My Badges</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl md:text-2xl font-bold">My Badges</h2>
+          <p className=" text-sm md:text-base text-muted-foreground ">
             Manage and equip your earned badges (max 4).
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function MyBadgesTabSettings() {
                 key={badgeItem.id}
                 onClick={() => toggleBadge(badgeItem.id)}
                 className={cn(
-                  "p-5 rounded-xl border cursor-pointer transition-all flex items-center justify-between group bg-zinc-900/50",
+                  "p-3 md:p-5 rounded-xl border cursor-pointer transition-all flex items-center justify-between group bg-zinc-900/50",
                   isSelected
                     ? "border-primary ring-1 ring-primary/20 bg-primary/5 shadow-2xl shadow-primary/10"
                     : "border-zinc-800 hover:border-primary/50 hover:scale-[1.02]"
@@ -106,7 +106,7 @@ export default function MyBadgesTabSettings() {
               >
                 <div className="flex items-center gap-4">
                   <Badge
-                    className="text-[10px] px-3 py-1.5 h-auto font-black flex items-center gap-2 border shadow-lg uppercase tracking-wider transition-transform group-hover:scale-110"
+                    className="text-[8px] md:text-[10px] px-3 py-1.5 h-auto font-black flex items-center gap-2 border shadow-lg uppercase tracking-wider transition-transform group-hover:scale-110"
                     style={{
                       backgroundColor: `${color}20`,
                       color: color,

@@ -22,7 +22,6 @@ import { setSearch, clearSearch } from "@/store/post/search.slice";
 import { useDebouncedCallback } from "use-debounce";
 import { useGetUnreadCountQuery } from "@/store/notifications/notifications.api";
 import { useGetUnreadEachQuery } from "@/store/chat/chat.api";
-import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const router = useRouter();
@@ -31,6 +30,7 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const bellRef = useRef<HTMLDivElement | null>(null);
+  const mobileBellRef = useRef<HTMLDivElement | null>(null);
   const [inputSearch, setInputSearch] = useState("");
   const dispatch = useDispatch();
 
@@ -67,12 +67,14 @@ export default function Navbar() {
   };
 
   const closeNotificationsOutside = (event: MouseEvent) => {
-    if (!notificationsRef.current || !bellRef.current) return;
+    if (!notificationsRef.current) return;
 
     const target = event.target as Node;
     const isClickInsideNotifications =
       notificationsRef.current.contains(target);
-    const isClickOnBell = bellRef.current.contains(target);
+    const isClickOnBell =
+      bellRef.current?.contains(target) ||
+      mobileBellRef.current?.contains(target);
 
     if (!isClickInsideNotifications && !isClickOnBell) {
       setShowNotifications(false);
@@ -95,6 +97,15 @@ export default function Navbar() {
     router.push("/auth");
   };
 
+  const handleAddPostClick = () => {
+    const element = document.getElementById("create-post-component");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
     <>
       <Card
@@ -113,7 +124,7 @@ export default function Navbar() {
           <Input
             value={inputSearch}
             onChange={handleInputChange}
-            className="pl-10 w-full min-w-[200px] focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2"
+            className="pl-10 w-full min-w-[200px] focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2 text-sm sm:text-base"
             placeholder="Search posts..."
           />
           {/* прибрати якшо нічого немає в інпуті */}
@@ -224,6 +235,7 @@ export default function Navbar() {
               whileHover={{ scale: 1.1, y: -2 }}
               whileTap={{ scale: 0.9 }}
               initial={{ y: 0 }}
+              onClick={handleAddPostClick}
             >
               <div className="size-10 sm:size-14 flex items-center justify-center bg-gradient-to-tr from-[#8A3CFF] to-[#A855F7] text-white shadow-xl shadow-primary/40 cursor-pointer rounded-full ring-4 ring-background overflow-hidden relative group">
                 <motion.div
@@ -237,6 +249,7 @@ export default function Navbar() {
             {/* Notifications */}
             <div
               id="mobile-nav-notifications"
+              ref={mobileBellRef}
               onClick={() => setShowNotifications((prev) => !prev)}
               className="relative flex flex-col gap-2 items-center cursor-pointer"
             >

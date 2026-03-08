@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Plus, Lock } from "lucide-react";
 import {
   useGetShopItemsToBuyQuery,
-  useBuyShopItemMutation
+  useBuyShopItemMutation,
 } from "@/store/shop_item/shop_item.api";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
@@ -13,12 +13,17 @@ import { toast } from "sonner";
 
 export default function BuyBackgroundStore() {
   const { data: user } = useGetMeQuery();
-  const { data: backgrounds, isLoading, isError } = useGetShopItemsToBuyQuery("BACKGROUND");
+  const {
+    data: backgrounds,
+    isLoading,
+    isError,
+  } = useGetShopItemsToBuyQuery("BACKGROUND");
   const [buyItem, { isLoading: isBuyingGlobal }] = useBuyShopItemMutation();
   const [buyingItemId, setBuyingItemId] = React.useState<number | null>(null);
 
   if (isLoading) return <Loader />;
-  if (isError) return <ErrorState message="Failed to load available backgrounds" />;
+  if (isError)
+    return <ErrorState message="Failed to load available backgrounds" />;
 
   const handleBuy = async (id: number) => {
     setBuyingItemId(id);
@@ -35,18 +40,22 @@ export default function BuyBackgroundStore() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 md:px-0">
       <div>
-        <h2 className="text-2xl font-bold">Buy Background</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl md:text-2xl font-bold">Buy Background</h2>
+        <p className="text-sm md:text-base text-muted-foreground ">
           Transform your profile page with custom backgrounds.
         </p>
       </div>
 
       {!backgrounds || backgrounds.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-2xl border-muted/50">
-          <p className="text-lg font-medium text-muted-foreground">No new backgrounds available.</p>
-          <p className="text-sm text-muted-foreground mt-1">Check back later for new items!</p>
+          <p className="text-lg font-medium text-muted-foreground">
+            No new backgrounds available.
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Check back later for new items!
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -59,7 +68,8 @@ export default function BuyBackgroundStore() {
                 key={bg.id}
                 className={cn(
                   "group flex flex-col rounded-2xl border overflow-hidden transition-all border-zinc-800 bg-zinc-900/50",
-                  !isLocked && "hover:scale-[1.02] hover:border-primary/50 cursor-pointer",
+                  !isLocked &&
+                    "hover:scale-[1.02] hover:border-primary/50 cursor-pointer",
                   isLocked && "opacity-80 grayscale-[0.3]"
                 )}
               >
@@ -79,7 +89,9 @@ export default function BuyBackgroundStore() {
                   {isLocked && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
                       <Lock size={24} className="text-zinc-400 mb-1" />
-                      <span className="text-xs font-bold text-white uppercase tracking-[0.2em]">Required Level {bg.required_level}</span>
+                      <span className="text-xs font-bold text-white uppercase tracking-[0.2em]">
+                        Required Level {bg.required_level}
+                      </span>
                     </div>
                   )}
 
@@ -104,7 +116,9 @@ export default function BuyBackgroundStore() {
 
                 <div className="p-4 flex items-center justify-end bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-800">
                   <button
-                    onClick={() => !isLocked && !isBuyingGlobal && handleBuy(bg.id)}
+                    onClick={() =>
+                      !isLocked && !isBuyingGlobal && handleBuy(bg.id)
+                    }
                     disabled={isBuyingGlobal || isLocked}
                     className={cn(
                       "flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold transition-all shadow-lg",

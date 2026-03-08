@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Plus, Lock, User } from "lucide-react";
 import {
   useGetShopItemsToBuyQuery,
-  useBuyShopItemMutation
+  useBuyShopItemMutation,
 } from "@/store/shop_item/shop_item.api";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { Loader } from "@/components/ui/loader";
@@ -13,7 +13,11 @@ import { toast } from "sonner";
 
 export default function BuyBorderStore() {
   const { data: user } = useGetMeQuery();
-  const { data: borders, isLoading, isError } = useGetShopItemsToBuyQuery("BORDER");
+  const {
+    data: borders,
+    isLoading,
+    isError,
+  } = useGetShopItemsToBuyQuery("BORDER");
   const [buyItem, { isLoading: isBuyingGlobal }] = useBuyShopItemMutation();
   const [buyingItemId, setBuyingItemId] = React.useState<number | null>(null);
 
@@ -35,18 +39,22 @@ export default function BuyBorderStore() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 md:px-0">
       <div>
-        <h2 className="text-2xl font-bold">Buy Borders</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl md:text-2xl font-bold">Buy Borders</h2>
+        <p className="text-sm md:text-base text-muted-foreground">
           Premium borders to make your avatar stand out.
         </p>
       </div>
 
       {!borders || borders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-2xl border-muted/50">
-          <p className="text-lg font-medium text-muted-foreground">No new borders available.</p>
-          <p className="text-sm text-muted-foreground mt-1">Check back later for new items!</p>
+          <p className="text-lg font-medium text-muted-foreground">
+            No new borders available.
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Check back later for new items!
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
@@ -59,18 +67,21 @@ export default function BuyBorderStore() {
                 key={border.id}
                 className={cn(
                   "group flex flex-col rounded-xl border p-4 transition-all border-zinc-800 bg-zinc-900/50",
-                  !isLocked && "hover:scale-[1.02] hover:border-primary hover:ring-1 hover:ring-primary/20 cursor-pointer",
+                  !isLocked &&
+                    "hover:scale-[1.02] hover:border-primary hover:ring-1 hover:ring-primary/20 cursor-pointer",
                   isLocked && "opacity-80 grayscale-[0.3]"
                 )}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="relative h-24 w-24">
+                  <div className="relative h-20 w-20 md:h-24 md:w-24">
                     {/* Avatar Placeholder with Border */}
-                    <div className={cn(
-                      "absolute inset-0 z-10 transition-transform duration-500",
-                      !isLocked && "group-hover:scale-110",
-                      isLocked && "opacity-40"
-                    )}>
+                    <div
+                      className={cn(
+                        "absolute inset-0 z-10 transition-transform duration-500",
+                        !isLocked && "group-hover:scale-110",
+                        isLocked && "opacity-40"
+                      )}
+                    >
                       {border.image_url && (
                         <Image
                           src={border.image_url}
@@ -80,16 +91,20 @@ export default function BuyBorderStore() {
                         />
                       )}
                     </div>
-                    <div className={cn(
-                      "absolute inset-2 rounded-full flex items-center justify-center border border-zinc-700 bg-zinc-800 transition-opacity",
-                      isLocked && "opacity-20"
-                    )}>
+                    <div
+                      className={cn(
+                        "absolute inset-2 rounded-full flex items-center justify-center border border-zinc-700 bg-zinc-800 transition-opacity",
+                        isLocked && "opacity-20"
+                      )}
+                    >
                       <User className="text-zinc-600 w-10 h-10" />
                     </div>
                     {isLocked && (
                       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-full bg-black/40 backdrop-blur-[1px]">
                         <Lock size={18} className="text-zinc-400 mb-0.5" />
-                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Lvl {border.required_level}</span>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                          Lvl {border.required_level}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -113,7 +128,9 @@ export default function BuyBorderStore() {
 
                 <div className="mt-4 flex justify-center">
                   <button
-                    onClick={() => !isLocked && !isBuyingGlobal && handleBuy(border.id)}
+                    onClick={() =>
+                      !isLocked && !isBuyingGlobal && handleBuy(border.id)
+                    }
                     disabled={isBuyingGlobal || isLocked}
                     className={cn(
                       "w-full flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all shadow-lg",

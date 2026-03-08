@@ -51,7 +51,7 @@ export default function SignInPage({ setMode }: SignInPageProps) {
           <Input
             type="email"
             placeholder="Email"
-            className={`pl-10 h-12 `}
+            className={`pl-10 h-10 sm:h-12 text-sm sm:text-base`}
             {...register("email")}
           />
         </div>
@@ -64,7 +64,7 @@ export default function SignInPage({ setMode }: SignInPageProps) {
           <Input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className={`pl-10 pr-10 h-12 
+            className={`pl-10 pr-10 h-10 sm:h-12 text-sm sm:text-base
             }`}
             {...register("password")}
           />
@@ -99,7 +99,7 @@ export default function SignInPage({ setMode }: SignInPageProps) {
 
         <Button
           type="submit"
-          className="h-12 text-base font-semibold cursor-pointer"
+          className="h-10 text-sm sm:h-12 sm:text-base font-semibold cursor-pointer"
           disabled={loginLoading}
         >
           {loginLoading ? "Loading..." : "Sign In"}

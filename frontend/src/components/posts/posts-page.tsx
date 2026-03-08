@@ -4,8 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle, Repeat, SquarePen, Trash2, User } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
 import CreatePostPage from "./create-post";
 import {
   useGetAllPostsQuery,
@@ -103,7 +101,11 @@ export default function PostsPage({ type }: { type: string }) {
     setPage(1);
   }, [type, search]);
 
-  const { data: userData, isLoading: userLoading, error: userError } = useGetMeQuery();
+  const {
+    data: userData,
+    isLoading: userLoading,
+    error: userError,
+  } = useGetMeQuery();
 
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
@@ -253,7 +255,7 @@ export default function PostsPage({ type }: { type: string }) {
 
   return (
     <>
-      <div className="flex flex-col gap-7">
+      <div className="flex flex-col gap-7 ">
         {type === "all" && (
           <CreatePostPage
             userData={userData!}
@@ -271,7 +273,7 @@ export default function PostsPage({ type }: { type: string }) {
         <div
           className={
             type === "mine" || type === "saved"
-              ? "columns-2 gap-5 space-y-5"
+              ? "columns-1 sm:columns-2 gap-5 space-y-5"
               : "space-y-6"
           }
         >
@@ -280,25 +282,28 @@ export default function PostsPage({ type }: { type: string }) {
             allPosts?.map((post) => (
               <Card
                 key={post.id}
-                className=" w-full w-[320px] sm:w-auto sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
-           transition-shadow duration-300 gap-3! break-inside-avoid"
+                className="w-[330px] sm:w-auto sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
+           transition-shadow duration-300 gap-3! break-inside-avoid "
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
+                <CardHeader className="pb-3 px-2 sm:px-6">
+                  <div className="flex items-top justify-between">
+                    <div className="flex items-top space-x-2">
                       <div className="px-2">
                         <div
-                          className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved" ? "cursor-pointer" : ""
-                            }`}
+                          className={`w-10 h-10 relative flex items-center justify-center ${
+                            type === "all" || type === "saved"
+                              ? "cursor-pointer"
+                              : ""
+                          }`}
                           onClick={
                             type === "all" || type === "saved"
                               ? () => {
-                                if (post.user.id === userData?.id) {
-                                  router.push("/profile?tab=my-posts");
-                                } else {
-                                  router.push(`/user/${post.user.id}`);
+                                  if (post.user.id === userData?.id) {
+                                    router.push("/profile?tab=my-posts");
+                                  } else {
+                                    router.push(`/user/${post.user.id}`);
+                                  }
                                 }
-                              }
                               : undefined
                           }
                         >
@@ -338,11 +343,14 @@ export default function PostsPage({ type }: { type: string }) {
                         <h3 className="font-semibold text-lg">
                           {post.user.username}
                         </h3>
-                        <UserBadgesList badges={post.user.badges} />
+                        <UserBadgesList
+                          badges={post.user.badges}
+                          itemClassName="text-[7px] sm:text-[8px] "
+                        />
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 justify-end items-end">
+                    <div className="flex flex-col gap-2 justify-top items-top">
                       {type === "mine" && (
                         <div className="flex flex-row gap-3 items-center">
                           <div
@@ -368,7 +376,7 @@ export default function PostsPage({ type }: { type: string }) {
                           </div>
                         </div>
                       )}
-                      <span className="text-sm text-muted-foreground">
+                      <span className=" text-[10px] sm:text-sm text-muted-foreground">
                         {formatDate(post.created_at)}
                       </span>
                     </div>
@@ -380,8 +388,9 @@ export default function PostsPage({ type }: { type: string }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
-                      }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
+                      expanded[post.id] ? "" : "line-clamp-4"
+                    }`}
                   >
                     {post.text_content}
                   </p>
@@ -444,7 +453,10 @@ export default function PostsPage({ type }: { type: string }) {
                   <div className="px-5 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="flex -space-x-2">
                       {post.repostedByUsers.slice(0, 2).map((user, idx) => (
-                        <div key={idx} className="h-6 w-6 relative flex items-center justify-center">
+                        <div
+                          key={idx}
+                          className="h-6 w-6 relative flex items-center justify-center"
+                        >
                           {user.border_url && (
                             <div className="absolute inset-0 overflow-hidden">
                               <Image
@@ -503,7 +515,9 @@ export default function PostsPage({ type }: { type: string }) {
                           <IoIosHeartEmpty className="h-5 w-5" />
                         )}
                       </div>
-                      <span className="text-xs">{countLikes[post.id] || 0}</span>
+                      <span className="text-xs">
+                        {countLikes[post.id] || 0}
+                      </span>
                     </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}

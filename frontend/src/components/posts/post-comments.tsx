@@ -122,7 +122,7 @@ export default function PostComments({
         </div>
         <div className="relative w-full">
           <Input
-            className="w-full pr-10 focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2"
+            className="w-full pr-10 focus-visible:ring-[#8A3CFF]/30 focus-visible:ring-2 text-sm sm:text-base"
             placeholder="Write a comment..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}

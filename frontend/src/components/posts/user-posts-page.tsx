@@ -194,7 +194,7 @@ export default function UserPostsPage({ id }: { id: number }) {
             postsData?.data.map((post) => (
               <Card
                 key={post.id}
-                className="  w-full w-[320px] sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
+                className="w-[330px] sm:w-auto sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
            transition-shadow duration-300 gap-3! break-inside-avoid"
               >
                 <CardHeader className="pb-3">
@@ -257,8 +257,9 @@ export default function UserPostsPage({ id }: { id: number }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
-                      }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
+                      expanded[post.id] ? "" : "line-clamp-4"
+                    }`}
                   >
                     {post.text_content}
                   </p>
@@ -333,7 +334,9 @@ export default function UserPostsPage({ id }: { id: number }) {
                           <IoIosHeartEmpty className="h-5 w-5" />
                         )}
                       </div>
-                      <span className="text-xs">{countLikes[post.id] || 0}</span>
+                      <span className="text-xs">
+                        {countLikes[post.id] || 0}
+                      </span>
                     </motion.div>
                     <motion.button
                       whileHover={{ scale: 1.1 }}

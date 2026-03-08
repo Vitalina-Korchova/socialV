@@ -52,15 +52,18 @@ export default function ProfileSettings() {
   };
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-3 px-3 md:px-0"
+      >
         <div>
-          <h2 className="text-2xl font-bold">Profile Settings</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl md:text-2xl font-bold">Profile Settings</h2>
+          <p className=" text-sm md:text-base text-muted-foreground ">
             You can update your personal information here.
           </p>
         </div>
 
-        <div className="max-w-xl space-y-6  p-6">
+        <div className="max-w-xl space-y-6 py-6 md:p-6">
           <div className="flex flex-col  gap-2">
             <label className="text-sm font-medium ">Username</label>
             <Input
