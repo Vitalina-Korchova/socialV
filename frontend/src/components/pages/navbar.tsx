@@ -27,6 +27,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const isAuthPage = pathname.startsWith("/auth");
+  const isMainPage = pathname === "/";
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const bellRef = useRef<HTMLDivElement | null>(null);
@@ -42,7 +43,8 @@ export default function Navbar() {
     skip: isAuthPage,
   });
 
-  const unreadChatsCount = unreadChats?.filter(c => c.unread_count > 0).length || 0;
+  const unreadChatsCount =
+    unreadChats?.filter((c) => c.unread_count > 0).length || 0;
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
     if (value.trim()) {
@@ -110,14 +112,18 @@ export default function Navbar() {
     <>
       <Card
         className={`sticky top-0 z-[99] flex flex-row justify-between py-5 items-center border-b-[1px]
-        px-8 md:px-20 shadow-sm rounded-none gap-2 sm:gap-6 ${isAuthPage ? "hidden" : ""}`}
+        px-8 md:px-20 shadow-sm rounded-none gap-2 sm:gap-6 
+        ${isAuthPage ? "hidden" : ""}
+        ${!isMainPage ? "hidden md:flex" : ""}`}
       >
         <div
           className="flex flex-row gap-2 items-center cursor-pointer "
           onClick={() => router.push("/")}
         >
           <Image src="/logo.svg" alt="Logo" width={40} height={40} />
-          <span className="font-extrabold text-xl hidden sm:block ">SocialV</span>
+          <span className="font-extrabold text-xl hidden sm:block ">
+            SocialV
+          </span>
         </div>
         <div className="flex-1 mx-4 md:mx-20 relative">
           <Search className="absolute left-2.5 top-2 text-gray-300 h-5 w-5" />
@@ -167,10 +173,11 @@ export default function Navbar() {
             title="Notifications"
           >
             <Bell
-              className={`w-5.5 h-5.5 transition-colors ${showNotifications
-                ? "text-[#8A3CFF]"
-                : "text-muted-foreground hover:text-[#8A3CFF]"
-                }`}
+              className={`w-5.5 h-5.5 transition-colors ${
+                showNotifications
+                  ? "text-[#8A3CFF]"
+                  : "text-muted-foreground hover:text-[#8A3CFF]"
+              }`}
             />
             {unreadData && unreadData.count > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
@@ -193,7 +200,10 @@ export default function Navbar() {
         </div>
       </Card>
 
-      <div ref={notificationsRef} className="fixed right-4 z-[100] w-[90%] max-w-[500px] md:w-[500px]">
+      <div
+        ref={notificationsRef}
+        className="fixed right-4 z-[100] w-[90%] max-w-[500px] md:w-[500px]"
+      >
         <AnimatePresence>
           {showNotifications && <Notifications />}
         </AnimatePresence>
@@ -210,7 +220,9 @@ export default function Navbar() {
               className="flex flex-col gap-2 items-center cursor-pointer"
             >
               <CircleUser className="w-6 h-6 text-muted-foreground" />
-              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">profile</span>
+              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">
+                profile
+              </span>
             </div>
 
             {/* Messages */}
@@ -225,7 +237,9 @@ export default function Navbar() {
                   {unreadChatsCount}
                 </span>
               )}
-              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">messages</span>
+              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">
+                messages
+              </span>
             </div>
 
             {/* Add Post Icon + */}
@@ -237,12 +251,27 @@ export default function Navbar() {
               initial={{ y: 0 }}
               onClick={handleAddPostClick}
             >
-              <div className="size-10 sm:size-14 flex items-center justify-center bg-gradient-to-tr from-[#8A3CFF] to-[#A855F7] text-white shadow-xl shadow-primary/40 cursor-pointer rounded-full ring-4 ring-background overflow-hidden relative group">
+              <div
+                className={`
+              flex items-center justify-center
+              ${
+                isMainPage
+                  ? "size-10 sm:size-14 bg-gradient-to-tr from-[#8A3CFF] to-[#A855F7] text-white shadow-xl shadow-primary/40"
+                  : "size-13 bg-black/40 text-white"
+              }
+              cursor-pointer rounded-full ring-4 ring-background/20 
+              overflow-hidden relative group
+            `}
+              >
                 <motion.div
                   className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"
                   initial={false}
                 />
-                <Plus className="w-8 h-8 relative z-10" strokeWidth={2} />
+                {isMainPage ? (
+                  <Plus className="w-8 h-8 relative z-10" strokeWidth={2} />
+                ) : (
+                  <Image src="/logo.svg" alt="Logo" width={50} height={50} />
+                )}
               </div>
             </motion.div>
 
@@ -254,17 +283,20 @@ export default function Navbar() {
               className="relative flex flex-col gap-2 items-center cursor-pointer"
             >
               <Bell
-                className={`w-6 h-6 transition-colors ${showNotifications
-                  ? "text-[#8A3CFF]"
-                  : "text-muted-foreground hover:text-[#8A3CFF]"
-                  }`}
+                className={`w-6 h-6 transition-colors ${
+                  showNotifications
+                    ? "text-[#8A3CFF]"
+                    : "text-muted-foreground hover:text-[#8A3CFF]"
+                }`}
               />
               {unreadData && unreadData.count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
                   {unreadData.count}
                 </span>
               )}
-              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">notifications</span>
+              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">
+                notifications
+              </span>
             </div>
 
             {/* Logout */}
@@ -274,7 +306,9 @@ export default function Navbar() {
               className="flex flex-col gap-2 items-center cursor-pointer"
             >
               <LogOut className="w-6 h-6 text-muted-foreground" />
-              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">logout</span>
+              <span className=" text-muted-foreground uppercase tracking-[0.2em] text-[6px] sm:text-[8px]">
+                logout
+              </span>
             </div>
           </Card>
         </div>
