@@ -67,6 +67,7 @@ model used_refresh_token {
 model post{
   id Int  @id @default(autoincrement())  
   text_content String
+  hashtags String?
   user_id Int
   created_at DateTime @default(now())   
 

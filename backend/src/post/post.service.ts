@@ -13,6 +13,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { item_shop_type, Prisma, action_type_score } from '@prisma/client';
 import { XpService } from 'src/xp/xp.service';
+import { extractHashtags } from './utils';
 
 type PostsType = 'all' | 'mine' | 'saved';
 
@@ -27,14 +28,17 @@ export class PostService {
   ) {
     this.baseUrl = this.configService.getOrThrow<string>('APP_URL');
   }
+
   async createPost(
     userId: number,
     dto: PostRequest,
     files: Express.Multer.File[],
   ) {
+    const hashtags = extractHashtags(dto.text_content);
     const post = await this.prismaService.post.create({
       data: {
         text_content: dto.text_content,
+        hashtags: hashtags,
         user_id: userId,
       },
     });
@@ -73,10 +77,10 @@ export class PostService {
         ? { user_id: userId }
         : type === 'saved'
           ? {
-            saved_post: {
-              some: { user_id: userId },
-            },
-          }
+              saved_post: {
+                some: { user_id: userId },
+              },
+            }
           : {};
 
     const where: Prisma.postWhereInput = {
@@ -203,7 +207,10 @@ export class PostService {
       },
     });
 
-    const userShopItemMap = new Map<number, { [key in item_shop_type]?: string | string[] }>();
+    const userShopItemMap = new Map<
+      number,
+      { [key in item_shop_type]?: string | string[] }
+    >();
     activeShopItems.forEach((item) => {
       let userItems = userShopItemMap.get(item.user_id);
       if (!userItems) {
@@ -216,10 +223,13 @@ export class PostService {
           userItems[item_shop_type.BADGE] = [];
         }
         if (item.shop_item.badge_name) {
-          (userItems[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+          (userItems[item_shop_type.BADGE] as string[]).push(
+            item.shop_item.badge_name,
+          );
         }
       } else if (item.shop_item.item_image?.url) {
-        userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+        userItems[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
 
@@ -247,7 +257,10 @@ export class PostService {
         },
       });
 
-    const repostItemMap = new Map<number, { [key in item_shop_type]?: string | string[] }>();
+    const repostItemMap = new Map<
+      number,
+      { [key in item_shop_type]?: string | string[] }
+    >();
     activeReposrFollowingsItems.forEach((item) => {
       let userItems = repostItemMap.get(item.user_id);
       if (!userItems) {
@@ -260,10 +273,13 @@ export class PostService {
           userItems[item_shop_type.BADGE] = [];
         }
         if (item.shop_item.badge_name) {
-          (userItems[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+          (userItems[item_shop_type.BADGE] as string[]).push(
+            item.shop_item.badge_name,
+          );
         }
       } else if (item.shop_item.item_image?.url) {
-        userItems[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+        userItems[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
 
@@ -300,8 +316,10 @@ export class PostService {
               return {
                 id: repost.user.id,
                 username: repost.user.username,
-                avatar_url: (repItems?.[item_shop_type.AVATAR] as string) || null,
-                border_url: (repItems?.[item_shop_type.BORDER] as string) || null,
+                avatar_url:
+                  (repItems?.[item_shop_type.AVATAR] as string) || null,
+                border_url:
+                  (repItems?.[item_shop_type.BORDER] as string) || null,
                 badges: (repItems?.[item_shop_type.BADGE] as string[]) || [],
               };
             }),
@@ -376,10 +394,13 @@ export class PostService {
           itemUrls[item_shop_type.BADGE] = [];
         }
         if (item.shop_item.badge_name) {
-          (itemUrls[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+          (itemUrls[item_shop_type.BADGE] as string[]).push(
+            item.shop_item.badge_name,
+          );
         }
       } else if (item.shop_item.item_image?.url) {
-        itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+        itemUrls[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
 
@@ -518,10 +539,13 @@ export class PostService {
           itemUrls[item_shop_type.BADGE] = [];
         }
         if (item.shop_item.badge_name) {
-          (itemUrls[item_shop_type.BADGE] as string[]).push(item.shop_item.badge_name);
+          (itemUrls[item_shop_type.BADGE] as string[]).push(
+            item.shop_item.badge_name,
+          );
         }
       } else if (item.shop_item.item_image?.url) {
-        itemUrls[item.shop_item.type] = `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+        itemUrls[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
       }
     });
 
@@ -537,7 +561,8 @@ export class PostService {
           email: post.user.email,
           avatar_url: (itemUrls[item_shop_type.AVATAR] as string) || null,
           border_url: (itemUrls[item_shop_type.BORDER] as string) || null,
-          background_url: (itemUrls[item_shop_type.BACKGROUND] as string) || null,
+          background_url:
+            (itemUrls[item_shop_type.BACKGROUND] as string) || null,
           badges: (itemUrls[item_shop_type.BADGE] as string[]) || [],
         },
         images: post.images.map((img) => ({
@@ -584,9 +609,10 @@ export class PostService {
     const deletedImageUrls = await this.prismaService.$transaction(
       async (tx) => {
         if (dto.text_content !== undefined) {
+          const hashtags = extractHashtags(dto.text_content);
           await tx.post.update({
             where: { id },
-            data: { text_content: dto.text_content },
+            data: { text_content: dto.text_content, hashtags: hashtags },
           });
         }
 

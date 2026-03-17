@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { HashtagTextarea } from "../ui/hashtag-textarea";
 import { ImageIcon, X } from "lucide-react";
 import Image from "next/image";
 import {
@@ -131,14 +131,14 @@ export default function UpdatePostPage({
             {postData && (
               <>
                 <div className="flex  items-top">
-                  <Textarea
+                  <HashtagTextarea
                     ref={textareaRef}
                     value={textContent}
                     onChange={(e) => setTextContent(e.target.value)}
                     onInput={handleInput}
                     placeholder="What's on your mind?"
                     rows={1}
-                    className="resize-none overflow-hidden  text-base"
+                    className="resize-none overflow-hidden text-base"
                   />
                 </div>
 

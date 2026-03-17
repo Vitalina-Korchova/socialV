@@ -226,7 +226,7 @@ function NotificationItem({
       {onMarkAsRead && (
         <button
           onClick={onMarkAsRead}
-          className="text-muted-foreground hover:text-[#8A3CFF] transition-colors p-1.5 rounded-full hover:bg-[#8A3CFF]/10 opacity-0 group-hover:opacity-100 cursor-pointer"
+          className="text-muted-foreground hover:text-[#8A3CFF] transition-colors p-1.5 rounded-full hover:bg-[#8A3CFF]/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
           title="Mark as read"
         >
           <Check size={16} />

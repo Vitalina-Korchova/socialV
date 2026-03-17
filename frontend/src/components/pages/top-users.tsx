@@ -3,7 +3,10 @@ import { Check, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { useGetMeQuery } from "@/store/user/user.api";
-import { useFollowUserMutation, useGetTopUsersQuery } from "@/store/following/following.api";
+import {
+  useFollowUserMutation,
+  useGetTopUsersQuery,
+} from "@/store/following/following.api";
 import Image from "next/image";
 import { TbUserStar } from "react-icons/tb";
 import { toast } from "sonner";
@@ -14,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 export default function TopUsers() {
   const router = useRouter();
-  const { data: topUsers, isLoading } = useGetTopUsersQuery();
+  const { data: topUsers = [], isLoading, isError } = useGetTopUsersQuery();
   const { data: me } = useGetMeQuery();
   const [followUser] = useFollowUserMutation();
 
@@ -39,22 +42,41 @@ export default function TopUsers() {
     );
   }
 
-  if (!topUsers || topUsers.length === 0) {
-    return null;
+  if (isError) {
+    return (
+      <Card className="w-64 h-fit sticky top-26 hidden xl:block">
+        <CardHeader>
+          <h3 className="font-bold text-lg leading-none pb-3">Top Users</h3>
+        </CardHeader>
+        <CardContent className="flex justify-center py-10 text-muted-foreground italic text-sm">
+          Failed to load users.
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
     <Card className="w-64 h-fit sticky top-26 hidden xl:block">
-      <CardHeader >
+      <CardHeader>
         <h3 className="font-bold text-lg leading-none pb-3">Top Users</h3>
       </CardHeader>
       <CardContent className="space-y-4">
+        {topUsers.length === 0 && (
+          <div className="text-center text-muted-foreground py-4">
+            No users yet.
+          </div>
+        )}
         {topUsers.map((user) => {
           const isOwn = user.id === me?.id;
-          const { name: badgeName, color: badgeColor } = parseBadgeName(user.first_badge);
+          const { name: badgeName, color: badgeColor } = parseBadgeName(
+            user.first_badge
+          );
 
           return (
-            <div key={user.id} className="flex items-center justify-between group">
+            <div
+              key={user.id}
+              className="flex items-center justify-between group"
+            >
               <div
                 className="flex items-center space-x-3 min-w-0 cursor-pointer"
                 onClick={() => router.push(`/user/${user.id}`)}
@@ -116,7 +138,10 @@ export default function TopUsers() {
                       <Check className="size-3.5" />
                     </div>
                   ) : (
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
                       <Button
                         size="sm"
                         variant="outline"

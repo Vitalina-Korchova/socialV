@@ -113,8 +113,7 @@ export default function Navbar() {
       <Card
         className={`sticky top-0 z-[99] flex flex-row justify-between py-5 items-center border-b-[1px]
         px-8 md:px-20 shadow-sm rounded-none gap-2 sm:gap-6 
-        ${isAuthPage ? "hidden" : ""}
-        ${!isMainPage ? "hidden md:flex" : ""}`}
+       ${isAuthPage ? "hidden" : !isMainPage ? "hidden md:flex" : ""}`}
       >
         <div
           className="flex flex-row gap-2 items-center cursor-pointer "
@@ -233,7 +232,7 @@ export default function Navbar() {
             >
               <MessageCircle className="w-6 h-6 text-muted-foreground" />
               {unreadChatsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
+                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] md:text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[18px] md:min-w-[16px] h-[18px] md:h-[16px]">
                   {unreadChatsCount}
                 </span>
               )}
@@ -290,7 +289,7 @@ export default function Navbar() {
                 }`}
               />
               {unreadData && unreadData.count > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
+                <span className="absolute right-1.5 -top-1.5 md:-right-1.5 bg-red-600 text-white text-[10px] md:text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[18px] md:min-w-[16px] h-[18px] md:h-[16px]">
                   {unreadData.count}
                 </span>
               )}

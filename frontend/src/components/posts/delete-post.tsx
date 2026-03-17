@@ -50,12 +50,6 @@ export default function DeletePostPage({
             Are you sure you want to delete this post?
           </p>
 
-          {postToDelete?.text && (
-            <p className="mt-3 p-3 text-sm bg-muted rounded-md line-clamp-3">
-              {postToDelete.text}
-            </p>
-          )}
-
           <div className="flex justify-end gap-3 mt-6">
             <Button
               variant="outline"

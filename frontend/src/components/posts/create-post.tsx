@@ -3,7 +3,7 @@ import { Card } from "../ui/card";
 import Image from "next/image";
 import { ImageIcon, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { HashtagTextarea } from "../ui/hashtag-textarea";
 import { toast } from "sonner";
 import { useCreatePostMutation } from "@/store/post/post.api";
 import { TbUserStar } from "react-icons/tb";
@@ -112,14 +112,14 @@ export default function CreatePostPage({
             )}
           </div>
 
-          <Textarea
+          <HashtagTextarea
             ref={textareaRef}
             value={textContent}
             onChange={(e) => setTextContent(e.target.value)}
             onInput={handleInput}
             placeholder="What's on your mind?"
             rows={1}
-            className="resize-none overflow-hidden  sm:text-base text-sm"
+            className="resize-none overflow-hidden sm:text-base text-sm"
           />
         </div>
         {images.length > 0 && (

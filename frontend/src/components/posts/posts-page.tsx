@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
-import { MessageCircle, Repeat, SquarePen, Trash2, User } from "lucide-react";
+import { MessageCircle, Repeat, SquarePen, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import CreatePostPage from "./create-post";
@@ -37,6 +37,7 @@ import { RootState } from "@/store/store";
 import { TbUserStar } from "react-icons/tb";
 import PostComments from "./post-comments";
 import { UserBadgesList } from "../ui/user-badge";
+import { FormattedText } from "../ui/formatted-text";
 
 const MAX_LINES = 4;
 type DataPostToDelete = {
@@ -290,20 +291,19 @@ export default function PostsPage({ type }: { type: string }) {
                     <div className="flex items-top space-x-2">
                       <div className="px-2">
                         <div
-                          className={`w-10 h-10 relative flex items-center justify-center ${
-                            type === "all" || type === "saved"
+                          className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved"
                               ? "cursor-pointer"
                               : ""
-                          }`}
+                            }`}
                           onClick={
                             type === "all" || type === "saved"
                               ? () => {
-                                  if (post.user.id === userData?.id) {
-                                    router.push("/profile?tab=my-posts");
-                                  } else {
-                                    router.push(`/user/${post.user.id}`);
-                                  }
+                                if (post.user.id === userData?.id) {
+                                  router.push("/profile?tab=my-posts");
+                                } else {
+                                  router.push(`/user/${post.user.id}`);
                                 }
+                              }
                               : undefined
                           }
                         >
@@ -350,9 +350,9 @@ export default function PostsPage({ type }: { type: string }) {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 justify-top items-top">
+                    <div className="flex flex-col gap-2 justify-top  items-top">
                       {type === "mine" && (
-                        <div className="flex flex-row gap-3 items-center">
+                        <div className="flex flex-row gap-3 items-center md:justify-center">
                           <div
                             className="text-primary cursor-pointer hover:text-primary/60"
                             onClick={() => {
@@ -388,11 +388,10 @@ export default function PostsPage({ type }: { type: string }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
-                      expanded[post.id] ? "" : "line-clamp-4"
-                    }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
+                      }`}
                   >
-                    {post.text_content}
+                    <FormattedText text={post.text_content} />
                   </p>
                   {isExpandable[post.id] && (
                     <button
@@ -458,17 +457,17 @@ export default function PostsPage({ type }: { type: string }) {
                           className="h-6 w-6 relative flex items-center justify-center"
                         >
                           {user.border_url && (
-                            <div className="absolute inset-0 overflow-hidden">
+                            <div className="absolute inset-0 overflow-hidden z-10">
                               <Image
                                 src={user.border_url}
                                 alt="border"
                                 width={50}
                                 height={50}
-                                className="w-full h-full object-cover scale-150"
+                                className="w-full h-full object-cover "
                               />
                             </div>
                           )}
-                          <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center border border-background relative z-10 overflow-hidden">
+                          <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center border border-background relative overflow-hidden">
                             {user.avatar_url ? (
                               <Image
                                 src={user.avatar_url}

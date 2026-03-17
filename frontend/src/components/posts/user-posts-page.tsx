@@ -29,6 +29,7 @@ import {
 } from "../ui/carousel";
 import { TbUserStar } from "react-icons/tb";
 import { UserBadgesList } from "../ui/user-badge";
+import { FormattedText } from "../ui/formatted-text";
 
 const MAX_LINES = 4;
 
@@ -257,11 +258,10 @@ export default function UserPostsPage({ id }: { id: number }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
-                      expanded[post.id] ? "" : "line-clamp-4"
-                    }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
+                      }`}
                   >
-                    {post.text_content}
+                    <FormattedText text={post.text_content} />
                   </p>
                   {isExpandable[post.id] && (
                     <button
