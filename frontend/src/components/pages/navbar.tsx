@@ -17,8 +17,9 @@ import Notifications from "./notifications";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useLogoutUserMutation } from "@/store/auth/auth.api";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSearch, clearSearch } from "@/store/post/search.slice";
+import { RootState } from "@/store/store";
 import { useDebouncedCallback } from "use-debounce";
 import { useGetUnreadCountQuery } from "@/store/notifications/notifications.api";
 import { useGetUnreadEachQuery } from "@/store/chat/chat.api";
@@ -34,6 +35,11 @@ export default function Navbar() {
   const mobileBellRef = useRef<HTMLDivElement | null>(null);
   const [inputSearch, setInputSearch] = useState("");
   const dispatch = useDispatch();
+  const search = useSelector((state: RootState) => state.search);
+
+  useEffect(() => {
+    setInputSearch(search);
+  }, [search]);
 
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
     skip: isAuthPage,
@@ -172,11 +178,10 @@ export default function Navbar() {
             title="Notifications"
           >
             <Bell
-              className={`w-5.5 h-5.5 transition-colors ${
-                showNotifications
+              className={`w-5.5 h-5.5 transition-colors ${showNotifications
                   ? "text-[#8A3CFF]"
                   : "text-muted-foreground hover:text-[#8A3CFF]"
-              }`}
+                }`}
             />
             {unreadData && unreadData.count > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[16px] h-[16px]">
@@ -253,11 +258,10 @@ export default function Navbar() {
               <div
                 className={`
               flex items-center justify-center
-              ${
-                isMainPage
-                  ? "size-10 sm:size-14 bg-gradient-to-tr from-[#8A3CFF] to-[#A855F7] text-white shadow-xl shadow-primary/40"
-                  : "size-13 bg-black/40 text-white"
-              }
+              ${isMainPage
+                    ? "size-10 sm:size-14 bg-gradient-to-tr from-[#8A3CFF] to-[#A855F7] text-white shadow-xl shadow-primary/40"
+                    : "size-13 bg-black/40 text-white"
+                  }
               cursor-pointer rounded-full ring-4 ring-background/20 
               overflow-hidden relative group
             `}
@@ -282,11 +286,10 @@ export default function Navbar() {
               className="relative flex flex-col gap-2 items-center cursor-pointer"
             >
               <Bell
-                className={`w-6 h-6 transition-colors ${
-                  showNotifications
+                className={`w-6 h-6 transition-colors ${showNotifications
                     ? "text-[#8A3CFF]"
                     : "text-muted-foreground hover:text-[#8A3CFF]"
-                }`}
+                  }`}
               />
               {unreadData && unreadData.count > 0 && (
                 <span className="absolute right-1.5 -top-1.5 md:-right-1.5 bg-red-600 text-white text-[10px] md:text-[9px] font-bold px-1 py-px rounded-full flex items-center justify-center min-w-[18px] md:min-w-[16px] h-[18px] md:h-[16px]">

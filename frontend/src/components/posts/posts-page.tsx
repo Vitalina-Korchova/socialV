@@ -51,10 +51,20 @@ export default function PostsPage({ type }: { type: string }) {
   const loaderRef = useRef<HTMLDivElement>(null);
 
   const search = useSelector((state: RootState) => state.search);
+  const [prevSearch, setPrevSearch] = useState(search);
+  const [prevType, setPrevType] = useState(type);
+
+  if (search !== prevSearch || type !== prevType) {
+    setPrevSearch(search);
+    setPrevType(type);
+    setPage(1);
+    setAllPosts([]);
+  }
 
   const {
     data: postsData,
     error: postsError,
+    isFetching: postsFetching,
     isLoading: postsLoading,
   } = useGetAllPostsQuery({
     type: type,
@@ -74,7 +84,7 @@ export default function PostsPage({ type }: { type: string }) {
         return [...filteredPrev, ...postsData.data];
       });
     }
-  }, [postsData, page, search]);
+  }, [postsData, page]);
 
   // Intersection Observer
   useEffect(() => {
@@ -97,10 +107,6 @@ export default function PostsPage({ type }: { type: string }) {
     return () => observer.disconnect();
   }, [postsData, postsLoading, loaderRef.current]);
 
-  useEffect(() => {
-    setAllPosts([]);
-    setPage(1);
-  }, [type, search]);
 
   const {
     data: userData,
@@ -264,9 +270,9 @@ export default function PostsPage({ type }: { type: string }) {
             userError={!!userError}
           />
         )}
-        {postsLoading && <Loader />}
+        {(postsLoading || postsFetching) && page === 1 && <Loader />}
         {postsError && <ErrorState />}
-        {!postsLoading && !postsError && allPosts.length === 0 && (
+        {!postsLoading && !postsFetching && !postsError && allPosts.length === 0 && (
           <p className="text-base text-foreground p-5 text-center">
             {search && `No posts found for "${search}"`}
           </p>
@@ -292,8 +298,8 @@ export default function PostsPage({ type }: { type: string }) {
                       <div className="px-2">
                         <div
                           className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved"
-                              ? "cursor-pointer"
-                              : ""
+                            ? "cursor-pointer"
+                            : ""
                             }`}
                           onClick={
                             type === "all" || type === "saved"
@@ -580,7 +586,7 @@ export default function PostsPage({ type }: { type: string }) {
             ref={loaderRef}
             className="h-20 flex items-center justify-center"
           >
-            {postsLoading ? <Loader /> : <div>Loading...</div>}
+            {postsLoading || postsFetching ? <Loader /> : <div>Loading...</div>}
           </div>
         )}
 

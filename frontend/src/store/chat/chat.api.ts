@@ -116,6 +116,7 @@ export const chatApi = createApi({
                     socket.emit("join_chat", { chat_id: chatId });
 
                     socket.on("new_message", (message: Message) => {
+                        if (message.chat_id !== chatId) return;
                         updateCachedData((draft) => {
                             const exists = draft.data.some(m => m.id === message.id);
                             if (!exists) {
@@ -133,6 +134,7 @@ export const chatApi = createApi({
                     socket.on("messages_read", (markedMessages: { id: number; chat_id: number; is_read: boolean }[]) => {
                         updateCachedData((draft) => {
                             markedMessages.forEach((mm) => {
+                                if (mm.chat_id !== chatId) return;
                                 const msg = draft.data.find((m) => m.id === mm.id);
                                 if (msg) {
                                     msg.is_read = true;

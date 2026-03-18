@@ -14,7 +14,7 @@ export const HashtagTextarea = React.forwardRef<
   HashtagTextareaProps
 >(({ value, className, onInput, ...props }, ref) => {
   const backdropRef = useRef<HTMLDivElement>(null);
-  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const internalRef = useRef<HTMLTextAreaElement | null>(null);
 
   return (
     <div className="relative w-full">
@@ -34,7 +34,7 @@ export const HashtagTextarea = React.forwardRef<
           // Handle both the forwarded ref and local internalRef
           if (typeof ref === "function") ref(node);
           else if (ref) ref.current = node;
-          (internalRef as any).current = node;
+          internalRef.current = node;
         }}
         value={value}
         onInput={(e) => {

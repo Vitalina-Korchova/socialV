@@ -285,7 +285,7 @@ export default function MessangerPage() {
                         e.stopPropagation();
                         handleRemoveChat(chat.id);
                       }}
-                      className="p-2 text-muted-foreground/50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-2 text-muted-foreground/50 hover:text-red-500 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                       title="Delete Chat"
                     >
                       <Trash2 className="size-4 cursor-pointer" />
@@ -449,7 +449,7 @@ export default function MessangerPage() {
                           {isOwn && (
                             <button
                               onClick={() => handleRemoveMessage(msg.id)}
-                              className="opacity-0 group-hover:opacity-100 text-white/50 hover:text-white transition-opacity"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-white/50 hover:text-white transition-opacity"
                               title="Delete Message"
                             >
                               <Trash2 className="size-3.5 cursor-pointer" />

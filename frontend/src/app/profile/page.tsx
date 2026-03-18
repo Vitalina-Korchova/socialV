@@ -299,7 +299,7 @@ function FollowersList({ refetchMe }: { refetchMe: () => void }) {
   if (error) return <div className="text-primary">Error loading followers</div>;
 
   return (
-    <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
+    <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar">
       {data?.users.map((user) => (
         <UserItem
           key={user.id}
@@ -334,7 +334,7 @@ function FollowingList({ refetchMe }: { refetchMe: () => void }) {
   if (error) return <div className="text-primary">Error loading following</div>;
 
   return (
-    <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
+    <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto custom-scrollbar">
       {data?.users.map((user) => (
         <UserItem
           key={user.id}
@@ -361,7 +361,7 @@ function UserItem({
   isFollowerList?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 ">
       <Link href={`/user/${user.id}`} className="flex items-center gap-3">
         <div className="relative w-12 h-12 flex items-center justify-center">
           {user.border_url && (
