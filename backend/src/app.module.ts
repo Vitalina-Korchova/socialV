@@ -18,6 +18,8 @@ import { ShopItemModule } from './shop_item/shop_item.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ChatModule } from './chat/chat.module';
 import { XpModule } from './xp/xp.module';
+import { GeminiAiModule } from './gemini_ai/gemini_ai.module';
+import { FeedModule } from './feed/feed.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { XpModule } from './xp/xp.module';
     NotificationsModule,
     ChatModule,
     XpModule,
+    GeminiAiModule,
+    FeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

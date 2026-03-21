@@ -9,12 +9,12 @@ export const postApi = createApi({
   endpoints: (builder) => ({
     getAllPosts: builder.query<
       PaginatedPostResponse,
-      { type: string; search?: string; page?: number; page_size?: number }
+      { type: string; page?: number; page_size?: number }
     >({
-      query: ({ type, search, page, page_size }) => ({
+      query: ({ type, page, page_size }) => ({
         url: "api/posts",
         method: "GET",
-        params: { type, search, page, page_size },
+        params: { type, page, page_size },
       }),
       providesTags: ["Post"],
       keepUnusedDataFor: 0,
@@ -83,6 +83,17 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Post"],
     }),
+    getFilteredPosts: builder.query<
+      PaginatedPostResponse,
+      { search?: string; page?: number; page_size?: number }
+    >({
+      query: ({ search, page, page_size }) => ({
+        url: "api/feed",
+        method: "GET",
+        params: { search, page, page_size },
+      }),
+      providesTags: ["Post"],
+    }),
   }),
 });
 
@@ -96,4 +107,5 @@ export const {
   useLikePostMutation,
   useRepostPostMutation,
   useSavePostMutation,
+  useGetFilteredPostsQuery,
 } = postApi;

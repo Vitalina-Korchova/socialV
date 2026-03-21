@@ -7,5 +7,6 @@ import { ImageModule } from 'src/image/image.module';
   imports: [ImageModule],
   controllers: [PostController],
   providers: [PostService],
+  exports: [PostService],
 })
-export class PostModule {}
+export class PostModule { }

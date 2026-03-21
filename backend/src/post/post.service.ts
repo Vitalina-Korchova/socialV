@@ -9,6 +9,7 @@ import {
   PaginatedPostResponse,
   PostRequest,
   PostRequestUpdate,
+  PostResponse,
 } from './dto/post.dto';
 import { ConfigService } from '@nestjs/config';
 import { item_shop_type, Prisma, action_type_score } from '@prisma/client';
@@ -64,7 +65,6 @@ export class PostService {
   async getAllPosts(
     userId: number,
     type: PostsType = 'all',
-    search?: string,
     page?: number,
     page_size?: number,
   ): Promise<PaginatedPostResponse> {
@@ -76,18 +76,11 @@ export class PostService {
       type === 'mine'
         ? { user_id: userId }
         : type === 'saved'
-          ? {
-              saved_post: {
-                some: { user_id: userId },
-              },
-            }
+          ? { saved_post: { some: { user_id: userId } } }
           : {};
 
     const where: Prisma.postWhereInput = {
       ...baseWhere,
-      ...(search && {
-        text_content: { contains: search, mode: 'insensitive' },
-      }),
     } as Prisma.postWhereInput;
 
     const totalItems = await this.prismaService.post.count({ where });
@@ -99,237 +92,25 @@ export class PostService {
         text_content: true,
         created_at: true,
         user_id: true,
-        images: {
-          select: {
-            image: {
-              select: {
-                id: true,
-                url: true,
-              },
-            },
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
-        },
+        images: { select: { image: { select: { id: true, url: true } } } },
+        user: { select: { id: true, username: true, email: true } },
         likes: true,
         saved_post: true,
         reposts: true,
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
+        _count: { select: { comments: true } },
       },
-
-      orderBy: {
-        created_at: 'desc',
-      },
-      skip: skip,
+      orderBy: { created_at: 'desc' },
+      skip,
       take: pageSize,
     });
 
-    const existMyLike = await this.prismaService.like.findMany({
-      where: {
-        post_id: {
-          in: posts.map((post) => post.id),
-        },
-        user_id: userId,
-      },
-    });
-    const isRepost = await this.prismaService.repost.findMany({
-      where: {
-        post_id: {
-          in: posts.map((post) => post.id),
-        },
-        user_id: userId,
-      },
-    });
-    const isSaved = await this.prismaService.saved_post.findMany({
-      where: {
-        post_id: {
-          in: posts.map((post) => post.id),
-        },
-        user_id: userId,
-      },
-    });
-
-    const userFollowings = await this.prismaService.following.findMany({
-      where: {
-        follower_id: userId,
-      },
-      select: {
-        following_id: true,
-      },
-    });
-    const repostOfMyFollowings = await this.prismaService.repost.findMany({
-      where: {
-        user_id: {
-          in: userFollowings.map((following) => following.following_id),
-        },
-        post_id: {
-          in: posts.map((post) => post.id),
-        },
-      },
-      select: {
-        post_id: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-    });
-
-    const postUserIds = [...new Set(posts.map((p) => p.user.id))];
-
-    const activeShopItems = await this.prismaService.user_shop_item.findMany({
-      where: {
-        user_id: { in: postUserIds },
-        is_active: true,
-      },
-      select: {
-        user_id: true,
-        shop_item: {
-          select: {
-            type: true,
-            badge_name: true,
-            item_image: {
-              select: { url: true },
-            },
-          },
-        },
-      },
-    });
-
-    const userShopItemMap = new Map<
-      number,
-      { [key in item_shop_type]?: string | string[] }
-    >();
-    activeShopItems.forEach((item) => {
-      let userItems = userShopItemMap.get(item.user_id);
-      if (!userItems) {
-        userItems = {};
-        userShopItemMap.set(item.user_id, userItems);
-      }
-
-      if (item.shop_item.type === item_shop_type.BADGE) {
-        if (!userItems[item_shop_type.BADGE]) {
-          userItems[item_shop_type.BADGE] = [];
-        }
-        if (item.shop_item.badge_name) {
-          (userItems[item_shop_type.BADGE] as string[]).push(
-            item.shop_item.badge_name,
-          );
-        }
-      } else if (item.shop_item.item_image?.url) {
-        userItems[item.shop_item.type] =
-          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
-      }
-    });
-
-    const repostUserIds = [
-      ...new Set(repostOfMyFollowings.map((repost) => repost.user.id)),
-    ];
-
-    const activeReposrFollowingsItems =
-      await this.prismaService.user_shop_item.findMany({
-        where: {
-          user_id: { in: repostUserIds },
-          is_active: true,
-        },
-        select: {
-          user_id: true,
-          shop_item: {
-            select: {
-              type: true,
-              badge_name: true,
-              item_image: {
-                select: { url: true },
-              },
-            },
-          },
-        },
-      });
-
-    const repostItemMap = new Map<
-      number,
-      { [key in item_shop_type]?: string | string[] }
-    >();
-    activeReposrFollowingsItems.forEach((item) => {
-      let userItems = repostItemMap.get(item.user_id);
-      if (!userItems) {
-        userItems = {};
-        repostItemMap.set(item.user_id, userItems);
-      }
-
-      if (item.shop_item.type === item_shop_type.BADGE) {
-        if (!userItems[item_shop_type.BADGE]) {
-          userItems[item_shop_type.BADGE] = [];
-        }
-        if (item.shop_item.badge_name) {
-          (userItems[item_shop_type.BADGE] as string[]).push(
-            item.shop_item.badge_name,
-          );
-        }
-      } else if (item.shop_item.item_image?.url) {
-        userItems[item.shop_item.type] =
-          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
-      }
-    });
-
-    const totalPages = Math.ceil(totalItems / pageSize);
-    return {
-      data: posts.map((post) => {
-        const userItems = userShopItemMap.get(post.user.id);
-        return {
-          id: post.id,
-          text_content: post.text_content,
-          created_at: post.created_at,
-          user: {
-            id: post.user.id,
-            username: post.user.username,
-            email: post.user.email,
-            avatar_url: (userItems?.[item_shop_type.AVATAR] as string) || null,
-            border_url: (userItems?.[item_shop_type.BORDER] as string) || null,
-            badges: (userItems?.[item_shop_type.BADGE] as string[]) || [],
-          },
-          images: post.images.map((img) => ({
-            id: img.image.id,
-            url: `${this.baseUrl}/uploads/${img.image.url}`,
-          })),
-          isLikedByMe: existMyLike.some((like) => like.post_id === post.id),
-          isRepostedByMe: isRepost.some((repost) => repost.post_id === post.id),
-          isSavedByMe: isSaved.some((saved) => saved.post_id === post.id),
-          likes: post.likes.length,
-          comments_count: post._count.comments,
-          repostedByUsers: repostOfMyFollowings
-            .filter((repost) => repost.post_id === post.id)
-            .slice(0, 2)
-            .map((repost) => {
-              const repItems = repostItemMap.get(repost.user.id);
-              return {
-                id: repost.user.id,
-                username: repost.user.username,
-                avatar_url:
-                  (repItems?.[item_shop_type.AVATAR] as string) || null,
-                border_url:
-                  (repItems?.[item_shop_type.BORDER] as string) || null,
-                badges: (repItems?.[item_shop_type.BADGE] as string[]) || [],
-              };
-            }),
-        };
-      }),
-      current_page: currentPage,
-      total_items: totalItems,
-      has_next_page: currentPage < totalPages,
-      has_previous_page: currentPage > 1,
-    };
+    return this.buildPostsResponse(
+      posts,
+      userId,
+      currentPage,
+      pageSize,
+      totalItems,
+    );
   }
 
   async getPostById(id: number) {
@@ -738,6 +519,156 @@ export class PostService {
     return {
       success: true,
       message: `Post with ID ${id} has been deleted successfully`,
+    };
+  }
+
+  public async buildPostsResponse(
+    posts: any[],
+    userId: number,
+    currentPage: number,
+    pageSize: number,
+    totalItems: number,
+  ): Promise<PaginatedPostResponse> {
+    const postIds = posts.map((post) => post.id);
+
+    const existMyLike = await this.prismaService.like.findMany({
+      where: { post_id: { in: postIds }, user_id: userId },
+    });
+
+    const isRepost = await this.prismaService.repost.findMany({
+      where: { post_id: { in: postIds }, user_id: userId },
+    });
+
+    const isSaved = await this.prismaService.saved_post.findMany({
+      where: { post_id: { in: postIds }, user_id: userId },
+    });
+
+    const userFollowings = await this.prismaService.following.findMany({
+      where: { follower_id: userId },
+      select: { following_id: true },
+    });
+
+    const repostOfMyFollowings = await this.prismaService.repost.findMany({
+      where: {
+        user_id: { in: userFollowings.map((f) => f.following_id) },
+        post_id: { in: postIds },
+      },
+      select: {
+        post_id: true,
+        user: { select: { id: true, username: true } },
+      },
+    });
+
+    const postUserIds = [...new Set(posts.map((p) => p.user.id))];
+
+    const activeShopItems = await this.prismaService.user_shop_item.findMany({
+      where: { user_id: { in: postUserIds }, is_active: true },
+      select: {
+        user_id: true,
+        shop_item: {
+          select: {
+            type: true,
+            badge_name: true,
+            item_image: { select: { url: true } },
+          },
+        },
+      },
+    });
+
+    const userShopItemMap = new Map<number, any>();
+    activeShopItems.forEach((item) => {
+      let userItems = userShopItemMap.get(item.user_id) || {};
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!userItems[item_shop_type.BADGE])
+          userItems[item_shop_type.BADGE] = [];
+        if (item.shop_item.badge_name)
+          userItems[item_shop_type.BADGE].push(item.shop_item.badge_name);
+      } else if (item.shop_item.item_image?.url) {
+        userItems[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
+      userShopItemMap.set(item.user_id, userItems);
+    });
+
+    const repostUserIds = [
+      ...new Set(repostOfMyFollowings.map((r) => r.user.id)),
+    ];
+
+    const activeReposrFollowingsItems =
+      await this.prismaService.user_shop_item.findMany({
+        where: { user_id: { in: repostUserIds }, is_active: true },
+        select: {
+          user_id: true,
+          shop_item: {
+            select: {
+              type: true,
+              badge_name: true,
+              item_image: { select: { url: true } },
+            },
+          },
+        },
+      });
+
+    const repostItemMap = new Map<number, any>();
+    activeReposrFollowingsItems.forEach((item) => {
+      let userItems = repostItemMap.get(item.user_id) || {};
+      if (item.shop_item.type === item_shop_type.BADGE) {
+        if (!userItems[item_shop_type.BADGE])
+          userItems[item_shop_type.BADGE] = [];
+        if (item.shop_item.badge_name)
+          userItems[item_shop_type.BADGE].push(item.shop_item.badge_name);
+      } else if (item.shop_item.item_image?.url) {
+        userItems[item.shop_item.type] =
+          `${this.baseUrl}/uploads/${item.shop_item.item_image.url}`;
+      }
+      repostItemMap.set(item.user_id, userItems);
+    });
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    return {
+      data: posts.map((post) => {
+        const userItems = userShopItemMap.get(post.user.id);
+        return {
+          id: post.id,
+          text_content: post.text_content,
+          created_at: post.created_at,
+          user: {
+            id: post.user.id,
+            username: post.user.username,
+            email: post.user.email,
+            avatar_url: userItems?.[item_shop_type.AVATAR] || null,
+            border_url: userItems?.[item_shop_type.BORDER] || null,
+            badges: userItems?.[item_shop_type.BADGE] || [],
+          },
+          images: post.images.map((img) => ({
+            id: img.image.id,
+            url: `${this.baseUrl}/uploads/${img.image.url}`,
+          })),
+          isLikedByMe: existMyLike.some((l) => l.post_id === post.id),
+          isRepostedByMe: isRepost.some((r) => r.post_id === post.id),
+          isSavedByMe: isSaved.some((s) => s.post_id === post.id),
+          likes: post.likes.length,
+          comments_count: post._count.comments,
+          repostedByUsers: repostOfMyFollowings
+            .filter((r) => r.post_id === post.id)
+            .slice(0, 2)
+            .map((r) => {
+              const repItems = repostItemMap.get(r.user.id);
+              return {
+                id: r.user.id,
+                username: r.user.username,
+                avatar_url: repItems?.[item_shop_type.AVATAR] || null,
+                border_url: repItems?.[item_shop_type.BORDER] || null,
+                badges: repItems?.[item_shop_type.BADGE] || [],
+              };
+            }),
+        };
+      }),
+      current_page: currentPage,
+      total_items: totalItems,
+      has_next_page: currentPage < totalPages,
+      has_previous_page: currentPage > 1,
     };
   }
 }

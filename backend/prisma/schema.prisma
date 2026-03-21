@@ -18,6 +18,7 @@ model user{
   level Int @default(1)
   amount_coins Int @default(50)
   created_at DateTime @default(now())
+  last_visit DateTime @default(now())
 
 
   reset_password user_reset_password[]
@@ -38,6 +39,8 @@ model user{
   second_user_in_chat chat[] @relation("SecondUserChat")
 
   sent_messages message[] @relation("MessageSender")
+
+  feed feed?
 
 
 }
@@ -278,4 +281,18 @@ model user_level_rules{
   level Int @unique
   required_experience Int
   reward_coins Int @default(0)
+}
+
+model feed{
+  id Int  @id @default(autoincrement()) 
+
+  user_id Int @unique
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  recommended_post_ids  Int[] 
+
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)  
+  
 }
