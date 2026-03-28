@@ -19,22 +19,22 @@ export class FeedService {
     private readonly geminiAiService: GeminiAiService,
   ) {}
 
-  async generateFeed(
+  async getFeed(
     userId: number,
-    search?: string,
     page?: number,
     page_size?: number,
+    search?: string,
   ): Promise<PaginatedPostResponse> {
     const currentPage = page && page > 0 ? page : 1;
     const pageSize = page_size && page_size > 0 ? page_size : 10;
 
-    // оновлюю last_visit користувача на початку
+    // update last_visit
     await this.prismaService.user.update({
       where: { id: userId },
       data: { last_visit: new Date() },
     });
 
-    // Якщо є пошуковий запит, шукаємо серед усіх постів
+    //searching
     if (search) {
       const searchWhere: any = {
         OR: [
@@ -46,7 +46,8 @@ export class FeedService {
       const totalItems = await this.prismaService.post.count({
         where: searchWhere,
       });
-      const searchPosts = await this.prismaService.post.findMany({
+
+      const posts = await this.prismaService.post.findMany({
         where: searchWhere,
         orderBy: { created_at: 'desc' },
         skip: (currentPage - 1) * pageSize,
@@ -66,7 +67,7 @@ export class FeedService {
       });
 
       return this.postService.buildPostsResponse(
-        searchPosts,
+        posts,
         userId,
         currentPage,
         pageSize,
@@ -74,181 +75,43 @@ export class FeedService {
       );
     }
 
-    // перевірка чи є запис у таблиці feed
     let userFeed = await this.prismaService.feed.findUnique({
       where: { user_id: userId },
     });
 
-    // перевірка чи треба оновлювати feed (update_date > 24h)  24 * 60 * 60 * 1000
-    const needsUpdate =
-      !userFeed || userFeed.updated_at.getTime() + 60 * 60 * 1000 < Date.now();
+    // якщо feed НЕ існує → просто останні пости
+    if (!userFeed) {
+      const totalItems = await this.prismaService.post.count();
 
-    if (needsUpdate) {
-      // Отримуємо останні дії користувача: лайки, коментарі, репости, збережені та власні пости
-      const [
-        recentLikes,
-        recentComments,
-        recentReposts,
-        recentSaved,
-        personalPosts,
-      ] = await Promise.all([
-        this.prismaService.like.findMany({
-          where: { user_id: userId },
-          take: 10,
-          orderBy: { created_at: 'desc' },
-          include: {
-            post: {
-              include: { images: { include: { image: true } } },
-            },
-          },
-        }),
-        this.prismaService.comment.findMany({
-          where: { user_id: userId },
-          take: 10,
-          orderBy: { created_at: 'desc' },
-          include: {
-            post: {
-              include: { images: { include: { image: true } } },
-            },
-          },
-        }),
-        this.prismaService.repost.findMany({
-          where: { user_id: userId },
-          take: 10,
-          orderBy: { created_at: 'desc' },
-          include: {
-            post: {
-              include: { images: { include: { image: true } } },
-            },
-          },
-        }),
-        this.prismaService.saved_post.findMany({
-          where: { user_id: userId },
-          take: 10,
-          orderBy: { created_at: 'desc' },
-          include: {
-            post: {
-              include: { images: { include: { image: true } } },
-            },
-          },
-        }),
-        this.prismaService.post.findMany({
-          where: { user_id: userId },
-          take: 10,
-          orderBy: { created_at: 'desc' },
-          include: {
-            images: { include: { image: true } },
-          },
-        }),
-      ]);
-
-      const getImageData = (imageUrl: string) => {
-        try {
-          const fullPath = path.join(__dirname, '../../uploads', imageUrl);
-          if (!fs.existsSync(fullPath)) return null;
-          const data = fs.readFileSync(fullPath).toString('base64');
-          return { mimeType: 'image/webp', data }; // Sharp converts everything to webp
-        } catch (e) {
-          return null;
-        }
-      };
-
-      const mapPostToAction = (post: any, action: string): PostsActionDTO => ({
-        action,
-        text: post.text_content,
-        tags: post.hashtags ? post.hashtags.split(',').filter(Boolean) : [],
-        images:
-          post.images
-            ?.map((img: any) => getImageData(img.image.url))
-            .filter(Boolean) || [],
-      });
-
-      const recentActionsDTO: PostsActionDTO[] = [
-        ...recentLikes.map((l) => mapPostToAction(l.post, 'like')),
-        ...recentComments.map((c) => mapPostToAction(c.post, 'comment')),
-        ...recentReposts.map((r) => mapPostToAction(r.post, 'repost')),
-        ...recentSaved.map((s) => mapPostToAction(s.post, 'bookmark')),
-        ...personalPosts.map((p) => mapPostToAction(p, 'create_post')),
-      ];
-
-      // Отримую пости від користувачів, на яких підписаний юзер
-      const followingIds = (
-        await this.prismaService.following.findMany({
-          where: { follower_id: userId },
-          select: { following_id: true },
-        })
-      ).map((f) => f.following_id);
-
-      const followerPostsPrisma = await this.prismaService.post.findMany({
-        where: { user_id: { in: followingIds } },
-        take: 50,
+      const posts = await this.prismaService.post.findMany({
         orderBy: { created_at: 'desc' },
-        include: {
-          images: { include: { image: true } },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true,
+          text_content: true,
+          created_at: true,
+          user_id: true,
+          user: { select: { id: true, username: true, email: true } },
+          images: { select: { image: { select: { id: true, url: true } } } },
+          likes: true,
+          saved_post: true,
+          reposts: true,
+          _count: { select: { comments: true } },
         },
       });
 
-      const mapPostToContent = (post: any): PostsContentDTO => ({
-        id: post.id,
-        text: post.text_content,
-        tags: post.hashtags ? post.hashtags.split(',').filter(Boolean) : [],
-        images:
-          post.images
-            ?.map((img: any) => getImageData(img.image.url))
-            .filter(Boolean) || [],
-      });
+      return this.postService.buildPostsResponse(
+        posts,
+        userId,
+        currentPage,
+        pageSize,
+        totalItems,
+      );
+    }
 
-      const follower_posts: PostsContentDTO[] =
-        followerPostsPrisma.map(mapPostToContent);
-
-      //  загальний пул постів для фільтрації
-      const generalPostsPrisma = await this.prismaService.post.findMany({
-        take: 250,
-        orderBy: { created_at: 'desc' },
-        where: {
-          id: {
-            notIn: [
-              ...follower_posts.map((p) => p.id),
-              ...personalPosts.map((p) => p.id),
-            ],
-          },
-        },
-        include: {
-          images: { include: { image: true } },
-        },
-      });
-
-      // Для загального пулу обмежую кількість картинок або зовсім не передаємо їх для економії лімітів API
-      const general_posts: PostsContentDTO[] = generalPostsPrisma.map((p) => ({
-        id: p.id,
-        text: p.text_content,
-        tags: p.hashtags ? p.hashtags.split(',').filter(Boolean) : [],
-        images: [],
-      }));
-
-      const filtered = await this.geminiAiService.filteredPost({
-        recent_actions: recentActionsDTO,
-        follower_posts,
-        general_posts,
-      });
-
-      const filteredPostIds = filtered?.filtered_post_ids || [];
-
-      // оновлюю або створюю запис у feed атомарно через upsert для уникнення race conditions
-      userFeed = await this.prismaService.feed.upsert({
-        where: { user_id: userId },
-        create: {
-          user_id: userId,
-          recommended_post_ids: filteredPostIds,
-        },
-        update: {
-          recommended_post_ids: filteredPostIds,
-          updated_at: new Date(),
-        },
-      });
-    } else if (currentPage === 1 && !search && userFeed) {
-      // Якщо оновлення не потрібне (менше 24г), але юзер зайшов на 1-шу сторінку і оновлює її,
-      // перемішую існуючий масив для "ефекту свіжості".
+    // shuffle тільки для 1 сторінки
+    if (currentPage === 1) {
       const shuffled = [...userFeed.recommended_post_ids];
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -261,18 +124,6 @@ export class FeedService {
       });
     }
 
-    // Додаткова перевірка для TypeScript: якщо needsUpdate було false, userFeed точно не null
-    if (!userFeed) {
-      return {
-        data: [],
-        current_page: currentPage,
-        total_items: 0,
-        has_next_page: false,
-        has_previous_page: false,
-      };
-    }
-
-    // Пагінація на основі рекомендованих ID
     const paginatedIds = userFeed.recommended_post_ids.slice(
       (currentPage - 1) * pageSize,
       currentPage * pageSize,
@@ -285,8 +136,8 @@ export class FeedService {
         text_content: true,
         created_at: true,
         user_id: true,
-        images: { select: { image: { select: { id: true, url: true } } } },
         user: { select: { id: true, username: true, email: true } },
+        images: { select: { image: { select: { id: true, url: true } } } },
         likes: true,
         saved_post: true,
         reposts: true,
@@ -294,7 +145,6 @@ export class FeedService {
       },
     });
 
-    // Сортування результатів згідно з порядком у рекомендованих ID
     const sortedPosts = paginatedIds
       .map((id) => posts.find((p) => p.id === id))
       .filter(Boolean);
@@ -306,5 +156,178 @@ export class FeedService {
       pageSize,
       userFeed.recommended_post_ids.length,
     );
+  }
+
+  async generateFeed(userId: number) {
+    const userFeed = await this.prismaService.feed.findUnique({
+      where: { user_id: userId },
+    });
+
+    const needsUpdate =
+      !userFeed || userFeed.updated_at.getTime() + 60 * 1000 < Date.now();
+
+    if (!needsUpdate) {
+      return { message: 'Feed is up to date' };
+    }
+
+    //user actions
+    const [
+      recentLikes,
+      recentComments,
+      recentReposts,
+      recentSaved,
+      personalPosts,
+    ] = await Promise.all([
+      this.prismaService.like.findMany({
+        where: { user_id: userId },
+        take: 10,
+        orderBy: { created_at: 'desc' },
+        include: {
+          post: { include: { images: { include: { image: true } } } },
+        },
+      }),
+      this.prismaService.comment.findMany({
+        where: { user_id: userId },
+        take: 10,
+        orderBy: { created_at: 'desc' },
+        include: {
+          post: { include: { images: { include: { image: true } } } },
+        },
+      }),
+      this.prismaService.repost.findMany({
+        where: { user_id: userId },
+        take: 10,
+        orderBy: { created_at: 'desc' },
+        include: {
+          post: { include: { images: { include: { image: true } } } },
+        },
+      }),
+      this.prismaService.saved_post.findMany({
+        where: { user_id: userId },
+        take: 10,
+        orderBy: { created_at: 'desc' },
+        include: {
+          post: { include: { images: { include: { image: true } } } },
+        },
+      }),
+      this.prismaService.post.findMany({
+        where: { user_id: userId },
+        take: 10,
+        orderBy: { created_at: 'desc' },
+        include: {
+          images: { include: { image: true } },
+        },
+      }),
+    ]);
+
+    //helpers
+    const getImageData = (imageUrl: string) => {
+      try {
+        const fullPath = path.join(process.cwd(), 'uploads', imageUrl);
+        if (!fs.existsSync(fullPath)) return null;
+        const data = fs.readFileSync(fullPath).toString('base64');
+        return { mimeType: 'image/webp', data };
+      } catch {
+        return null;
+      }
+    };
+
+    const mapPostToAction = (post: any, action: string): PostsActionDTO => ({
+      action,
+      text: post.text_content,
+      tags: post.hashtags ? post.hashtags.split(',').filter(Boolean) : [],
+      images:
+        post.images
+          ?.map((img: any) => getImageData(img.image.url))
+          .filter(Boolean) || [],
+    });
+
+    const recentActionsDTO: PostsActionDTO[] = [
+      ...recentLikes.map((l) => mapPostToAction(l.post, 'like')),
+      ...recentComments.map((c) => mapPostToAction(c.post, 'comment')),
+      ...recentReposts.map((r) => mapPostToAction(r.post, 'repost')),
+      ...recentSaved.map((s) => mapPostToAction(s.post, 'bookmark')),
+      ...personalPosts.map((p) => mapPostToAction(p, 'create_post')),
+    ];
+
+    //followinf posts
+    const followingIds = (
+      await this.prismaService.following.findMany({
+        where: { follower_id: userId },
+        select: { following_id: true },
+      })
+    ).map((f) => f.following_id);
+
+    const followerPostsPrisma = await this.prismaService.post.findMany({
+      where: { user_id: { in: followingIds } },
+      take: 50,
+      orderBy: { created_at: 'desc' },
+      include: {
+        images: { include: { image: true } },
+      },
+    });
+
+    const mapPostToContent = (post: any): PostsContentDTO => ({
+      id: post.id,
+      text: post.text_content,
+      tags: post.hashtags ? post.hashtags.split(',').filter(Boolean) : [],
+      images:
+        post.images
+          ?.map((img: any) => getImageData(img.image.url))
+          .filter(Boolean) || [],
+    });
+
+    const follower_posts = followerPostsPrisma.map(mapPostToContent);
+
+    //general posts
+    const generalPostsPrisma = await this.prismaService.post.findMany({
+      take: 250,
+      orderBy: { created_at: 'desc' },
+      where: {
+        id: {
+          notIn: personalPosts.map((p) => p.id),
+        },
+      },
+    });
+
+    const general_posts: PostsContentDTO[] = generalPostsPrisma.map((p) => ({
+      id: p.id,
+      text: p.text_content,
+      tags: p.hashtags ? p.hashtags.split(',').filter(Boolean) : [],
+      images: [], // оптимізація
+    }));
+
+    //ai
+    const aiResponse = await this.geminiAiService.sortedPost({
+      recent_actions: recentActionsDTO,
+      follower_posts,
+      general_posts,
+    });
+
+    const allKnownIds = [
+      ...follower_posts.map((p) => p.id),
+      ...general_posts.map((p) => p.id),
+    ];
+
+    const rankedIds = aiResponse?.ranked_post_ids ?? [];
+    const rankedSet = new Set(rankedIds);
+    const missedIds = allKnownIds.filter((id) => !rankedSet.has(id));
+
+    const sortedPostIds = [...rankedIds, ...missedIds];
+
+    //saving
+    await this.prismaService.feed.upsert({
+      where: { user_id: userId },
+      create: {
+        user_id: userId,
+        recommended_post_ids: sortedPostIds,
+      },
+      update: {
+        recommended_post_ids: sortedPostIds,
+        updated_at: new Date(),
+      },
+    });
+
+    return { message: 'Feed generated' };
   }
 }

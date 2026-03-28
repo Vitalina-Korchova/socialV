@@ -9,7 +9,7 @@ export class ImageService {
   async saveImage(file: Express.Multer.File, folder: string): Promise<string> {
     const ext = '.webp';
     const filename = uuid() + ext;
-    const uploadPath = path.join(__dirname, '../../uploads', folder);
+    const uploadPath = path.join(process.cwd(), 'uploads', folder);
 
     const filepath = path.join(uploadPath, filename);
     await sharp(file.buffer).webp({ quality: 80 }).toFile(filepath);
@@ -17,7 +17,7 @@ export class ImageService {
   }
 
   async removeImage(filePath: string) {
-    const fullPath = path.join(__dirname, '../../uploads', filePath);
+    const fullPath = path.join(process.cwd(), 'uploads', filePath);
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
     }

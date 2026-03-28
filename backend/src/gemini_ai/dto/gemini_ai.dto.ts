@@ -23,5 +23,5 @@ export class RequestDataDTOAIGemini {
 }
 
 export class ResponseDataAIGemini {
-  filtered_post_ids: number[];
+  ranked_post_ids: number[];
 }

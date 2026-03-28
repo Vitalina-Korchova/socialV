@@ -7,7 +7,8 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import CreatePostPage from "./create-post";
 import {
   useGetAllPostsQuery,
-  useGetFilteredPostsQuery,
+  useGetFeedQuery,
+  useGenerateFeedMutation,
   useLikePostMutation,
   useRepostPostMutation,
   useSavePostMutation,
@@ -69,10 +70,7 @@ export default function PostsPage({ type }: { type: string }) {
     error: allPostsError,
     isFetching: allPostsFetching,
     isLoading: allPostsLoading,
-  } = useGetFilteredPostsQuery(
-    { search, page, page_size: 20 },
-    { skip: !isAll }
-  );
+  } = useGetFeedQuery({ search, page, page_size: 10 }, { skip: !isAll });
 
   const {
     data: otherPostsData,
@@ -129,6 +127,16 @@ export default function PostsPage({ type }: { type: string }) {
   const [likePost] = useLikePostMutation();
   const [repostPost] = useRepostPostMutation();
   const [savePost] = useSavePostMutation();
+  const [generateFeed] = useGenerateFeedMutation();
+
+  useEffect(() => {
+    if (type === "all" && page === 1 && !search) {
+      generateFeed()
+        .unwrap()
+        .then((res) => console.log("Feed generation check:", res.message))
+        .catch((err) => console.error("Silent feed generation failed:", err));
+    }
+  }, [type, page, search, generateFeed]);
 
   const [isExpandable, setIsExpandable] = useState<{ [key: number]: boolean }>(
     {}

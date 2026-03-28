@@ -67,23 +67,20 @@ export const postApi = createApi({
         url: `api/likes/${postId}`,
         method: "POST",
       }),
-      invalidatesTags: ["Post"],
     }),
     repostPost: builder.mutation<{ repost: boolean }, { postId: number }>({
       query: ({ postId }) => ({
         url: `api/reposts/${postId}`,
         method: "POST",
       }),
-      invalidatesTags: ["Post"],
     }),
     savePost: builder.mutation<{ saved_post: boolean }, { postId: number }>({
       query: ({ postId }) => ({
         url: `api/saved-post/${postId}`,
         method: "POST",
       }),
-      invalidatesTags: ["Post"],
     }),
-    getFilteredPosts: builder.query<
+    getFeed: builder.query<
       PaginatedPostResponse,
       { search?: string; page?: number; page_size?: number }
     >({
@@ -92,7 +89,21 @@ export const postApi = createApi({
         method: "GET",
         params: { search, page, page_size },
       }),
-      providesTags: ["Post"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "Post" as const, id })),
+              { type: "Post", id: "LIST" },
+            ]
+          : [{ type: "Post", id: "LIST" }],
+    }),
+
+    generateFeed: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url: "api/feed/generate",
+        method: "POST",
+      }),
+      invalidatesTags: [{ type: "Post", id: "LIST" }],
     }),
   }),
 });
@@ -107,5 +118,6 @@ export const {
   useLikePostMutation,
   useRepostPostMutation,
   useSavePostMutation,
-  useGetFilteredPostsQuery,
+  useGetFeedQuery,
+  useGenerateFeedMutation,
 } = postApi;
