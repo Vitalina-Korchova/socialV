@@ -164,7 +164,8 @@ export class FeedService {
     });
 
     const needsUpdate =
-      !userFeed || userFeed.updated_at.getTime() + 60 * 1000 < Date.now();
+      !userFeed ||
+      userFeed.updated_at.getTime() + 24 * 60 * 60 * 1000 < Date.now();
 
     if (!needsUpdate) {
       return { message: 'Feed is up to date' };

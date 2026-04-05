@@ -103,7 +103,6 @@ export const postApi = createApi({
         url: "api/feed/generate",
         method: "POST",
       }),
-      invalidatesTags: [{ type: "Post", id: "LIST" }],
     }),
   }),
 });
