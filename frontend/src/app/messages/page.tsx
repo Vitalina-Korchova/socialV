@@ -239,6 +239,7 @@ export default function MessangerPage() {
                             alt="border"
                             width={100}
                             height={100}
+                            unoptimized
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -342,6 +343,7 @@ export default function MessangerPage() {
                           alt="border"
                           width={100}
                           height={100}
+                          unoptimized
                           className="w-full h-full object-cover "
                         />
                       </div>
@@ -415,6 +417,7 @@ export default function MessangerPage() {
                                 alt="border"
                                 width={100}
                                 height={100}
+                                unoptimized
                                 className="w-full h-full object-cover "
                               />
                             </div>
@@ -499,6 +502,7 @@ export default function MessangerPage() {
                             alt="border"
                             width={100}
                             height={100}
+                            unoptimized
                             className="w-full h-full object-cover"
                           />
                         </div>

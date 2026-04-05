@@ -211,6 +211,7 @@ export default function UserPostsPage({ id }: { id: number }) {
                               height={100}
                               className="w-full h-full object-cover "
                               priority
+                              unoptimized
                             />
                           </div>
                         )}
@@ -258,8 +259,9 @@ export default function UserPostsPage({ id }: { id: number }) {
                     ref={(el) => {
                       textRefs.current[post.id] = el;
                     }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
-                      }`}
+                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${
+                      expanded[post.id] ? "" : "line-clamp-4"
+                    }`}
                   >
                     <FormattedText text={post.text_content} />
                   </p>

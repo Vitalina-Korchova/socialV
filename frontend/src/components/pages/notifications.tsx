@@ -5,15 +5,20 @@ import { Card, CardTitle } from "../ui/card";
 import { motion } from "framer-motion";
 import {
   useGetNotificationsQuery,
-  useMarkAsReadMutation
+  useMarkAsReadMutation,
 } from "@/store/notifications/notifications.api";
-import { notificationsType, NotificationsDto } from "@/store/notifications/notification.type";
+import {
+  notificationsType,
+  NotificationsDto,
+} from "@/store/notifications/notification.type";
 import { Button } from "../ui/button";
 
 export default function Notifications() {
   const [page, setPage] = useState(1);
   const [isMd, setIsMd] = useState(false);
-  const [allNotifications, setAllNotifications] = useState<NotificationsDto[]>([]);
+  const [allNotifications, setAllNotifications] = useState<NotificationsDto[]>(
+    []
+  );
 
   const { data, isLoading, isFetching } = useGetNotificationsQuery({
     page,
@@ -29,7 +34,8 @@ export default function Notifications() {
           (n) => !prev.find((p) => p.id === n.id)
         );
         return [...prev, ...newNotifications].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
     }
@@ -82,16 +88,10 @@ export default function Notifications() {
   return (
     <motion.div
       initial={
-        isMd
-          ? { opacity: 0, y: -10, scale: 0.98 }
-          : { opacity: 0, x: 40 }
+        isMd ? { opacity: 0, y: -10, scale: 0.98 } : { opacity: 0, x: 40 }
       }
       animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      exit={
-        isMd
-          ? { opacity: 0, y: -10, scale: 0.98 }
-          : { opacity: 0, x: 40 }
-      }
+      exit={isMd ? { opacity: 0, y: -10, scale: 0.98 } : { opacity: 0, x: 40 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="absolute right-[-20px] md:right-4 top-0 md:top-0.5"
     >
@@ -169,7 +169,7 @@ export default function Notifications() {
 function NotificationItem({
   notification,
   onMarkAsRead,
-  text
+  text,
 }: {
   notification: NotificationsDto;
   onMarkAsRead?: () => void;
@@ -185,6 +185,7 @@ function NotificationItem({
               alt="border"
               width={100}
               height={100}
+              unoptimized
               className="w-full h-full object-cover"
             />
           </div>

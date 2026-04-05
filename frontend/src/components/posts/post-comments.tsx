@@ -14,7 +14,6 @@ import { formatDate } from "@/utils/format";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-
 interface PostCommentsProps {
   postId: number;
   postAuthorId: number;
@@ -103,6 +102,7 @@ export default function PostComments({
                 alt="border"
                 width={100}
                 height={100}
+                unoptimized
                 className="w-full h-full object-cover"
               />
             </div>
@@ -175,6 +175,7 @@ export default function PostComments({
                         alt="border"
                         width={100}
                         height={100}
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                     </div>

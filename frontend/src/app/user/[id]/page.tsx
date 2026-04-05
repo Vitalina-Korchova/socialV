@@ -76,6 +76,7 @@ export default function UserProfile() {
                         alt="animated border"
                         width={100}
                         height={100}
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -93,18 +94,37 @@ export default function UserProfile() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5 items-start">
-                  <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">{UserData?.username}</h2>
-                  <UserBadgesList badges={UserData?.badges} itemClassName="text-[10px]" />
+                  <h2 className="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-purple-100 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_1px_rgba(168,85,247,0.8)] drop-shadow-[0_0_8px_rgba(168,85,247,0.4)] hover:scale-[1.02] transition-all duration-300 cursor-default select-none">
+                    {UserData?.username}
+                  </h2>
+                  <UserBadgesList
+                    badges={UserData?.badges}
+                    itemClassName="text-[10px]"
+                  />
 
                   <div className="w-52 space-y-1 mt-1">
                     <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Level {UserData?.level}</span>
-                      <span className="text-[10px] font-medium text-muted-foreground"> {UserData?.amount_xp}{" "} <span className="text-zinc-300">/ {UserData?.total_xp_required_level} XP</span></span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Level {UserData?.level}
+                      </span>
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        {" "}
+                        {UserData?.amount_xp}{" "}
+                        <span className="text-zinc-300">
+                          / {UserData?.total_xp_required_level} XP
+                        </span>
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-zinc-800/50 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.6)] transition-all duration-500 ease-out"
-                        style={{ width: `${((UserData?.amount_xp ?? 0) / (UserData?.total_xp_required_level ?? 1)) * 100}%` }}
+                        style={{
+                          width: `${
+                            ((UserData?.amount_xp ?? 0) /
+                              (UserData?.total_xp_required_level ?? 1)) *
+                            100
+                          }%`,
+                        }}
                       />
                     </div>
                   </div>

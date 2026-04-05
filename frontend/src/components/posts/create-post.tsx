@@ -90,6 +90,7 @@ export default function CreatePostPage({
                   height={100}
                   className="w-full h-full object-cover"
                   priority
+                  unoptimized
                 />
               </div>
             )}

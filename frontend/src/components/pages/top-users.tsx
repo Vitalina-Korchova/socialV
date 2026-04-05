@@ -89,6 +89,7 @@ export default function TopUsers() {
                         alt="border"
                         width={40}
                         height={40}
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                     </div>

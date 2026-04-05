@@ -87,6 +87,7 @@ export default function BuyBorderStore() {
                           src={border.image_url}
                           alt="Border"
                           fill
+                          unoptimized
                           className="object-contain scale-125"
                         />
                       )}

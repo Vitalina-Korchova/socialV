@@ -55,6 +55,7 @@ export default function CardProfileOptions() {
                     alt=" border"
                     width={100}
                     height={100}
+                    unoptimized
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -89,7 +90,10 @@ export default function CardProfileOptions() {
               {userData?.username || "Username"}
             </h3>
             <div className="flex flex-wrap justify-center gap-1 px-4">
-              <UserBadgesList badges={userData?.badges} className="justify-center" />
+              <UserBadgesList
+                badges={userData?.badges}
+                className="justify-center"
+              />
             </div>
           </div>
         </div>

@@ -345,6 +345,7 @@ export default function PostsPage({ type }: { type: string }) {
                                 height={100}
                                 className="w-full h-full object-cover "
                                 priority
+                                unoptimized 
                               />
                             </div>
                           )}

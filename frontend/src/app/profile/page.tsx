@@ -96,6 +96,7 @@ function ProfileContent() {
                         alt="animated border"
                         width={100}
                         height={100}
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -371,6 +372,7 @@ function UserItem({
                 alt="border"
                 width={100}
                 height={100}
+                unoptimized
                 className="w-full h-full object-cover"
               />
             </div>
