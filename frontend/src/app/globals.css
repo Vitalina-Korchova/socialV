@@ -116,180 +116,113 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-black text-foreground;
+    margin: 0;
+    min-height: 100vh;
   }
 }
 
-/* background styles bubbles */
-/* .bubbles {
+.hex-background {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
+  background-color: #050507;
+
+  /* HEX GRID */
+  background-image: linear-gradient(
+      30deg,
+      #8e51ff 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #8e51ff 87.5%,
+      #8e51ff
+    ),
+    linear-gradient(
+      150deg,
+      #8e51ff 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #8e51ff 87.5%,
+      #8e51ff
+    ),
+    linear-gradient(
+      30deg,
+      #8e51ff 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #8e51ff 87.5%,
+      #8e51ff
+    ),
+    linear-gradient(
+      150deg,
+      #8e51ff 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #8e51ff 87.5%,
+      #8e51ff
+    ),
+    linear-gradient(
+      60deg,
+      #8e51ff55 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #8e51ff55 75%
+    ),
+    linear-gradient(
+      60deg,
+      #8e51ff55 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #8e51ff55 75%
+    );
+
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+
+  /* робимо слабкий патерн */
+  opacity: 0.08;
+
+  /* затемнення центру */
+  mask-image: radial-gradient(circle at center, transparent 20%, black 70%);
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 20%,
+    black 70%
+  );
 }
 
-.bubble {
-  position: absolute;
-  bottom: -75%;
-  display: block;
-  border-radius: 50%;
-  opacity: 0.15;
-  animation: float-up ease-in infinite;
-}
-
-.bubble::before {
-  position: absolute;
+/* ГОЛОВНЕ — підсвітка зліва */
+.hex-background::before {
   content: "";
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #8e51ff7d;
-  border-radius: inherit;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-
-
-@keyframes float-up {
-  to {
-    transform: translateY(-175vh);
-  }
-}
-
-@keyframes sway-left-to-right {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes sway-right-to-left {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-} 
-   */
-
-/* starsfalls background styles */
-.stars-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 120%;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-  background: #8e51ff;
-  background: linear-gradient(360deg,
-      rgba(142, 81, 255, 0.8) 0%,
-      rgba(57, 32, 102, 1) 16%,
-      rgba(0, 0, 0, 1) 29%);
-}
-
-.stars {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-45deg);
+  inset: 0;
+
+  background: radial-gradient(
+    circle at left center,
+    rgba(142, 81, 255, 0.35) 0%,
+    rgba(142, 81, 255, 0.15) 20%,
+    transparent 60%
+  );
+
+  /* glow ефект */
+  filter: blur(20px);
 }
 
-.star {
-  --star-color: #8e51ff59;
-  --star-tail-length: 6em;
-  --star-tail-height: 2px;
-  --star-width: calc(var(--star-tail-length) / 6);
-  --fall-duration: 9s;
-  --tail-fade-duration: var(--fall-duration);
-  --top-offset: 0vh;
-  --fall-delay: 0s;
-
-  position: absolute;
-  top: var(--top-offset);
-  left: 0;
-  width: var(--star-tail-length);
-  height: var(--star-tail-height);
-  color: var(--star-color);
-  background: #8e51ff59;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 6px currentColor);
-  transform: translate3d(104em, 0, 0);
-  animation: fall var(--fall-duration) var(--fall-delay) linear infinite,
-    tail-fade var(--tail-fade-duration) var(--fall-delay) ease-out infinite;
-}
-
-@media screen and (max-width: 750px) {
-  .star {
-    animation: fall var(--fall-duration) var(--fall-delay) linear infinite;
-  }
-}
-
-/* Псевдоелементи для блимаючого ефекту */
-.star::before,
-.star::after {
-  position: absolute;
+/* ще один шар для "ліній" */
+.hex-background::after {
   content: "";
-  top: 0;
-  left: calc(var(--star-width) / -2);
-  width: var(--star-width);
-  height: 100%;
-  background: #8e51ff59;
-  border-radius: inherit;
-  animation: blink 2s linear infinite;
-}
+  position: absolute;
+  inset: 0;
 
-.star::before {
-  transform: rotate(45deg);
-}
+  background: linear-gradient(
+    to right,
+    rgba(142, 81, 255, 0.4),
+    transparent 40%
+  );
 
-.star::after {
-  transform: rotate(-45deg);
-}
-
-@keyframes fall {
-  to {
-    transform: translate3d(-30em, 0, 0);
-  }
-}
-
-@keyframes tail-fade {
-
-  0%,
-  50% {
-    width: var(--star-tail-length);
-    opacity: 1;
-  }
-
-  70%,
-  80% {
-    width: 0;
-    opacity: 0.4;
-  }
-
-  100% {
-    width: 0;
-    opacity: 0;
-  }
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0.6;
-  }
+  opacity: 0.6;
+  mix-blend-mode: screen;
 }
 
 /* custom scrollbar */
@@ -320,10 +253,9 @@
   display: none !important;
 }
 
-
 .custom-scrollbar--post {
   scrollbar-width: thin;
-  scrollbar-color: #8e51ff #18181B;
+  scrollbar-color: #8e51ff #18181b;
 }
 
 .custom-scrollbar--post::-webkit-scrollbar {
@@ -331,7 +263,7 @@
 }
 
 .custom-scrollbar--post::-webkit-scrollbar-track {
-  background: #18181B;
+  background: #18181b;
   border-radius: 10px;
 }
 

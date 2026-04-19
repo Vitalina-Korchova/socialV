@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={inter.className}>
         <ReduxProvider>
-          <StarsBackground />
+          <div className="hex-background" />
           <Navbar />
           {children}
           <Toaster />

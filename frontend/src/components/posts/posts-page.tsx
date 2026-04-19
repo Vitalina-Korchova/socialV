@@ -1,53 +1,29 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-
-import { MessageCircle, Repeat, SquarePen, Trash2 } from "lucide-react";
+import { Loader } from "../ui/loader";
+import { ErrorState } from "../ui/error";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import Image from "next/image";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import CreatePostPage from "./create-post";
 import {
   useGetAllPostsQuery,
   useGetFeedQuery,
   useGenerateFeedMutation,
-  useLikePostMutation,
-  useRepostPostMutation,
-  useSavePostMutation,
 } from "@/store/post/post.api";
-import { Loader } from "../ui/loader";
-import { ErrorState } from "../ui/error";
-import { formatDate } from "@/utils/format";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
-import { toast } from "sonner";
-import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
-import { FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { motion } from "framer-motion";
-
+import CreatePostPage from "./create-post";
 import DeletePostPage from "./delete-post";
 import UpdatePostPage from "./update-post";
-import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/store/user/user.api";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "../ui/carousel";
-import { PostResponse } from "@/store/post/post.type";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { TbUserStar } from "react-icons/tb";
-import PostComments from "./post-comments";
-import { UserBadgesList } from "../ui/user-badge";
-import { FormattedText } from "../ui/formatted-text";
+import { PostResponse } from "@/store/post/post.type";
+import { PostCard } from "./post-card";
 
-const MAX_LINES = 4;
 type DataPostToDelete = {
   id: number;
   text: string;
 };
+
 export default function PostsPage({ type }: { type: string }) {
-  const router = useRouter();
   const [page, setPage] = useState(1);
   const [allPosts, setAllPosts] = useState<PostResponse[]>([]);
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -87,17 +63,21 @@ export default function PostsPage({ type }: { type: string }) {
   useEffect(() => {
     if (postsData?.data) {
       setAllPosts((prev) => {
+        const uniqueNewPosts = postsData.data.filter(
+          (post, index, self) =>
+            index === self.findIndex((p) => p.id === post.id)
+        );
+
         if (page === 1) {
-          return postsData.data;
+          return uniqueNewPosts;
         }
-        const newPostIds = new Set(postsData.data.map((p) => p.id));
+        const newPostIds = new Set(uniqueNewPosts.map((p) => p.id));
         const filteredPrev = prev.filter((p) => !newPostIds.has(p.id));
-        return [...filteredPrev, ...postsData.data];
+        return [...filteredPrev, ...uniqueNewPosts];
       });
     }
   }, [postsData, page]);
 
-  // Intersection Observer
   useEffect(() => {
     if (!loaderRef.current || !postsData?.has_next_page) return;
 
@@ -114,19 +94,10 @@ export default function PostsPage({ type }: { type: string }) {
     );
 
     observer.observe(loaderRef.current);
-
     return () => observer.disconnect();
   }, [postsData, postsLoading, loaderRef.current]);
 
-  const {
-    data: userData,
-    isLoading: userLoading,
-    error: userError,
-  } = useGetMeQuery();
-
-  const [likePost] = useLikePostMutation();
-  const [repostPost] = useRepostPostMutation();
-  const [savePost] = useSavePostMutation();
+  const { data: userData, isLoading: userLoading, error: userError } = useGetMeQuery();
   const [generateFeed] = useGenerateFeedMutation();
 
   useEffect(() => {
@@ -138,151 +109,21 @@ export default function PostsPage({ type }: { type: string }) {
     }
   }, [type, page, search, generateFeed]);
 
-  const [isExpandable, setIsExpandable] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
-  const textRefs = useRef<{ [key: number]: HTMLParagraphElement | null }>({});
   const [openImage, setOpenImage] = useState<string | null>(null);
-  const [isLikedPost, setIsLikedPost] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-  const [countLikes, setCountLikes] = useState<{ [key: number]: number }>({});
-  const [isRepostPost, setIsRepostPost] = useState<{
-    [key: number]: boolean;
-  }>({});
-  const [isSavedPost, setIsSavedPost] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-
-  //update and delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [postToDelete, setPostToDelete] = useState<DataPostToDelete | null>(
-    null
-  );
+  const [postToDelete, setPostToDelete] = useState<DataPostToDelete | null>(null);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [updateIdPost, setUpdateIdPost] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!postsData?.data) return;
-
-    const likedMap: { [key: number]: boolean } = {};
-    const likesCountMap: { [key: number]: number } = {};
-    const repostMap: { [key: number]: boolean } = {};
-    const savedMap: { [key: number]: boolean } = {};
-
-    postsData.data.forEach((post) => {
-      likedMap[post.id] = post.isLikedByMe;
-      likesCountMap[post.id] = post.likes;
-      repostMap[post.id] = post.isRepostedByMe;
-      savedMap[post.id] = post.isSavedByMe;
-    });
-
-    setIsLikedPost(likedMap);
-    setCountLikes(likesCountMap);
-    setIsRepostPost(repostMap);
-    setIsSavedPost(savedMap);
-  }, [postsData]);
-
-  const [commentInputVisible, setCommentInputVisible] = useState<{
-    [key: number]: boolean;
-  }>({});
-
-  const toggleCommentInput = (postId: number) => {
-    setCommentInputVisible((prev) => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
-  };
-
-  const measureLines = (postId: number) => {
-    const el = textRefs.current[postId];
-    if (!el) return;
-
-    const styles = window.getComputedStyle(el);
-    const lineHeight = parseFloat(styles.lineHeight);
-
-    const lines = Math.round(el.scrollHeight / lineHeight);
-
-    setIsExpandable((prev) => ({
-      ...prev,
-      [postId]: lines > MAX_LINES,
-    }));
-  };
-
-  useEffect(() => {
-    allPosts?.forEach((post) => {
-      measureLines(post.id);
-    });
-  }, [allPosts]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      allPosts?.forEach((post) => {
-        measureLines(post.id);
-      });
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [allPosts]);
-
-  const handleLikePost = async (postId: number) => {
-    try {
-      await likePost({ postId }).unwrap();
-      const currentLikeStatus = isLikedPost[postId];
-      const currentLikesCount = countLikes[postId] || 0;
-
-      setIsLikedPost((prev) => ({
-        ...prev,
-        [postId]: !currentLikeStatus,
-      }));
-
-      setCountLikes((prev) => ({
-        ...prev,
-        [postId]: currentLikeStatus
-          ? currentLikesCount - 1
-          : currentLikesCount + 1,
-      }));
-    } catch (error) {
-      toast.error("Error occurred while liking post");
-    }
-  };
-
-  const handleRepost = async (postId: number) => {
-    try {
-      await repostPost({ postId }).unwrap();
-      const currentRepostStatus = isRepostPost[postId];
-      setIsRepostPost((prev) => ({
-        ...prev,
-        [postId]: !currentRepostStatus,
-      }));
-    } catch (error) {
-      toast.error("Error occurred while reposting post");
-    }
-  };
-
-  const handleSavePost = async (postId: number) => {
-    try {
-      const res = await savePost({ postId }).unwrap();
-      const isSaved = res.saved_post;
-
-      setIsSavedPost((prev) => ({
-        ...prev,
-        [postId]: isSaved,
-      }));
-
-      if (type === "saved" && !isSaved) {
-        setAllPosts((prev) => prev.filter((p) => p.id !== postId));
-      }
-    } catch (error) {
-      toast.error("Error occurred while saving post");
+  const handleSaveToggle = (postId: number, isSaved: boolean) => {
+    if (type === "saved" && !isSaved) {
+      setAllPosts((prev) => prev.filter((p) => p.id !== postId));
     }
   };
 
   return (
     <>
-      <div className="flex flex-col gap-7 ">
+      <div className="flex flex-col gap-7">
         {type === "all" && (
           <CreatePostPage
             userData={userData!}
@@ -292,14 +133,11 @@ export default function PostsPage({ type }: { type: string }) {
         )}
         {(postsLoading || postsFetching) && page === 1 && <Loader />}
         {postsError && <ErrorState />}
-        {!postsLoading &&
-          !postsFetching &&
-          !postsError &&
-          allPosts.length === 0 && (
-            <p className="text-base text-foreground p-5 text-center">
-              {search && `No posts found for "${search}"`}
-            </p>
-          )}
+        {!postsLoading && !postsFetching && !postsError && allPosts.length === 0 && (
+          <p className="text-base text-foreground p-5 text-center">
+            {search && `No posts found for "${search}"`}
+          </p>
+        )}
         <div
           className={
             type === "mine" || type === "saved"
@@ -307,325 +145,36 @@ export default function PostsPage({ type }: { type: string }) {
               : "space-y-6"
           }
         >
-          {!postsLoading &&
-            !postsError &&
+          {!postsLoading && !postsError &&
             allPosts?.map((post) => (
-              <Card
+              <PostCard
                 key={post.id}
-                className="w-[330px] sm:w-auto sm:max-w-md lg:max-w-xl mx-auto shadow-lg hover:shadow-xl
-           transition-shadow duration-300 gap-3! break-inside-avoid "
-              >
-                <CardHeader className="pb-3 px-2 sm:px-6">
-                  <div className="flex items-top justify-between">
-                    <div className="flex items-top space-x-2">
-                      <div className="px-2">
-                        <div
-                          className={`w-10 h-10 relative flex items-center justify-center ${type === "all" || type === "saved"
-                              ? "cursor-pointer"
-                              : ""
-                            }`}
-                          onClick={
-                            type === "all" || type === "saved"
-                              ? () => {
-                                if (post.user.id === userData?.id) {
-                                  router.push("/profile?tab=my-posts");
-                                } else {
-                                  router.push(`/user/${post.user.id}`);
-                                }
-                              }
-                              : undefined
-                          }
-                        >
-                          {post.user?.border_url && (
-                            <div className="absolute inset-0 overflow-hidden z-10 ">
-                              <Image
-                                src={post.user.border_url}
-                                alt="animated border"
-                                width={100}
-                                height={100}
-                                className="w-full h-full object-cover "
-                                priority
-                                unoptimized 
-                              />
-                            </div>
-                          )}
-                          {postsLoading ? (
-                            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center  ">
-                              <TbUserStar className="w-5 h-5 text-primary" />
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center   overflow-hidden">
-                              {post.user?.avatar_url && (
-                                <Image
-                                  src={post.user.avatar_url}
-                                  alt="avatar"
-                                  width={300}
-                                  height={300}
-                                  className="rounded-full object-cover"
-                                />
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {post.user.username}
-                        </h3>
-                        <UserBadgesList
-                          badges={post.user.badges}
-                          itemClassName="text-[7px] sm:text-[8px] "
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2 justify-top  items-top">
-                      {type === "mine" && (
-                        <div className="flex flex-row gap-3 items-center md:justify-center">
-                          <div
-                            className="text-primary cursor-pointer hover:text-primary/60"
-                            onClick={() => {
-                              setUpdateIdPost(post.id);
-                              setIsUpdateOpen(true);
-                            }}
-                          >
-                            <SquarePen className="w-5 h-5" />
-                          </div>
-                          <div
-                            className="text-primary cursor-pointer hover:text-primary/60"
-                            onClick={() => {
-                              setPostToDelete({
-                                id: post.id,
-                                text: post.text_content,
-                              });
-                              setIsDeleteOpen(true);
-                            }}
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </div>
-                        </div>
-                      )}
-                      <span className=" text-[10px] sm:text-sm text-muted-foreground">
-                        {formatDate(post.created_at)}
-                      </span>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="pb-4">
-                  <p
-                    ref={(el) => {
-                      textRefs.current[post.id] = el;
-                    }}
-                    className={`text-sm text-muted-foreground leading-relaxed mb-2 whitespace-pre-wrap break-words ${expanded[post.id] ? "" : "line-clamp-4"
-                      }`}
-                  >
-                    <FormattedText text={post.text_content} />
-                  </p>
-                  {isExpandable[post.id] && (
-                    <button
-                      onClick={() =>
-                        setExpanded((prev) => ({
-                          ...prev,
-                          [post.id]: !prev[post.id],
-                        }))
-                      }
-                      className="text-sm text-primary hover:underline cursor-pointer"
-                    >
-                      {expanded[post.id] ? "Show less" : "Show more"}
-                    </button>
-                  )}
-
-                  {post.images && post.images.length === 1 && (
-                    <div className="relative overflow-hidden rounded-lg">
-                      <Image
-                        src={post.images[0].url}
-                        width={500}
-                        height={300}
-                        alt="Post image"
-                        onClick={() => setOpenImage(post.images[0].url)}
-                        className="w-full h-80 object-cover cursor-pointer"
-                      />
-                    </div>
-                  )}
-
-                  {post.images && post.images.length > 1 && (
-                    <div className="relative overflow-hidden rounded-lg ">
-                      <Carousel className="w-full">
-                        <CarouselContent>
-                          {post.images.map((image, index) => (
-                            <CarouselItem key={index}>
-                              <Image
-                                src={image.url}
-                                width={500}
-                                height={300}
-                                alt={`Post image ${index + 1}`}
-                                onClick={() => setOpenImage(image.url)}
-                                className="w-full h-80 object-cover cursor-pointer"
-                              />
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-
-                        {post.images.length > 1 && (
-                          <>
-                            <CarouselPrevious className="!left-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
-                            <CarouselNext className="!right-2 !top-1/2 !-translate-y-1/2 bg-black/60! text-white shadow-lg cursor-pointer" />
-                          </>
-                        )}
-                      </Carousel>
-                    </div>
-                  )}
-                </CardContent>
-                {post.repostedByUsers && post.repostedByUsers.length > 1 && (
-                  <div className="px-5 pb-2 flex items-center gap-2 text-xs text-muted-foreground">
-                    <div className="flex -space-x-2">
-                      {post.repostedByUsers.slice(0, 2).map((user, idx) => (
-                        <div
-                          key={idx}
-                          className="h-6 w-6 relative flex items-center justify-center"
-                        >
-                          {user.border_url && (
-                            <div className="absolute inset-0 overflow-hidden z-10">
-                              <Image
-                                src={user.border_url}
-                                alt="border"
-                                width={50}
-                                height={50}
-                                className="w-full h-full object-cover "
-                              />
-                            </div>
-                          )}
-                          <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center border border-background relative overflow-hidden">
-                            {user.avatar_url ? (
-                              <Image
-                                src={user.avatar_url}
-                                alt="avatar"
-                                width={100}
-                                height={100}
-                                className="rounded-full object-cover w-full h-full"
-                              />
-                            ) : (
-                              <TbUserStar className="text-primary size-3" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {post.repostedByUsers.length > 2 && (
-                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center border border-background text-[10px] relative z-10">
-                          +{post.repostedByUsers.length - 2}
-                        </div>
-                      )}
-                    </div>
-
-                    <span>
-                      Reposted by{" "}
-                      <span className="text-foreground font-medium">
-                        {post.repostedByUsers[0].username}
-                      </span>{" "}
-                      and others
-                    </span>
-                  </div>
-                )}
-
-                <CardFooter className="pt-4 flex justify-between items-center border-t">
-                  <div className="flex gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
-                      onClick={() => handleLikePost(post.id)}
-                    >
-                      <div>
-                        {isLikedPost[post.id] ? (
-                          <IoIosHeart className="h-5 w-5 text-primary" />
-                        ) : (
-                          <IoIosHeartEmpty className="h-5 w-5" />
-                        )}
-                      </div>
-                      <span className="text-xs">
-                        {countLikes[post.id] || 0}
-                      </span>
-                    </motion.div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div
-                        className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
-                        onClick={() => handleRepost(post.id)}
-                      >
-                        {isRepostPost[post.id] ? (
-                          <Repeat className="h-5 w-5 text-primary" />
-                        ) : (
-                          <Repeat className="h-5 w-5" />
-                        )}
-                      </div>
-                    </motion.button>
-                  </div>
-                  <div className="flex gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center space-x-2 cursor-pointer
-                 hover:text-blue-600 transition-colors"
-                      onClick={() => toggleCommentInput(post.id)}
-                    >
-                      <MessageCircle className="text-muted-foreground h-4 w-4" />
-                      <label className="text-sm font-medium text-muted-foreground cursor-pointer">
-                        {post.comments_count || 0}
-                      </label>
-                    </motion.div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div
-                        className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
-                        onClick={() => handleSavePost(post.id)}
-                      >
-                        {isSavedPost[post.id] ? (
-                          <FaBookmark className="h-5 w-5 text-primary" />
-                        ) : (
-                          <FaRegBookmark className="h-5 w-5" />
-                        )}
-                      </div>
-                    </motion.button>
-                  </div>
-                </CardFooter>
-
-                {commentInputVisible[post.id] && (
-                  <PostComments
-                    postId={post.id}
-                    userData={userData}
-                    postAuthorId={post.user.id}
-                  />
-                )}
-              </Card>
+                post={post}
+                userData={userData}
+                type={type}
+                postsLoading={postsLoading}
+                onDelete={(id, text) => {
+                  setPostToDelete({ id, text });
+                  setIsDeleteOpen(true);
+                }}
+                onUpdate={(id) => {
+                  setUpdateIdPost(id);
+                  setIsUpdateOpen(true);
+                }}
+                onImageClick={(url) => setOpenImage(url)}
+                onSaveToggle={handleSaveToggle}
+              />
             ))}
         </div>
         {postsData?.has_next_page && (
-          <div
-            ref={loaderRef}
-            className="h-20 flex items-center justify-center"
-          >
+          <div ref={loaderRef} className="h-20 flex items-center justify-center">
             {postsLoading || postsFetching ? <Loader /> : <div>Loading...</div>}
           </div>
         )}
 
         <Dialog open={!!openImage} onOpenChange={() => setOpenImage(null)}>
           <DialogTitle></DialogTitle>
-          <DialogContent
-            className="
-            max-w-2xl!   
-            p-2
-            flex
-            items-center
-            justify-center
-            h-[400px]
-          "
-          >
+          <DialogContent className="max-w-2xl! p-2 flex items-center justify-center h-[400px]">
             {openImage && (
               <Image
                 src={openImage}

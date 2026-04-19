@@ -305,16 +305,18 @@ export class FeedService {
       general_posts,
     });
 
-    const allKnownIds = [
-      ...follower_posts.map((p) => p.id),
-      ...general_posts.map((p) => p.id),
-    ];
+    const allKnownIds = Array.from(
+      new Set([
+        ...follower_posts.map((p) => p.id),
+        ...general_posts.map((p) => p.id),
+      ]),
+    );
 
     const rankedIds = aiResponse?.ranked_post_ids ?? [];
     const rankedSet = new Set(rankedIds);
     const missedIds = allKnownIds.filter((id) => !rankedSet.has(id));
 
-    const sortedPostIds = [...rankedIds, ...missedIds];
+    const sortedPostIds = Array.from(new Set([...rankedIds, ...missedIds]));
 
     //saving
     await this.prismaService.feed.upsert({
