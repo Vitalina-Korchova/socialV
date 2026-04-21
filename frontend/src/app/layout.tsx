@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/pages/navbar";
-import StarsBackground from "@/components/backgrounds/starsfalls-background";
 import { Toaster } from "@/components/ui/sonner";
 import ReduxProvider from "@/components/providers/redux-provider";
 
