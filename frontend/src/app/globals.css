@@ -183,13 +183,13 @@
   /* робимо слабкий патерн */
   opacity: 0.08;
 
-  /* затемнення центру */
+  /* затемнення центру
   mask-image: radial-gradient(circle at center, transparent 20%, black 70%);
   -webkit-mask-image: radial-gradient(
     circle at center,
     transparent 20%,
     black 70%
-  );
+  ); */
 }
 
 /* ГОЛОВНЕ — підсвітка зліва */
