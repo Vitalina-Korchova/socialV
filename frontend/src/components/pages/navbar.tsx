@@ -37,9 +37,6 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const search = useSelector((state: RootState) => state.search);
 
-  useEffect(() => {
-    setInputSearch(search);
-  }, [search]);
 
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
     skip: isAuthPage,
@@ -59,6 +56,11 @@ export default function Navbar() {
       dispatch(clearSearch());
     }
   }, 500);
+
+  useEffect(() => {
+    setInputSearch(search);
+    debouncedSearch.cancel();
+  }, [search, debouncedSearch]);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputSearch(value);

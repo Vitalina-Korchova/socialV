@@ -26,6 +26,7 @@ import {
 } from "@/store/chat/chat.api";
 import { useGetMeQuery } from "@/store/user/user.api";
 import { getSocket } from "@/utils/socket";
+import { formatDate, formatChatMessageDate } from "@/utils/format";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -127,12 +128,6 @@ export default function MessangerPage() {
     }
   };
 
-  const formatTime = (date: Date | string) => {
-    return new Date(date).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   // Mark messages as read when chat is opened
   useEffect(() => {
@@ -166,7 +161,7 @@ export default function MessangerPage() {
         border: otherUser.border_url,
         lastMessage: chat.last_message?.text_content || "No messages yet",
         online: false,
-        time: chat.last_message ? formatTime(chat.last_message.created_at) : "",
+        time: chat.last_message ? formatChatMessageDate(chat.last_message.created_at) : "",
         unreadCount,
       };
     });
@@ -466,7 +461,7 @@ export default function MessangerPage() {
                             isOwn ? "text-white/80" : "text-muted-foreground"
                           )}
                         >
-                          <span>{formatTime(msg.created_at)}</span>
+                          <span>{formatChatMessageDate(msg.created_at)}</span>
                           {isOwn &&
                             (msg.is_read ? (
                               <CheckCheck className="size-3" />

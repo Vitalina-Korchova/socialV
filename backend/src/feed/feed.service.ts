@@ -101,6 +101,39 @@ export class FeedService {
         },
       });
 
+      // [New Algorithm] Check for very recent posts by this user (last 15 seconds)
+      if (currentPage === 1 && !search) {
+        const recentThreshold = new Date(Date.now() - 15000);
+        const myRecentPost = await this.prismaService.post.findFirst({
+          where: { user_id: userId, created_at: { gte: recentThreshold } },
+          orderBy: { created_at: 'desc' },
+          select: {
+            id: true,
+            text_content: true,
+            created_at: true,
+            user_id: true,
+            user: { select: { id: true, username: true, email: true } },
+            images: { select: { image: { select: { id: true, url: true } } } },
+            likes: true,
+            saved_post: true,
+            reposts: true,
+            _count: { select: { comments: true } },
+          },
+        });
+
+        if (myRecentPost) {
+          const filteredPosts = posts.filter((p) => p.id !== myRecentPost.id);
+          const finalPosts = [myRecentPost, ...filteredPosts].slice(0, pageSize);
+          return this.postService.buildPostsResponse(
+            finalPosts,
+            userId,
+            currentPage,
+            pageSize,
+            totalItems,
+          );
+        }
+      }
+
       return this.postService.buildPostsResponse(
         posts,
         userId,
@@ -148,6 +181,44 @@ export class FeedService {
     const sortedPosts = paginatedIds
       .map((id) => posts.find((p) => p.id === id))
       .filter(Boolean);
+
+    // [New Algorithm] Check for very recent posts by this user (last 15 seconds)
+    // to pin them to the top of the first page.
+    if (currentPage === 1 && !search) {
+      const recentThreshold = new Date(Date.now() - 15000);
+      const myRecentPost = await this.prismaService.post.findFirst({
+        where: {
+          user_id: userId,
+          created_at: { gte: recentThreshold },
+        },
+        orderBy: { created_at: "desc" },
+        select: {
+          id: true,
+          text_content: true,
+          created_at: true,
+          user_id: true,
+          user: { select: { id: true, username: true, email: true } },
+          images: { select: { image: { select: { id: true, url: true } } } },
+          likes: true,
+          saved_post: true,
+          reposts: true,
+          _count: { select: { comments: true } },
+        },
+      });
+
+      if (myRecentPost) {
+        // Remove it from current position if it exists, then prepend it
+        const filteredPosts = sortedPosts.filter((p) => p && p.id !== myRecentPost.id);
+        const finalPosts = [myRecentPost, ...filteredPosts].slice(0, pageSize);
+        return this.postService.buildPostsResponse(
+          finalPosts,
+          userId,
+          currentPage,
+          pageSize,
+          userFeed.recommended_post_ids.length,
+        );
+      }
+    }
 
     return this.postService.buildPostsResponse(
       sortedPosts,
