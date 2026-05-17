@@ -121,6 +121,11 @@ export default function PostsPage({ type }: { type: string }) {
     }
   };
 
+  const handleDeleteSuccess = () => {
+    setPage(1);
+    setAllPosts([]);
+  };
+
   return (
     <>
       <div className="flex flex-col gap-7">
@@ -191,6 +196,7 @@ export default function PostsPage({ type }: { type: string }) {
           setIsDeleteOpen={setIsDeleteOpen}
           postToDelete={postToDelete}
           setPostToDelete={setPostToDelete}
+          onDeleteSuccess={handleDeleteSuccess}
         />
         <UpdatePostPage
           postIdToUpdate={updateIdPost as number}

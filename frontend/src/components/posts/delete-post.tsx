@@ -13,11 +13,13 @@ export default function DeletePostPage({
   setIsDeleteOpen,
   postToDelete,
   setPostToDelete,
+  onDeleteSuccess,
 }: {
   postToDelete: DataPostToDelete | null;
   setPostToDelete: (post: DataPostToDelete | null) => void;
   isDeleteOpen: boolean;
   setIsDeleteOpen: (open: boolean) => void;
+  onDeleteSuccess?: () => void;
 }) {
   const [deletePost, { isLoading: isLoadingDeletePost }] =
     useDeletePostMutation();
@@ -26,6 +28,9 @@ export default function DeletePostPage({
     try {
       await deletePost(postToDelete.id).unwrap();
       toast.success("Post deleted successfully");
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
       setIsDeleteOpen(false);
     } catch (error) {
       toast.error("Error deleting post");

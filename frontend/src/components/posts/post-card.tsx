@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle, Repeat, SquarePen, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { formatDate } from "@/utils/format";
+import { formatDate, formatNumber } from "@/utils/format";
 import { IoIosHeart, IoIosHeartEmpty } from "react-icons/io";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -59,6 +59,7 @@ export const PostCard = React.memo(({
   const [likesCount, setLikesCount] = useState(post.likes);
   const [isReposted, setIsReposted] = useState(post.isRepostedByMe);
   const [isSaved, setIsSaved] = useState(post.isSavedByMe);
+  const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [expanded, setExpanded] = useState(false);
   const [isExpandable, setIsExpandable] = useState(false);
   const [commentInputVisible, setCommentInputVisible] = useState(false);
@@ -332,7 +333,7 @@ export const PostCard = React.memo(({
                 <IoIosHeartEmpty className="h-5 w-5" />
               )}
             </div>
-            <span className="text-xs">{likesCount || 0}</span>
+            <span className="text-xs">{formatNumber(likesCount || 0)}</span>
           </motion.div>
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -352,13 +353,13 @@ export const PostCard = React.memo(({
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-2 cursor-pointer hover:text-blue-600 transition-colors"
+            className="text-muted-foreground flex flex-row gap-1 items-end justify-end cursor-pointer"
             onClick={() => setCommentInputVisible(!commentInputVisible)}
           >
-            <MessageCircle className="text-muted-foreground h-4 w-4" />
-            <label className="text-sm font-medium text-muted-foreground cursor-pointer">
-              {post.comments_count || 0}
-            </label>
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-xs">
+              {formatNumber(commentsCount || 0)}
+            </span>
           </motion.div>
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -381,6 +382,7 @@ export const PostCard = React.memo(({
           postId={post.id}
           userData={userData}
           postAuthorId={post.user.id}
+          onCommentCountChange={(delta: number) => setCommentsCount((prev) => prev + delta)}
         />
       )}
     </Card>

@@ -18,12 +18,14 @@ interface PostCommentsProps {
   postId: number;
   postAuthorId: number;
   userData: UserResponse | undefined;
+  onCommentCountChange?: (delta: number) => void;
 }
 
 export default function PostComments({
   postId,
   postAuthorId,
   userData,
+  onCommentCountChange,
 }: PostCommentsProps) {
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -76,6 +78,7 @@ export default function PostComments({
         dto: { text: commentText, post_id: postId },
       }).unwrap();
       setCommentText("");
+      if (onCommentCountChange) onCommentCountChange(1);
     } catch (error) {
       toast.error("Failed to create comment");
     }
@@ -85,6 +88,7 @@ export default function PostComments({
     try {
       await deleteComment(commentId).unwrap();
       setComments((prev) => prev.filter((c) => c.id !== commentId));
+      if (onCommentCountChange) onCommentCountChange(-1);
     } catch (error) {
       toast.error("Failed to delete comment");
     }
